@@ -1,0 +1,16 @@
+export(expectile.laws,
+       expectile.restricted,
+       expectile.bundle,
+       expectile.boost,
+       base,
+       quant.boost,
+       pkoenker,
+       qkoenker,
+       dkoenker,
+       ekoenker,
+       rkoenker,
+       ebeta,
+       enorm,
+       eunif)
+
+S3method(plot, expectreg)
