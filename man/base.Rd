@@ -12,7 +12,8 @@ Additionally a penalty matrix is generated.
 }
 \usage{
 base(x, type = c("pspline", "2dspline", "markov", "radial", "krig", 
-                 "random", "ridge", "special"), B = NA, P = NA, bnd = NA)
+                 "random", "ridge", "special", "parametric"),
+                 B = NA, P = NA, bnd = NA, center =TRUE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -37,6 +38,10 @@ if no \code{bnd} is given.
   \item{bnd}{
 Object of class \code{bnd}, required with 'markov' type if \code{P} is not given.
 See \code{\link[BayesX]{read.bnd}}.
+}
+  \item{center}{
+Logical to state whether the basis shall be centered in order to fit additive models
+with one central intercept.  
 }
 }
 \details{
@@ -67,6 +72,7 @@ ridge \tab In a 'ridge' regression, the base is made
            to determine significant variables from the coefficients. 
            Therefore no penalization is used (P = I). \cr
 special \tab In the 'special' case, \code{B} and \code{P} are user defined.\cr
+parametric \tab A parametric effect. \cr
 }
 
 }

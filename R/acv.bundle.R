@@ -20,10 +20,9 @@ function (penalty, yy, B, pp, DD, nb)
     for (q in 1:length(pp)) {
         coef.vector[, q] = aa$a + cc[q] * b
     }
-    score = 0
-    for (i in 1:length(pp)) {
-        score = score + mo$weight[, i] * (yy - B %*% coef.vector[, 
-            i])^2/(1 - aa$diag.hat.ma)^2
-    }
+    score = (yy - B %*% aa$a)^2/(1 - aa$diag.hat.ma)^2
+    resid = asyregpen.lsfit(residuals, B, 0.5, penalty[, 2], 
+        DD, nb)
+    score = score + (residuals - B %*% resid$a)^2/(1 - resid$diag.hat.ma)^2
     mean(score[which(is.finite(score))], na.rm = TRUE)
 }

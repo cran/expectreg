@@ -5,7 +5,7 @@ citEntry(entry="Manual",
 title = "expectreg: Expectile and Quantile Regression",
 author = personList(as.person("Fabian Sobotka"),
 as.person("Thomas Kneib"),
-as.person("Sabine Schnabel"),
+as.person("Sabine Schnabel")),
 year = year,
 note = vers,
 textVersion =

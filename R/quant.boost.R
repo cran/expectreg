@@ -1,28 +1,54 @@
 quant.boost <-
-function (formula, data, mstop = NA, parallel = FALSE) 
+function (formula, data = NULL, mstop = NA, expectiles = NA, 
+    parallel = FALSE, cv = TRUE) 
 {
     require(mboost)
-    pp <- c(0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 0.8, 0.9, 0.95, 
-        0.98, 0.99)
+    if (any(is.na(expectiles)) || !is.vector(expectiles) || any(expectiles > 
+        1) || any(expectiles < 0)) {
+        pp <- c(0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 0.8, 0.9, 0.95, 
+            0.98, 0.99)
+        row.grid = 3
+        col.grid = 4
+    }
+    else {
+        pp <- expectiles
+        row.grid = floor(sqrt(length(pp)))
+        col.grid = ceiling(sqrt(length(pp)))
+        if (length(pp) > row.grid * col.grid) 
+            row.grid = row.grid + 1
+    }
     np <- length(pp)
     if (any(is.na(mstop))) 
         mstop = rep(4000, np)
+    else if (length(mstop) == 1) 
+        mstop = rep(mstop, np)
     blsstr <- labels(terms(formula))
     types = list()
-    attach(data)
     bls <- list()
     x <- list()
     bnd = list()
+    yy = eval(parse(text = formula[2]), envir = data, enclos = .GlobalEnv)
+    if (is.null(data)) 
+        data = yy
     for (i in 1:length(blsstr)) {
-        bls[[i]] <- eval(parse(text = blsstr[i]))
-        x[[i]] <- data[, bls[[i]]$get_names()]
         types[[i]] = strsplit(blsstr[i], "(", fixed = TRUE)[[1]][1]
+        if (types[[i]] == blsstr[i]) {
+            types[[i]] = "parametric"
+            x[[i]] = eval(parse(text = blsstr[i]), envir = data, 
+                enclos = .GlobalEnv)
+            bls[[i]] = NULL
+        }
+        else {
+            bls[[i]] <- eval(parse(text = blsstr[i]), envir = data, 
+                enclos = .GlobalEnv)
+            x[[i]] <- as.matrix(bls[[i]]$get_data())
+        }
         if (types[[i]] != "bmrf") 
             bnd[[i]] = NA
         else bnd[[i]] = environment(bls[[i]]$dpp)$args$bnd
+        data = cbind(data, x[[i]])
     }
-    yy = eval(parse(text = formula[2]))
-    detach(data)
+    data = data.frame(data)
     m = length(yy)
     kfld <- 10
     ntest <- floor(m/kfld)
@@ -34,7 +60,10 @@ function (formula, data, mstop = NA, parallel = FALSE)
         values[[k]] = matrix(NA, nrow = m, ncol = np)
         if (types[[k]] == "bbs") 
             z[[k]] = values[[k]]
-        else if (types[[k]] == "brandom" || types[[k]] == "bmrf") 
+        else if (types[[k]] == "bmrf") 
+            z[[k]] = matrix(NA, nrow = length(attr(bnd[[k]], 
+                "regions")), ncol = np)
+        else if (types[[k]] == "brandom") 
             z[[k]] = matrix(NA, nrow = length(unique(x[[k]])), 
                 ncol = np)
         else if (types[[k]] == "bspatial") 
@@ -52,10 +81,12 @@ function (formula, data, mstop = NA, parallel = FALSE)
         z <- list()
         inb <- gamboost(formula = formula, data = data, control = boost_control(mstop = mstop[p], 
             nu = 0.1, risk = "inbag"), family = QuantReg(pp[p]))
-        cvr = cvrisk(inb, folds = cv10f)
-        print(paste("Quantile", pp[p], ", Boosting iterations:", 
-            mstop(cvr), sep = " "))
-        inb = inb[mstop(cvr)]
+        if (cv) {
+            cvr = cvrisk(inb, folds = cv10f)
+            print(paste("Quantile", pp[p], ", Boosting iterations:", 
+                mstop(cvr), sep = " "))
+            inb = inb[mstop(cvr)]
+        }
         for (k in 1:length(blsstr)) {
             if (types[[k]] == "bbs") {
                 independent = which(dimnames(data)[[2]] == bls[[k]]$get_names())
@@ -117,7 +148,7 @@ function (formula, data, mstop = NA, parallel = FALSE)
                 z[[k]] <- predict(inb, d.tmp)
             }
             else if (types[[k]] == "bmrf") {
-                districts = sort(unique(x[[k]]))
+                districts = as.numeric(attr(bnd[[k]], "regions"))
                 d.tmp = data.frame(matrix(0, nrow = length(districts), 
                   ncol = dim(data)[2]))
                 dimnames(d.tmp) = list(1:length(districts), dimnames(data)[[2]])
@@ -137,6 +168,17 @@ function (formula, data, mstop = NA, parallel = FALSE)
                 else d.val[, j] = mean(d.val[, j])
                 values[[k]] = predict(inb, d.val)
                 z[[k]] <- predict(inb, d.tmp)
+            }
+            else if (types[[k]] == "parametric") {
+                independent = which(dimnames(data)[[2]] == blsstr[k])
+                d.tmp = data
+                for (j in (1:dim(d.tmp)[2])[-independent]) if (is.factor(d.tmp[, 
+                  j])) 
+                  d.tmp[, j] = as.numeric(names(which.max(table(d.tmp[, 
+                    j]))))
+                else d.tmp[, j] = mean(d.tmp[, j])
+                values[[k]] = predict(inb, d.tmp)
+                z[[k]] = values[[k]]
             }
         }
         rm(inb)
@@ -158,9 +200,9 @@ function (formula, data, mstop = NA, parallel = FALSE)
                 xlab = "x", ylab = "y", ylim = range(cbind(yy, 
                   values[[k]])))
             matlines(sort(x[[k]]), z[[k]][order(x[[k]]), ], col = rainbow(np + 
-                1)[1:11], lty = 1)
-            legend(x = "bottomright", pch = 19, cex = 1, col = rev(rainbow(11 + 
-                1)[1:11]), legend = rev(pp), bg = "white", bty = "n")
+                1)[1:np], lty = 1)
+            legend(x = "bottomright", pch = 19, cex = 1, col = rev(rainbow(np + 
+                1)[1:np]), legend = rev(pp), bg = "white", bty = "n")
         }
         else if (types[[k]] == "bspatial") {
             x.min = apply(x[[k]], 2, min)
@@ -187,8 +229,8 @@ function (formula, data, mstop = NA, parallel = FALSE)
                 plot(seq(0, 1.1 * max(x[[k]]), length = 10), 
                   seq(0, max(z), length = 10), type = "n", xlab = "Districts", 
                   ylab = "coefficients")
-                points(rep(sort(unique(x[[k]])), times = np), 
-                  z[[k]], col = rainbow(np + 1)[1:np])
+                points(rep(as.numeric(attr(bnd[[k]], "regions")), 
+                  times = np), z[[k]], col = rainbow(np + 1)[1:np])
                 legend(x = "right", pch = 19, cex = 1, col = rev(rainbow(np + 
                   1)[1:np]), legend = rev(pp), bg = "white", 
                   bty = "n")
@@ -204,8 +246,18 @@ function (formula, data, mstop = NA, parallel = FALSE)
                 }
             }
         }
+        else if (types[[k]] == "parametric") {
+            plot(x[[k]], yy, cex = 0.5, pch = 20, col = "grey42", 
+                xlab = "x", ylab = "y", ylim = range(cbind(yy, 
+                  values[[k]])))
+            matlines(sort(x[[k]]), z[[k]][order(x[[k]]), ], col = rainbow(np + 
+                1)[1:np], lty = 1)
+            legend(x = "bottomright", pch = 19, cex = 1, col = rev(rainbow(np + 
+                1)[1:np]), legend = rev(pp), bg = "white", bty = "n")
+        }
     }
-    result = list(values = values, response = yy, formula = formula)
+    result = list(values = values, response = yy, covariates = x, 
+        formula = formula, expectiles = pp)
     class(result) = c("expectreg", "boost")
     result
 }

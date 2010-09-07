@@ -1,6 +1,6 @@
-expectile.bundle <-
-function (formula, data = NULL, smooth = c("schall", "acv", "none"), 
-    lambda = 0.1, expectiles = NA, density = FALSE) 
+expectile.sheets <-
+function (formula, data = NULL, smooth = c("acv", "none"), lambda = 0.1, 
+    lambdap = 5, expectiles = NA, density = FALSE) 
 {
     smooth = match.arg(smooth)
     if (density) {
@@ -36,25 +36,21 @@ function (formula, data = NULL, smooth = c("schall", "acv", "none"),
     Zspathelp = list()
     nb = vector()
     krig.phi = list()
+    B = list()
+    DD = list()
     for (i in 1:length(labels(terms(formula)))) {
         types[[i]] = strsplit(labels(terms(formula))[i], "(", 
             fixed = TRUE)[[1]][1]
         if (types[[i]] == labels(terms(formula))[i]) {
-            design[[i]] = base(matrix(eval(parse(text = labels(terms(formula))[i]), 
-                envir = data, enclos = .GlobalEnv), nrow = m), 
-                "parametric")
-            formula = eval(substitute(update(formula, . ~ variable2 + 
-                . - variable1), list(variable1 = as.name(types[[i]]), 
-                variable2 = as.name(paste("base(", types[[i]], 
-                  ",'parametric')", sep = "")))))
+            design[[i]] = base(types[[i]], "parametric")
             types[[i]] = "parametric"
         }
         else design[[i]] = eval(parse(text = labels(terms(formula))[i]), 
             envir = data, enclos = .GlobalEnv)
     }
     nterms = length(design)
-    B = design[[1]][[1]]
-    DD = as.matrix(design[[1]][[2]])
+    B[[1]] = design[[1]][[1]]
+    DD[[1]] = design[[1]][[2]]
     x[[1]] = design[[1]][[3]]
     types[[1]] = design[[1]][[4]]
     bnd[[1]] = design[[1]][[5]]
@@ -63,12 +59,8 @@ function (formula, data = NULL, smooth = c("schall", "acv", "none"),
     krig.phi[[1]] = design[[1]][[7]]
     if (length(labels(terms(formula))) > 1) 
         for (i in 2:length(labels(terms(formula)))) {
-            B = cbind(B, design[[i]][[1]])
-            design[[i]][[2]] = as.matrix(design[[i]][[2]])
-            DD = rbind(cbind(DD, matrix(0, nrow = dim(DD)[1], 
-                ncol = dim(design[[i]][[2]])[1])), cbind(matrix(0, 
-                nrow = dim(design[[i]][[2]])[1], ncol = dim(DD)[2]), 
-                design[[i]][[2]]))
+            B[[i]] = design[[i]][[1]]
+            DD[[i]] = design[[i]][[2]]
             x[[i]] = design[[i]][[3]]
             types[[i]] = design[[i]][[4]]
             bnd[[i]] = design[[i]][[5]]
@@ -76,11 +68,11 @@ function (formula, data = NULL, smooth = c("schall", "acv", "none"),
             nb[i] = ncol(design[[i]][[1]])
             krig.phi[[i]] = design[[i]][[7]]
         }
-    B = cbind(1, B)
-    DD = rbind(0, cbind(0, DD))
-    lala <- matrix(lambda, nrow = nterms, ncol = 2, dimnames = list(1:nterms, 
-        c("mean", "residual")))
+    lala <- matrix(c(rep(lambda, nterms), rep(lambdap, nterms)), 
+        nrow = nterms, ncol = 2, dimnames = list(1:nterms, c("curve", 
+            "sheet")))
     vector.a.ma.schall <- matrix(NA, nrow = sum(nb) + 1, ncol = np)
+    med = which(pp == 0.5)
     penalty <- lambda
     if (smooth == "schall") {
         dc = 1
@@ -90,8 +82,8 @@ function (formula, data = NULL, smooth = c("schall", "acv", "none"),
         while (dc >= 0.01 && it < 100) {
             aa <- asyregpen.lsfit(yy, B, 0.5, lala[, 1], DD, 
                 nb)
-            mean.coefficients <- aa$a
-            residuals = yy - B %*% mean.coefficients
+            vector.a.ma.schall[, med] <- aa$a
+            residuals = yy - B %*% vector.a.ma.schall[, med]
             b <- rep(1, ncol(B))
             cc <- pp - 0.5
             for (i in 1:20) {
@@ -105,8 +97,8 @@ function (formula, data = NULL, smooth = c("schall", "acv", "none"),
                   break
             }
             for (q in 1:np) {
-                vector.a.ma.schall[, q] = mean.coefficients + 
-                  cc[q] * b
+                vector.a.ma.schall[, q] = vector.a.ma.schall[, 
+                  med] + cc[q] * b
             }
             sig.med <- vector()
             tau.med <- vector()
@@ -116,9 +108,8 @@ function (formula, data = NULL, smooth = c("schall", "acv", "none"),
             lres <- lala[, 2]
             for (i in 1:nterms) {
                 partbasis = (sum(nb[0:(i - 1)]) + 1):(sum(nb[0:i]))
-                partB = B[, -1][, partbasis, drop = FALSE]
-                partDD = DD[, -1][-1, ][partbasis, partbasis, 
-                  drop = FALSE]
+                partB = B[, -1][, partbasis]
+                partDD = DD[, -1][-1, ][partbasis, partbasis]
                 partaa = aa$a[-1][partbasis]
                 partw = aa$weight[-1][partbasis]
                 v <- partDD %*% partaa
@@ -131,7 +122,7 @@ function (formula, data = NULL, smooth = c("schall", "acv", "none"),
                 })
                 sig.med[i] <- sum(w[, i] * (yy - z)^2, na.rm = TRUE)/(m - 
                   sum(aa$diag.hat.ma))
-                tau.med[i] <- sum(v^2)/sum(diag(H)) + 1e-06
+                tau.med[i] <- sum(v^2)/sum(H) + 1e-06
                 lala[i, 1] <- max(sig.med[i]/tau.med[i], 1e-10)
                 partb = b[-1][partbasis]
                 v = partDD %*% partb
@@ -145,7 +136,7 @@ function (formula, data = NULL, smooth = c("schall", "acv", "none"),
                 })
                 sig.res[i] <- sum(w[, i] * (residuals - z)^2, 
                   na.rm = TRUE)/(m - sum(aa$diag.hat.ma))
-                tau.res[i] <- sum(v^2)/sum(diag(H)) + 1e-06
+                tau.res[i] <- sum(v^2)/sum(H) + 1e-06
                 lala[i, 2] <- max(sig.res[i]/tau.res[i], 1e-10)
             }
             dc <- max(abs(log10(lmed) - log10(lala[, 1]))) + 
@@ -154,61 +145,33 @@ function (formula, data = NULL, smooth = c("schall", "acv", "none"),
         }
     }
     else if (smooth == "acv") {
-        acv.min = nlm(acv, p = lala[, 1], yy = yy, B = B, quantile = 0.5, 
+        acv.min = nlm(acv.sheets, p = lala, yy = yy, B = B, pp = pp, 
             DD = DD, nb = nb, ndigit = 8, iterlim = 50, gradtol = 1e-04)
-        aa <- asyregpen.lsfit(yy, B, 0.5, abs(acv.min$estimate), 
-            DD, nb)
-        mean.coefficients <- aa$a
-        lala[, 1] <- abs(acv.min$estimate)
-        residuals = yy - B %*% mean.coefficients
-        acv.min = nlm(acv, p = lala[, 2], yy = residuals, B = B, 
-            quantile = 0.5, DD = DD, nb = nb, ndigit = 8, iterlim = 50, 
-            gradtol = 1e-04)
-        lala[, 2] <- abs(acv.min$estimate)
-        b <- rep(1, ncol(B))
-        cc <- pp - 0.5
-        for (i in 1:20) {
-            mo <- fitampllsfit(residuals, B, b, pp, cc, DD, abs(acv.min$estimate), 
-                nb)
-            b <- mo$b/((sum(mo$b^2)/length(mo$b))^(1/2))
-            c0 <- cc
-            cc <- fitasy(residuals, B, b, pp, cc)
-            dc <- max(abs(cc - c0))
-            if (dc < 1e-06) 
-                break
-        }
-        for (q in 1:np) {
-            vector.a.ma.schall[, q] = mean.coefficients + cc[q] * 
-                b
-        }
+        min.lambda = matrix(abs(acv.min$estimate), ncol = 2)
+        lala[, 1] <- min.lambda[, 1]
+        lala[, 2] <- min.lambda[, 2]
+        ynp <- rep(yy, np)
+        ps <- rep(pp, each = m)
+        vv <- log(ps/(1 - ps))
+        w <- runif(m * np)
+        p2f.new <- pspfit2d.new(B, DD, ps, ynp, w, lala[, 1], 
+            lala[, 2])
+        vector.a.ma.schall <- matrix(p2f.new$coef, ncol = np, 
+            byrow = T)
     }
     else {
-        aa <- asyregpen.lsfit(yy, B, 0.5, lala[, 1], DD, nb)
-        mean.coefficients <- aa$a
-        residuals = yy - B %*% mean.coefficients
-        b <- rep(1, ncol(B))
-        cc <- pp - 0.5
-        for (i in 1:20) {
-            mo <- fitampllsfit(residuals, B, b, pp, cc, DD, lala[, 
-                2], nb)
-            b <- mo$b/((sum(mo$b^2)/length(mo$b))^(1/2))
-            c0 <- cc
-            cc <- fitasy(residuals, B, b, pp, cc)
-            dc <- max(abs(cc - c0))
-            if (dc < 1e-06) 
-                break
-        }
-        for (q in 1:np) {
-            vector.a.ma.schall[, q] = mean.coefficients + cc[q] * 
-                b
-        }
+        ynp <- rep(yy, np)
+        ps <- rep(pp, each = m)
+        vv <- log(ps/(1 - ps))
+        w <- runif(m * np)
+        p2f.new <- pspfit2d.new(B, DD, ps, ynp, w, lala[, 1], 
+            lala[, 2])
     }
+    curves = p2f.new$curves
     Z <- list()
     coefficients <- list()
     final.lambdas <- list()
-    intercept = vector.a.ma.schall[1, ]
-    B = B[, -1]
-    vector.a.ma.schall = vector.a.ma.schall[-1, , drop = FALSE]
+    intercept = p2f.new$intercept
     for (k in 1:length(design)) {
         final.lambdas[[k]] = lala[k, ]
         partbasis = (sum(nb[0:(k - 1)]) + 1):(sum(nb[0:k]))
@@ -216,44 +179,27 @@ function (formula, data = NULL, smooth = c("schall", "acv", "none"),
         if (types[[k]] == "pspline") {
             Z[[k]] <- matrix(NA, m, np)
             coefficients[[k]] = matrix(NA, nrow = nb[k], ncol = np)
-            for (i in 1:np) {
-                Z[[k]][, i] <- B[, partbasis] %*% vector.a.ma.schall[partbasis, 
-                  i, drop = FALSE] + intercept[i]
-                coefficients[[k]][, i] = vector.a.ma.schall[partbasis, 
-                  i, drop = FALSE]
-            }
             plot(x[[k]], yy, cex = 0.5, pch = 20, col = "grey42", 
                 xlab = "x", ylab = "y", ylim = range(cbind(yy, 
-                  Z[[k]]), na.rm = TRUE))
+                  curves[[k]]), na.rm = TRUE))
             matlines(sort(x[[k]])[seq(1, m, length = min(m, 100))], 
-                Z[[k]][order(x[[k]])[seq(1, m, length = min(m, 
+                curves[[k]][order(x[[k]])[seq(1, m, length = min(m, 
                   100))], pp.plot], col = rainbow(np.plot + 1)[1:np.plot], 
                 lty = 1)
-            legend(x = "bottomright", pch = 19, cex = 1, col = rev(rainbow(np.plot + 
-                1)[1:np.plot]), legend = rev(pp.plot/100), bg = "white", 
+            legend(x = "topright", pch = 19, cex = 1, col = rev(rainbow(np.plot + 
+                1)[1:np.plot]), legend = rev(pp), bg = "white", 
                 bty = "n")
         }
         else if (types[[k]] == "markov") {
             Z[[k]] <- matrix(NA, m, np)
             coefficients[[k]] = matrix(NA, nrow = nb[k] + 1, 
                 ncol = np)
-            z = NULL
-            for (i in 1:np) {
-                Z[[k]][, i] = B[, partbasis] %*% vector.a.ma.schall[partbasis, 
-                  i, drop = FALSE] + intercept[i]
-                coefficients[[k]][, i] = Zspathelp[[k]] %*% vector.a.ma.schall[partbasis, 
-                  i, drop = FALSE]
-                z = cbind(z, diag(dim(Zspathelp[[k]])[1]) %*% 
-                  Zspathelp[[k]] %*% vector.a.ma.schall[partbasis, 
-                  i, drop = FALSE] + intercept[i])
-            }
             if (class(bnd[[k]]) != "bnd") {
                 plot(seq(0, 1.1 * max(x[[k]]), length = 10), 
                   seq(0, max(z[, pp.plot]), length = 10), type = "n", 
                   xlab = "District", ylab = "coefficients")
-                points(rep(as.numeric(attr(bnd[[k]], "regions")), 
-                  times = np), z[, pp.plot], col = rainbow(np.plot + 
-                  1)[1:np.plot])
+                matpoints(sort(x[[k]]), curves[[k]][order(x[[k]]), 
+                  pp.plot], col = rainbow(np.plot + 1)[1:np.plot])
                 legend(x = "right", pch = 19, cex = 1, col = rev(rainbow(np.plot + 
                   1)[1:np.plot]), legend = rev(pp.plot/100), 
                   bg = "white", bty = "n")
@@ -262,8 +208,8 @@ function (formula, data = NULL, smooth = c("schall", "acv", "none"),
                 par(mfrow = (c(row.grid, col.grid)))
                 plot.limits = range(z)
                 for (i in 1:np.plot) {
-                  re = data.frame(cbind(as.numeric(attr(bnd[[k]], 
-                    "regions")), z[, pp.plot[i]]))
+                  re = data.frame(cbind(x[[k]], curves[[k]][, 
+                    pp.plot[i]]))
                   drawmap(re, bnd[[k]], regionvar = 1, plotvar = 2, 
                     mar.min = NULL, limits = plot.limits, main = pp.plot[i]/100)
                 }
@@ -272,61 +218,28 @@ function (formula, data = NULL, smooth = c("schall", "acv", "none"),
         else if (types[[k]] == "2dspline") {
             Z[[k]] <- matrix(NA, m, np)
             coefficients[[k]] = matrix(NA, nrow = nb[k], ncol = np)
-            x.min = apply(x[[k]], 2, min)
-            x.max = apply(x[[k]], 2, max)
-            x.gitter = cbind(rep(seq(x.min[1], x.max[1], length = 50), 
-                times = 50), rep(seq(x.min[2], x.max[2], length = 50), 
-                each = 50))
-            B.gitter = base(x.gitter, "2dspline")[[1]]
             par(mfrow = (c(row.grid, col.grid)))
             for (i in 1:np) {
-                Z[[k]][, i] = B[, partbasis] %*% vector.a.ma.schall[partbasis, 
-                  i, drop = FALSE] + intercept[i]
-                coefficients[[k]][, i] = vector.a.ma.schall[partbasis, 
-                  i, drop = FALSE]
                 if (i %in% pp.plot) {
-                  z <- B.gitter %*% vector.a.ma.schall[partbasis, 
-                    i, drop = FALSE] + intercept[i]
-                  z = t(matrix(z, nrow = 50, ncol = 50))
-                  persp(seq(x.min[1], x.max[1], length = 50), 
-                    seq(x.min[2], x.max[2], length = 50), z, 
-                    ticktype = "detailed", phi = 40, zlim = range(yy), 
-                    col = "lightblue", xlab = "X", ylab = "Y", 
-                    zlab = "Z", main = pp.plot[i]/100)
+                  z = interp(x[[k]][, 1], x[[k]][, 2], curves[[k]][, 
+                    i])
+                  persp(z[[1]], z[[2]], z[[3]], ticktype = "detailed", 
+                    phi = 40, zlim = range(yy), col = "lightblue", 
+                    xlab = "X", ylab = "Y", zlab = "Z", main = pp.plot[i]/100)
                 }
             }
         }
         else if (types[[k]] == "radial") {
             Z[[k]] <- matrix(NA, m, np)
             coefficients[[k]] = matrix(NA, nrow = nb[k], ncol = np)
-            x.min = apply(x[[k]], 2, min)
-            x.max = apply(x[[k]], 2, max)
-            x.gitter = cbind(rep(seq(x.min[1], x.max[1], length = 50), 
-                times = 50), rep(seq(x.min[2], x.max[2], length = 50), 
-                each = 50))
-            x.ord = x[[k]][order(x[[k]][, 1]), ]
-            knots = x.ord[seq(1, dim(x[[k]])[1], length = min(50, 
-                dim(x[[k]])[1])), ]
-            B.gitter = matrix(NA, nrow = dim(x.gitter)[1], ncol = dim(knots)[1])
-            for (i in 1:dim(x.gitter)[1]) for (j in 1:dim(knots)[1]) {
-                r = sqrt(sum((x.gitter[i, ] - knots[j, ])^2))
-                B.gitter[i, j] = r^2 * log(r)
-            }
             par(mfrow = (c(row.grid, col.grid)))
             for (i in 1:np) {
-                Z[[k]][, i] = B[, partbasis] %*% vector.a.ma.schall[partbasis, 
-                  i, drop = FALSE] + intercept[i]
-                coefficients[[k]][, i] = vector.a.ma.schall[partbasis, 
-                  i, drop = FALSE]
                 if (i %in% pp.plot) {
-                  z <- B.gitter %*% vector.a.ma.schall[partbasis, 
-                    i, drop = FALSE] + intercept[i]
-                  z = t(matrix(z, nrow = 50, ncol = 50))
-                  persp(seq(x.min[1], x.max[1], length = 50), 
-                    seq(x.min[2], x.max[2], length = 50), z, 
-                    ticktype = "detailed", phi = 40, zlim = range(yy), 
-                    col = "lightblue", xlab = "X", ylab = "Y", 
-                    zlab = "Z", main = pp.plot[i]/100)
+                  z = interp(x[[k]][, 1], x[[k]][, 2], curves[[k]][, 
+                    i])
+                  persp(z[[1]], z[[2]], z[[3]], ticktype = "detailed", 
+                    phi = 40, zlim = range(yy), col = "lightblue", 
+                    xlab = "X", ylab = "Y", zlab = "Z", main = pp.plot[i]/100)
                 }
             }
         }
@@ -338,8 +251,8 @@ function (formula, data = NULL, smooth = c("schall", "acv", "none"),
             x.gitter = cbind(rep(seq(x.min[1], x.max[1], length = 50), 
                 times = 50), rep(seq(x.min[2], x.max[2], length = 50), 
                 each = 50))
-            x.ord = x[[k]][order(x[[k]][, 1]), ]
-            knots = x.ord[seq(1, dim(x[[k]])[1], length = min(50, 
+            x[[k]] = x[[k]][order(x[[k]][, 1]), ]
+            knots = x[[k]][seq(1, dim(x[[k]])[1], length = min(50, 
                 dim(x[[k]])[1])), ]
             B.gitter = matrix(NA, nrow = dim(x.gitter)[1], ncol = dim(knots)[1])
             for (i in 1:dim(x.gitter)[1]) for (j in 1:dim(knots)[1]) {
@@ -348,7 +261,7 @@ function (formula, data = NULL, smooth = c("schall", "acv", "none"),
             }
             par(mfrow = (c(row.grid, col.grid)))
             for (i in 1:np) {
-                Z[[k]][, i] = B[, partbasis] %*% vector.a.ma.schall[partbasis, 
+                Z[[k]][, i] = B[[k]] %*% vector.a.ma.schall[partbasis, 
                   i, drop = FALSE] + intercept[i]
                 coefficients[[k]][, i] = vector.a.ma.schall[partbasis, 
                   i, drop = FALSE]
@@ -368,7 +281,7 @@ function (formula, data = NULL, smooth = c("schall", "acv", "none"),
             Z[[k]] <- matrix(NA, m, np)
             coefficients[[k]] = matrix(NA, nrow = nb[k], ncol = np)
             for (i in 1:np) {
-                Z[[k]][, i] <- B[, partbasis] %*% vector.a.ma.schall[partbasis, 
+                Z[[k]][, i] <- B[[k]] %*% vector.a.ma.schall[partbasis, 
                   i, drop = FALSE] + intercept[i]
                 coefficients[[k]][, i] = vector.a.ma.schall[partbasis, 
                   i, drop = FALSE]
@@ -387,7 +300,7 @@ function (formula, data = NULL, smooth = c("schall", "acv", "none"),
             Z[[k]] <- matrix(NA, m, np)
             coefficients[[k]] = matrix(NA, nrow = nb[k], ncol = np)
             for (i in 1:np) {
-                Z[[k]][, i] <- B[, partbasis] %*% vector.a.ma.schall[partbasis, 
+                Z[[k]][, i] <- B[[k]] %*% vector.a.ma.schall[partbasis, 
                   i, drop = FALSE] + intercept[i]
                 coefficients[[k]][, i] = vector.a.ma.schall[partbasis, 
                   i, drop = FALSE]
@@ -406,7 +319,7 @@ function (formula, data = NULL, smooth = c("schall", "acv", "none"),
             Z[[k]] <- matrix(NA, m, np)
             coefficients[[k]] = matrix(NA, nrow = nb[k], ncol = np)
             for (i in 1:np) {
-                Z[[k]][, i] <- B[, partbasis] %*% vector.a.ma.schall[partbasis, 
+                Z[[k]][, i] <- B[[k]] %*% vector.a.ma.schall[partbasis, 
                   i, drop = FALSE] + intercept[i]
                 coefficients[[k]][, i] = vector.a.ma.schall[partbasis, 
                   i, drop = FALSE]
@@ -422,9 +335,7 @@ function (formula, data = NULL, smooth = c("schall", "acv", "none"),
         }
     }
     result = list(lambda = final.lambdas, intercepts = intercept, 
-        coefficients = coefficients, trend.coef = mean.coefficients, 
-        residual.coef = b, asymmetry = cc, values = Z, response = yy, 
-        covariates = x, formula = formula, expectiles = pp)
-    class(result) = c("expectreg", "bundle")
+        values = curves, response = yy, covariates = x, formula = formula)
+    class(result) = c("expectreg", "sheets")
     result
 }

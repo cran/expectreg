@@ -1,3 +1,21 @@
-2009-10-31  version 1.0
+2010-09-07 version 0.16
+
+new features: 
+- function expectile.sheets added
+- function bundle.density and plot method added
+- functions for theoretical expectiles of: student-t, gamma, exponential, chi squared, lognormal added
+
+changes:
+- functions expectile.restricted and expectile.bundle ready for density estimation using bundle.density
+- centering bases in function base is now optional
+- adding parametric effects to the regression functions
+- possibility to choose set of expectiles that are computed
+
+bugfixes:
+- correcting schall smoothing for additive models
+- fixing schall and ACV smoothing for bundle
+- covariates are now returned in correct sorting
+
+2010-03-16  version 0.1
 
 * initial release.

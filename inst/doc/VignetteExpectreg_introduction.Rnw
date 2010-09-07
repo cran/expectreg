@@ -128,7 +128,7 @@ calculation of the ``asymmetry factor'' $c_{\alpha}$ for each $\alpha-$quantile 
  where $\nu\in(0,1]$ is a step size. For all remaining functions set $\fhatvec_j^{[m]}=\fhatvec_j^{[m-1]}$, $j\neq j^*$.
  \item Increase $m$ by one. If $m<m_\text{stop}$ go back to step 2., otherwise terminate the algorithm.
 \end{enumerate}
-For expectile regression, the empirical risk is given the asymmetric least squares criterion (\ref{eq:laws}) and the appropriate loss function 
+For expectile regression, the empirical risk is given the asymmetric least squares criterion (\ref{ALS.goal}) and the appropriate loss function 
 is defined as $\rho(y,\eta) = w(\tau)(y - \eta_\tau)^2$. The corresponding negative gradient is therefore obtained as
 \[
  u_i = 2w_i(\tau)(y_i-\eta_i).
@@ -160,7 +160,7 @@ curves for different levels of asymmetry parameter $p$. The results are shown in
 <<>>=
 data(dutchboys)
 @     
-<<eval=TRUE, results=hide>>=
+<<eval=FALSE, results=hide>>=
 exp.l <- expectile.laws(dutchboys[,3] ~ base(dutchboys[,2],"pspline"),smooth="acv")
 @
 
@@ -175,7 +175,7 @@ Due to the large number of observations in the data set crossing of curves is al
 Nevertheless we apply also the expectile bundle model implemented in \texttt{expectile.bundle} to
 this example.
 
-<<eval=TRUE, results=hide>>=
+<<eval=FALSE, results=hide>>=
 exp.b <- expectile.bundle(dutchboys[,3] ~ base(dutchboys[,2],"pspline"),smooth="none")
 @
 
@@ -189,7 +189,7 @@ exp.b <- expectile.bundle(dutchboys[,3] ~ base(dutchboys[,2],"pspline"),smooth="
 Additionally we analyze the data with the algorithm proposed in \cite{He1997} implemented in 
 \texttt{expectile.restricted}.
 
-<<eval=TRUE, results=hide>>=
+<<eval=FALSE, results=hide>>=
 exp.r <- expectile.restricted(dutchboys[,3] ~ base(dutchboys[,2],"pspline"),smooth="schall")
 @
 
@@ -203,7 +203,7 @@ exp.r <- expectile.restricted(dutchboys[,3] ~ base(dutchboys[,2],"pspline"),smoo
 
 \subsection{Applied boosting}
 
-<<eval=TRUE, results=hide>>= 
+<<eval=FALSE, results=hide>>= 
 exp.boost <- expectile.boost(hgt ~ bbs(age,df=5,degree=2),dutchboys,mstop=rep(500,11)) 
 @ 
 
@@ -269,4 +269,3 @@ exp.boost <- expectile.boost(hgt ~ bbs(age,df=5,degree=2),dutchboys,mstop=rep(50
 \end{thebibliography}
 
 \end{document}
-

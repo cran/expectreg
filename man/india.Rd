@@ -36,6 +36,6 @@ Technical Report 052, University of Munich
 data(india)
 data(india.bnd)
 
-expreg <- expectile.restricted(india[,1] ~ base(india[,2],"pspline") + base(india[,6],"markov",bnd=india.bnd),smooth="schall")
+expreg <- expectile.restricted(india[,1] ~ base(india[,6],"markov",bnd=india.bnd),smooth="n",lambda=1)
 }
 \keyword{datasets}

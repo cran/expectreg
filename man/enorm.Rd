@@ -3,6 +3,11 @@
 \alias{enorm}
 \alias{ebeta}
 \alias{eunif}
+\alias{et}
+\alias{egamma}
+\alias{elnorm}
+\alias{echisq}
+\alias{eexp}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Expectiles of distributions
@@ -14,16 +19,26 @@ These functions add the possibility of calculating expectiles
 of known distributions.
 }
 \usage{
-enorm(e, m = 0, sd = 1)
+enorm(e, m = 0, sd = 1, log.p = FALSE)
 
-ebeta(e, a = 1, b = 1)
+ebeta(e, a = 1, b = 1, log.p = FALSE)
 
-eunif(e, min = 0, max = 1, lower.tail = TRUE, log.p = FALSE)
+eunif(e, min = 0, max = 1)
+
+et(e, df, log.p = FALSE)
+
+elnorm(e, meanlog = 0, sdlog = 1, log.p = FALSE)
+
+egamma(e, shape, rate = 1, scale = 1/rate, log.p = FALSE)
+
+eexp(e, rate = 1, log.p = FALSE)
+
+echisq(e, df, log.p = FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{e}{
-vector of probabilities.
+vector of asymmetries.
 }
   \item{m, sd}{
 mean and standard deviation of the Normal distribution.
@@ -31,9 +46,22 @@ mean and standard deviation of the Normal distribution.
   \item{a, b}{
 positive parameters of the Beta distribution.
 }
-  \item{min, max, lower.tail, log.p}{
-minimum, maximum of the uniform distribution, and if
-probabilities are given from the lower tail and in log.
+  \item{min, max}{
+minimum, maximum of the uniform distribution.
+}
+  \item{df}{
+degrees of freedom of the student t and chi squared distribution.
+}
+  \item{meanlog, sdlog}{
+parameters of the lognormal distribution.  
+}
+  \item{shape, rate, scale}{
+parameters of the gamma distribution (with 2 different parametrizations)
+and parameter of the exponential distribution which is a special case of the gamma
+with shape=1.  
+}
+ \item{log.p}{
+logical; if TRUE, probabilities e are given as log(e). 
 }
 }
 \details{

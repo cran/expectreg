@@ -3,6 +3,7 @@
 \alias{expectile.laws}
 \alias{expectile.restricted}
 \alias{expectile.bundle}
+\alias{expectile.sheets}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Expectile regression of additive models
@@ -13,11 +14,13 @@ or restricted with respect to the mean to obtain the graphs of 11 different expe
 for continuous, spatial or random effects.
 }
 \usage{
-expectile.laws(formula, smooth = c("schall", "acv", "none"), lambda = 0.1, parallel = FALSE)
+expectile.laws(formula, data = NULL, smooth = c("schall", "acv", "none"), lambda = 0.1, expectiles = NA, parallel = FALSE)
 
-expectile.restricted(formula, smooth = c("schall", "acv", "none"), lambda = 0.1)
+expectile.restricted(formula, data = NULL, smooth = c("schall", "acv", "none"), lambda = 0.1, expectiles = NA, density = FALSE)
 
-expectile.bundle(formula, smooth = c("schall", "acv", "none"), lambda = 0.1, density = FALSE)
+expectile.bundle(formula, data = NULL, smooth = c("schall", "acv", "none"), lambda = 0.1, expectiles = NA, density = FALSE)
+
+expectile.sheets(formula, data = NULL, smooth = c("acv", "none"), lambda = 0.1, lambdap = 5, expectiles = NA, density = FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -25,6 +28,10 @@ expectile.bundle(formula, smooth = c("schall", "acv", "none"), lambda = 0.1, den
 An R formula object consisting of the response variable, '~'
 and the sum of all effects that should be taken into consideration.
 Each effect has to be given through the function \code{\link{base}}.
+}
+  \item{data}{
+Optional data frame containing the variables used in the model, if the data is not explicitely given in the
+formula.  
 }
   \item{smooth}{
 There are different smoothing algorithms that should prevent overfitting.
@@ -36,6 +43,13 @@ or the function uses a fixed penalty.
 The fixed penalty can be adjusted. Also serves as starting value for
 the smoothing algorithms.
 }
+  \item{lambdap}{
+A penalty for smoothing across the expectiles in the sheets function. Used if no smoothing algorithm is applied.
+}
+  \item{expectiles}{
+In default setting, the expectiles (0.01,0.02,0.05,0.1,0.2,0.5,0.8,0.9,0.95,0.98,0.99) are calculated.
+You may specify your own set of expectiles in a vector. Is overridden by \code{density}.
+}
   \item{parallel}{
 On Unix machines with the package \code{\link[multicore]{multicore}} installed the different expectiles
 can be calculated simultaneously, if the computer has multiple CPU cores. 
@@ -46,6 +60,13 @@ If \code{TRUE}, 99 expectiles from 1\% to 99\% are fitted to allow for a density
 }
 \details{
 In least asymmetrically weighted squares (LAWS) each expectile is fitted independently from the others.
+LAWS minimizes:
+
+\eqn{ S = \sum_{i=1}^{n}{ w_i(p)(y_i - \mu_i(p))^2} }
+
+with
+
+\eqn{ w_i(p) = p 1_{(y_i > \mu_i(p))} + (1-p) 1_{(y_i < \mu_i(p))} }.
 
 The restricted version fits the 0.5 expectile at first and then the residuals.
 Afterwards the other expectiles are fitted as deviation by a factor of the residuals from the mean expectile.
@@ -57,6 +78,11 @@ The expectile bundle has a resemblence to the restricted regression. At first, a
 and then an iteration is performed between fitting the residuals and calculating the deviation factors
 for all the expectiles until the results are stable. Therefore this function shares the (dis)advantages
 of the restricted.
+
+The expectile sheets construct a p-spline basis for the expectiles and perform a continuous fit over all expectiles
+by fitting the tensor product of the expectile spline basis and the basis of the covariates.
+In consequence there will be most likely no crossing of expectiles but also a good fit in heteroscedastic scenarios.
+"schall" smoothing does not yet work for sheets.
 }
 \value{
 An object of class 'expectreg', which is basically a list consisting of:
@@ -71,8 +97,9 @@ An object of class 'expectreg', which is basically a list consisting of:
     \item{response}{ Vector of the response variable. }
     \item{covariates}{ List with the values of the covariates. }
     \item{formula}{ The formula object that was given to the function. }
-The output of the bundle function consists of two more elements:
-    \item{residual}{ Vector of the coefficients the residual curve was fitted with. }
+The output of the bundle and restricted function consists of two more elements:
+    \item{trend.coef}{ Coefficients of the trend function. }
+    \item{residual.coef}{ Vector of the coefficients the residual curve was fitted with. }
     \item{asymmetry}{ Vector of the asymmetry factors for all expectiles. }
 A \code{\link{plot}} method is available.
 }
@@ -112,7 +139,7 @@ Erasmus Medical Center Rotterdam \cr
 \examples{
 data(dutchboys)
 
-expreg <- expectile.laws(dutchboys[,3] ~ base(dutchboys[,2],"pspline"),smooth="schall")
+expreg <- expectile.laws(dutchboys[,3] ~ base(dutchboys[,2],"pspline"),smooth="schall",expectiles=c(0.05,0.2,0.8,0.95))
 
 exprest <- expectile.restricted(dutchboys[,3] ~ base(dutchboys[,2],"pspline"),smooth="acv")
 

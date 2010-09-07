@@ -1,6 +1,7 @@
 base <-
 function (x, type = c("pspline", "2dspline", "markov", "radial", 
-    "krig", "random", "ridge", "special"), B = NA, P = NA, bnd = NA) 
+    "krig", "random", "ridge", "special", "parametric"), B = NA, 
+    P = NA, bnd = NA, center = TRUE) 
 {
     type = match.arg(type)
     Zspathelp = NA
@@ -15,16 +16,18 @@ function (x, type = c("pspline", "2dspline", "markov", "radial",
         dx = (x1 - x0)/(B.size - 1)
         B = splineDesign(knots = seq(x0 - dx * B.deg, x1 + dx * 
             B.deg, by = dx), x = x, ord = B.deg + 1)
-        tildeU <- matrix(0, dim(B)[2], diff.size)
-        for (i in 1:diff.size) tildeU[, i] <- (1:(dim(B)[2]))^(i - 
-            1)
-        D <- diag(dim(B)[2])
-        for (i in 1:diff.size) D <- diff(D)
-        tildeZ <- t(D) %*% solve(D %*% t(D))
-        U <- B %*% tildeU
-        Z <- B %*% tildeZ
-        B = cbind(U[, -1], Z)
-        P <- diag(c(rep(0, ncol(U) - 1), rep(1, ncol(Z))))
+        P <- diag(dim(B)[2])
+        for (i in 1:diff.size) P <- diff(P)
+        if (center) {
+            tildeU <- matrix(0, dim(B)[2], diff.size)
+            for (i in 1:diff.size) tildeU[, i] <- (1:(dim(B)[2]))^(i - 
+                1)
+            tildeZ <- t(P) %*% solve(P %*% t(P))
+            U <- B %*% tildeU
+            Z <- B %*% tildeZ
+            B = cbind(U[, -1], Z)
+            P <- diag(c(rep(0, ncol(U) - 1), rep(1, ncol(Z))))
+        }
     }
     else if (type == "2dspline") {
         require(splines)
@@ -45,23 +48,27 @@ function (x, type = c("pspline", "2dspline", "markov", "radial",
             dim(By)[2])
         for (i in 1:dim(Bx)[1]) B[i, ] = as.vector(Bx[i, ] %o% 
             By[i, ])
-        tildeX = matrix(1, nrow = dim(Bx)[2] * dim(By)[2], ncol = 4)
-        tildeX[, 2] = rep(1:dim(Bx)[2], times = dim(By)[2])
-        tildeX[, 3] = rep(1:dim(By)[2], each = dim(Bx)[2])
-        tildeX[, 4] = tildeX[, 2] * tildeX[, 3]
         D = diff(diag(dim(Bx)[2]), diff.size)
-        K = t(D) %*% D
-        K = diag(dim(Bx)[2]) %x% K + K %x% diag(dim(Bx)[2])
-        ek = eigen(K)
-        ek$values = ek$values[1:(length(ek$values) - 2 * diff.size)]
-        ek$vectors = ek$vectors[, 1:(dim(ek$vectors)[2] - 2 * 
-            diff.size)]
-        L = ek$vectors %*% sqrt(diag(ek$values))
-        tildeU = L %*% solve(t(L) %*% L)
-        X = B %*% tildeX
-        U = B %*% tildeU
-        B = cbind(X[, -1], U)
-        P <- diag(c(rep(0, ncol(X) - 1), rep(1, ncol(U))))
+        P = t(D) %*% D
+        P = diag(dim(Bx)[2]) %x% P + P %x% diag(dim(Bx)[2])
+        if (center) {
+            tildeX = matrix(1, nrow = dim(Bx)[2] * dim(By)[2], 
+                ncol = 4)
+            tildeX[, 2] = rep(1:dim(Bx)[2], times = dim(By)[2])
+            tildeX[, 3] = rep(1:dim(By)[2], each = dim(Bx)[2])
+            tildeX[, 4] = tildeX[, 2] * tildeX[, 3]
+            ek = eigen(P)
+            ek$values = ek$values[1:(length(ek$values) - 2 * 
+                diff.size)]
+            ek$vectors = ek$vectors[, 1:(dim(ek$vectors)[2] - 
+                2 * diff.size)]
+            L = ek$vectors %*% sqrt(diag(ek$values))
+            tildeU = L %*% solve(t(L) %*% L)
+            X = B %*% tildeX
+            U = B %*% tildeU
+            B = cbind(X[, -1], U)
+            P <- diag(c(rep(0, ncol(X) - 1), rep(1, ncol(U))))
+        }
     }
     else if (type == "radial") {
         x = x[order(x[, 1]), ]
@@ -111,11 +118,13 @@ function (x, type = c("pspline", "2dspline", "markov", "radial",
         districts = dimnames(P)[[1]]
         B = matrix(0, nrow = length(x), ncol = dim(P)[2])
         for (i in 1:length(x)) B[i, which(districts == x[i])] = 1
-        e <- eigen(P)
-        L <- e$vectors[, -dim(e$vectors)[2]] * sqrt(e$values[-length(e$values)])
-        Zspathelp <- L %*% solve(t(L) %*% L)
-        B <- B %*% Zspathelp
-        P = diag(nrow = dim(P)[1] - 1)
+        if (center) {
+            e <- eigen(P)
+            L <- e$vectors[, -dim(e$vectors)[2]] * sqrt(e$values[-length(e$values)])
+            Zspathelp <- L %*% solve(t(L) %*% L)
+            B <- B %*% Zspathelp
+            P = diag(nrow = dim(P)[1] - 1)
+        }
     }
     else if (type == "random") {
         districts = sort(unique(x))
@@ -131,6 +140,12 @@ function (x, type = c("pspline", "2dspline", "markov", "radial",
     else if (type == "special") {
         if (is.na(B) || is.na(P)) 
             stop("In 'special' case: Base and Penalty matrix have to be specified.")
+    }
+    else if (type == "parametric") {
+        B = matrix(x, ncol = 1)
+        if (center) 
+            B = B - sum(x)/length(x)
+        P = matrix(0, nrow = 1, ncol = 1)
     }
     list(B, P, x, type, bnd, Zspathelp, phi)
 }

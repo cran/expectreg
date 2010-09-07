@@ -12,9 +12,9 @@ loss functions to obtain the graphs of 11 different expectiles
 for continuous, spatial or random effects.
 }
 \usage{
-expectile.boost(formula, data, mstop = NA, parallel = FALSE)
+expectile.boost(formula, data = NULL, mstop = NA, expectiles = NA, parallel = FALSE, cv = TRUE)
 
-quant.boost(formula, data, mstop = NA, parallel = FALSE)
+quant.boost(formula, data = NULL, mstop = NA, expectiles = NA, parallel = FALSE, cv = TRUE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -29,11 +29,19 @@ data frame or matrix.
 }
   \item{mstop}{
 vector, number of bootstrap iterations for each of the 11 quantiles/expectiles that are fitted.
-Default is 10 000.
+Default is 4000.
+}
+  \item{expectiles}{
+In default setting, the expectiles (0.01,0.02,0.05,0.1,0.2,0.5,0.8,0.9,0.95,0.98,0.99) are calculated.
+You may specify your own set of expectiles in a vector. Is overridden by \code{density}.
 }
   \item{parallel}{
 On Unix machines with the package \code{\link[multicore]{multicore}} installed the different expectiles
 can be calculated simultaneously, if the computer has multiple CPUs. 
+}
+  \item{cv}{
+A cross-validation can determine the optimal amount of boosting iterations between 1 and \code{mstop}.
+Uses \code{\link[mboost]{cvrisk}}. If set to \code{FALSE}, the results from \code{mstop} iterations are used.
 }
 }
 \details{
@@ -70,7 +78,9 @@ University Oldenburg \cr
 \examples{
 data(dutchboys)
 
-expreg <- expectile.boost(hgt ~ bbs(age,df=5,degree=2),dutchboys,mstop=rep(600,11))
+dutch = dutchboys[sample(6848,500),] # reduce computing time for this example
+
+expreg <- expectile.boost(hgt ~ bbs(age,df=5,degree=2),dutch,mstop=rep(550,11),expectiles=c(0.05,0.2,0.5,0.8,0.95))
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
