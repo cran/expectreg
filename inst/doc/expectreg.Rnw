@@ -30,7 +30,7 @@ user already installed the package successfully.
 <<print=FALSE>>=
 library(expectreg)
 @
-<<>>=
+<<eval=FALSE, results=hide>>=
 help(package = "expectreg")
 data(package = "expectreg")
 @
@@ -82,7 +82,7 @@ For the expectile curve $\mu(p)$ several choices for the functional form are pos
 The original proposal in \cite{NeweyPowell1987} favored a linear model. We suggest a more
 flexible functional form for the expectile curve. \cite{SchnabelEilers} proposed to model
 expectile curves with $P-$splines. Other types such as other splines, markov random field or other
-options are also possible.
+options are also possible (see \cite{Sobotka:2010}).
 
 \subsection{Expectile bundle model}
 
@@ -139,7 +139,7 @@ is defined as $\rho(y,\eta) = w(\tau)(y - \eta_\tau)^2$. The corresponding negat
 Expectile estimation can be used in a almost any type of situation where one is interested in estimating
 smooth curves in non-central parts of the data under consideration. The data provided with the package are
 
-<<>>=
+<<eval=FALSE, results=hide>>=
 data(india)
 data(dutchboys)
 @
@@ -157,7 +157,7 @@ analyses. Details are given in \cite{IndiaTechReport}.
 The basic function \texttt{expectiles.laws} can be used to estimate 11 expectiles
 curves for different levels of asymmetry parameter $p$. The results are shown in the following graph.
 
-<<>>=
+<<eval=FALSE, results=hide>>=
 data(dutchboys)
 @     
 <<eval=FALSE, results=hide>>=
@@ -265,6 +265,11 @@ exp.boost <- expectile.boost(hgt ~ bbs(age,df=5,degree=2),dutchboys,mstop=rep(50
 {\sc Schnabel, S.~K.}, and {\sc P.~H.~C. Eilers}, 2010 Non crossing expectiles
   and quantiles.
 \newblock Journal for Computational and Graphical Statistics (Submitted).
+
+\bibitem[{{\sc Sobotka} and {\sc
+  Kneib}(2010)}]{Sobotka:2010}
+{\sc Sobotka, F.}, and {\sc T. Kneib}, 2010 Geoadditive Expectile Regression.
+\newblock Computational Statistics and Data Analysis (to appear).
 
 \end{thebibliography}
 

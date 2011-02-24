@@ -90,7 +90,7 @@ University Oldenburg \cr
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-\code{\link{ekoenker}}
+\code{\link{eemq}}
 }
 \examples{
 x <- seq(0,1,0.2)

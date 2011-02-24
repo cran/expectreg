@@ -14,7 +14,7 @@ function (y, B, b, p, cc, DD, lambda, nb)
         BtB <- BtB + cc[j] * t(WB) %*% B
         Bty <- Bty + t(WB) %*% y
     }
-    lambda = c(0, rep(lambda, times = nb))
+    lambda = c(rep(0, times = n - sum(nb)), rep(lambda, times = nb))
     P <- sqrt(lambda) * t(DD) %*% DD
     model <- lsfit(x = BtB + P, y = Bty, intercept = FALSE)
     sigma = 0.5 * sum((Bty - (BtB + P) %*% model$coef)^2, na.rm = TRUE)/(length(Bty) - 

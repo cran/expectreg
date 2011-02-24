@@ -1,16 +1,10 @@
-expectile.bundle <-
+quant.bundle <-
 function (formula, data = NULL, smooth = c("schall", "acv", "fixed"), 
-    lambda = 0.1, expectiles = NA, density = FALSE) 
+    lambda = 0.1, expectiles = NA, simple = TRUE) 
 {
     smooth = match.arg(smooth)
-    if (density) {
-        pp <- seq(0.01, 0.99, by = 0.01)
-        pp.plot <- c(1, 2, 5, 10, 20, 50, 80, 90, 95, 98, 99)
-        row.grid = 3
-        col.grid = 4
-    }
-    else if (any(is.na(expectiles)) || !is.vector(expectiles) || 
-        any(expectiles > 1) || any(expectiles < 0)) {
+    if (any(is.na(expectiles)) || !is.vector(expectiles) || any(expectiles > 
+        1) || any(expectiles < 0)) {
         pp <- c(0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 0.8, 0.9, 0.95, 
             0.98, 0.99)
         pp.plot <- 1:length(pp)
@@ -89,143 +83,33 @@ function (formula, data = NULL, smooth = c("schall", "acv", "fixed"),
         B = cbind(1, B)
         DD = rbind(0, cbind(0, DD))
     }
+    if (simple) 
+        ex = expectile.restricted(formula = formula, data = data, 
+            smooth = smooth, lambda = lambda, density = TRUE)
+    else ex = expectile.bundle(formula = formula, data = data, 
+        smooth = smooth, lambda = lambda, density = TRUE)
+    dev.off()
+    bunden = bundle.density(ex)
+    dev.off()
     lala <- matrix(lambda, nrow = nterms, ncol = 2, dimnames = list(1:nterms, 
         c("mean", "residual")))
-    vector.a.ma.schall <- matrix(NA, nrow = sum(nb) + 1 * center, 
+    vector.a.ma.schall <- matrix(NA, nrow = sum(nb) + (1 * center), 
         ncol = np)
-    if (smooth == "schall") {
-        dc = 1
-        dw = 1
-        w <- matrix(0.5, nrow = m, ncol = nterms)
-        it = 1
-        while (dc >= 0.01 && it < 100) {
-            aa <- asyregpen.lsfit(yy, B, 0.5, lala[, 1], DD, 
-                nb)
-            mean.coefficients <- aa$a
-            residuals = yy - B %*% mean.coefficients
-            b <- rep(1, ncol(B))
-            cc <- pp - 0.5
-            for (i in 1:20) {
-                mo <- fitampllsfit(residuals, B, b, pp, cc, DD, 
-                  lala[, 2], nb)
-                b <- mo$b/((sum(mo$b^2)/length(mo$b))^(1/2))
-                c0 <- cc
-                cc <- fitasy(residuals, B, b, pp, cc)
-                dc <- max(abs(cc - c0))
-                if (dc < 1e-06) 
-                  break
-            }
-            for (q in 1:np) {
-                vector.a.ma.schall[, q] = mean.coefficients + 
-                  cc[q] * b
-            }
-            sig.med <- vector()
-            tau.med <- vector()
-            sig.res <- vector()
-            tau.res <- vector()
-            lmed <- lala[, 1]
-            lres <- lala[, 2]
-            for (i in 1:nterms) {
-                partbasis = (sum(nb[0:(i - 1)]) + 1):(sum(nb[0:i]))
-                if (center) {
-                  partB = B[, -1][, partbasis, drop = FALSE]
-                  partDD = DD[, -1][-1, ][, partbasis, drop = FALSE]
-                  partaa = aa$a[-1][partbasis]
-                }
-                else {
-                  partB = B[, partbasis, drop = FALSE]
-                  partDD = DD[, partbasis, drop = FALSE]
-                  partaa = aa$a[partbasis]
-                }
-                v <- partDD %*% partaa
-                z <- B %*% aa$a
-                w[, i] <- 0.5 * (yy > z) + 0.5 * (yy <= z)
-                H = solve(t(partB) %*% (w[, i] * partB) + lala[i, 
-                  1] * t(partDD) %*% partDD)
-                H = apply(sqrt(w[, i]) * partB, 1, function(x) {
-                  t(x) %*% H %*% x
-                })
-                sig.med[i] <- sum(w[, i] * (yy - z)^2, na.rm = TRUE)/(m - 
-                  sum(aa$diag.hat.ma))
-                tau.med[i] <- sum(v^2)/sum(diag(H)) + 1e-06
-                lala[i, 1] <- max(sig.med[i]/tau.med[i], 1e-10)
-                partb = b[-1][partbasis]
-                v = partDD %*% partb
-                z = B %*% b
-                w[, i] <- 0.5 * (residuals > z) + 0.5 * (residuals <= 
-                  z)
-                H = solve(t(partB) %*% (w[, i] * partB) + lala[i, 
-                  2] * t(partDD) %*% partDD)
-                H = apply(sqrt(w[, i]) * partB, 1, function(x) {
-                  t(x) %*% H %*% x
-                })
-                sig.res[i] <- sum(w[, i] * (residuals - z)^2, 
-                  na.rm = TRUE)/(m - sum(aa$diag.hat.ma))
-                tau.res[i] <- sum(v^2)/sum(diag(H)) + 1e-06
-                lala[i, 2] <- max(sig.res[i]/tau.res[i], 1e-10)
-            }
-            dc <- max(abs(log10(lmed) - log10(lala[, 1]))) + 
-                max(abs(log10(lres) - log10(lala[, 2])))
-            it = it + 1
-        }
-        if (it == 100) 
-            warning("Schall algorithm did not converge. Stopping after 100 iterations.")
+    wq <- rep(NA, length(pp))
+    g = bunden$density * (bunden$x[2] - bunden$x[1])
+    for (i in 1:length(pp)) {
+        wq[i] <- which.min(abs(cumsum(g) - pp[i]))
     }
-    else if (smooth == "acv") {
-        acv.min = nlm(acv, p = lala[, 1], yy = yy, B = B, quantile = 0.5, 
-            DD = DD, nb = nb, ndigit = 8, iterlim = 50, gradtol = 1e-04)
-        aa <- asyregpen.lsfit(yy, B, 0.5, abs(acv.min$estimate), 
-            DD, nb)
-        mean.coefficients <- aa$a
-        lala[, 1] <- abs(acv.min$estimate)
-        residuals = yy - B %*% mean.coefficients
-        acv.min = nlm(acv, p = lala[, 2], yy = residuals, B = B, 
-            quantile = 0.5, DD = DD, nb = nb, ndigit = 8, iterlim = 50, 
-            gradtol = 1e-04)
-        lala[, 2] <- abs(acv.min$estimate)
-        b <- rep(1, ncol(B))
-        cc <- pp - 0.5
-        for (i in 1:20) {
-            mo <- fitampllsfit(residuals, B, b, pp, cc, DD, abs(acv.min$estimate), 
-                nb)
-            b <- mo$b/((sum(mo$b^2)/length(mo$b))^(1/2))
-            c0 <- cc
-            cc <- fitasy(residuals, B, b, pp, cc)
-            dc <- max(abs(cc - c0))
-            if (dc < 1e-06) 
-                break
-        }
-        for (q in 1:np) {
-            vector.a.ma.schall[, q] = mean.coefficients + cc[q] * 
-                b
-        }
-    }
-    else {
-        aa <- asyregpen.lsfit(yy, B, 0.5, lala[, 1], DD, nb)
-        mean.coefficients <- aa$a
-        residuals = yy - B %*% mean.coefficients
-        b <- rep(1, ncol(B))
-        cc <- pp - 0.5
-        for (i in 1:20) {
-            mo <- fitampllsfit(residuals, B, b, pp, cc, DD, lala[, 
-                2], nb)
-            b <- mo$b/((sum(mo$b^2)/length(mo$b))^(1/2))
-            c0 <- cc
-            cc <- fitasy(residuals, B, b, pp, cc)
-            dc <- max(abs(cc - c0))
-            if (dc < 1e-06) 
-                break
-        }
-        for (q in 1:np) {
-            vector.a.ma.schall[, q] = mean.coefficients + cc[q] * 
-                b
-        }
+    hq <- bunden$x[wq]
+    ex$asymmetry = hq
+    for (q in 1:np) {
+        vector.a.ma.schall[, q] = ex$trend.coef + ex$residual.coef * 
+            hq[q]
     }
     Z <- list()
     coefficients <- list()
     final.lambdas <- list()
     helper <- list()
-    fitted = B %*% vector.a.ma.schall
     if (center) {
         intercept = vector.a.ma.schall[1, ]
         B = B[, -1, drop = FALSE]
@@ -253,16 +137,16 @@ function (formula, data = NULL, smooth = c("schall", "acv", "fixed"),
                 Z[[k]][order(x[[k]])[seq(1, m, length = min(m, 
                   100))], pp.plot], col = rainbow(np.plot + 1)[1:np.plot], 
                 lty = 1)
-            legend(x = "bottomright", pch = 19, cex = 1, col = rev(rainbow(np.plot + 
-                1)[1:np.plot]), legend = rev(round(pp[pp.plot], 
-                2)), bg = "white", bty = "n")
+            legend(x = "topright", pch = 19, cex = 1, col = rev(rainbow(np.plot + 
+                1)[1:np.plot]), legend = rev(pp[pp.plot]), bg = "white", 
+                bty = "n")
         }
         else if (types[[k]] == "markov") {
             Z[[k]] <- matrix(NA, m, np)
             coefficients[[k]] = matrix(NA, nrow = nb[k] + 1, 
                 ncol = np)
-            helper[[k]] = list(bnd[[k]], Zspathelp[[k]])
             z = NULL
+            helper[[k]] = list(bnd[[k]], Zspathelp[[k]])
             for (i in 1:np) {
                 Z[[k]][, i] = design[[k]][[1]] %*% vector.a.ma.schall[partbasis, 
                   i, drop = FALSE] + intercept[i]
@@ -290,7 +174,7 @@ function (formula, data = NULL, smooth = c("schall", "acv", "fixed"),
                   re = data.frame(cbind(as.numeric(attr(bnd[[k]], 
                     "regions")), z[, pp.plot[i]]))
                   drawmap(re, bnd[[k]], regionvar = 1, plotvar = 2, 
-                    mar.min = NULL, limits = plot.limits, main = pp[pp.plot][i]/100)
+                    mar.min = NULL, limits = plot.limits, main = pp[pp.plot][i])
                 }
             }
         }
@@ -468,11 +352,7 @@ function (formula, data = NULL, smooth = c("schall", "acv", "fixed"),
                 bty = "n")
         }
     }
-    result = list(lambda = final.lambdas, intercepts = intercept, 
-        coefficients = coefficients, trend.coef = mean.coefficients, 
-        residual.coef = b, asymmetry = cc, values = Z, response = yy, 
-        covariates = x, formula = formula, expectiles = pp, effects = types, 
-        helper = helper, design = cbind(1, B), fitted = fitted)
-    class(result) = c("expectreg", "bundle")
-    result
+    ex$coefficients = coefficients
+    ex$values = Z
+    ex
 }

@@ -39,6 +39,6 @@ Under review at Statistics and Computing
 }
 \examples{
 data(dutchboys)
-expbund <- expectile.bundle(dutchboys[,3] ~ base(dutchboys[,2],"pspline"),smooth="none")
+expbund <- expectile.bundle(dutchboys[,3] ~ base(dutchboys[,2],"pspline"),smooth="fixed")
 bundle.density(expbund)
 }

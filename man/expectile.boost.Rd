@@ -56,6 +56,10 @@ An object of class 'expectreg', which is basically a list consisting of:
                    sorted in order of ascending covariate values. }
     \item{response}{ Vector of the response variable. }
     \item{formula}{ The formula object that was given to the function. }
+    \item{expectiles}{ Vector of fitted expectile asymmetries as given by argument \code{expectiles}. }
+    \item{effects}{ List of characters giving the types of covariates. }
+    \item{helper}{ List of additional parameters like neighbourhood structure for spatial effects or 'phi' for kriging. }
+    \item{fitted}{ Fitted values \eqn{ \hat{y} }. }
 }
 \references{
 Fenske N and Kneib T and Hothorn T (2009)

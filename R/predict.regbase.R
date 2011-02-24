@@ -1,11 +1,14 @@
-base <-
-function (x, type = c("pspline", "2dspline", "markov", "radial", 
-    "krig", "random", "ridge", "special", "parametric"), B = NA, 
-    P = NA, bnd = NA, center = TRUE, by = NA) 
+predict.regbase <-
+function (object, newdata = NULL, ...) 
 {
-    type = match.arg(type)
-    Zspathelp = NA
-    phi = NA
+    type = object$type
+    bnd = object$bnd
+    Zspathelp = object$Zspathelp
+    phi = object$phi
+    center = object$center
+    x = object$x
+    if (is.null(newdata)) 
+        newdata = x
     if (type == "pspline") {
         require(splines)
         B.deg = 2
@@ -15,7 +18,7 @@ function (x, type = c("pspline", "2dspline", "markov", "radial",
         x1 <- max(x) + 0.001
         dx = (x1 - x0)/(B.size - 1)
         B = splineDesign(knots = seq(x0 - dx * B.deg, x1 + dx * 
-            B.deg, by = dx), x = x, ord = B.deg + 1)
+            B.deg, by = dx), x = newdata, ord = B.deg + 1)
         P <- diag(dim(B)[2])
         P <- diff(P, diff = diff.size)
         if (center) {
@@ -38,12 +41,14 @@ function (x, type = c("pspline", "2dspline", "markov", "radial",
         x1 <- max(x[, 1]) + 0.001
         dx = (x1 - x0)/(B.size - B.deg)
         Bx = splineDesign(knots = seq(x0 - dx * B.deg, x1 + dx * 
-            B.deg, by = dx), x = x[, 1], ord = B.deg + 1)
+            B.deg, by = dx), x = newdata[, 1], ord = B.deg + 
+            1)
         y0 <- min(x[, 2]) - 0.001
         y1 <- max(x[, 2]) + 0.001
         dy = (y1 - y0)/(B.size - B.deg)
         By = splineDesign(knots = seq(y0 - dy * B.deg, y1 + dy * 
-            B.deg, by = dy), x = x[, 2], ord = B.deg + 1)
+            B.deg, by = dy), x = newdata[, 2], ord = B.deg + 
+            1)
         B = matrix(NA, nrow = dim(x)[1], ncol = dim(Bx)[2] * 
             dim(By)[2])
         for (i in 1:dim(Bx)[1]) B[i, ] = as.vector(Bx[i, ] %o% 
@@ -74,9 +79,9 @@ function (x, type = c("pspline", "2dspline", "markov", "radial",
         x = x[order(x[, 1]), ]
         knots = x[seq(1, dim(x)[1], length = min(50, dim(x)[1])), 
             ]
-        B = matrix(NA, nrow = dim(x)[1], ncol = dim(knots)[1])
-        for (i in 1:dim(x)[1]) for (j in 1:dim(knots)[1]) {
-            r = sqrt(sum((x[i, ] - knots[j, ])^2))
+        B = matrix(NA, nrow = dim(newdata)[1], ncol = dim(knots)[1])
+        for (i in 1:dim(newdata)[1]) for (j in 1:dim(knots)[1]) {
+            r = sqrt(sum((newdata[i, ] - knots[j, ])^2))
             if (r == 0) 
                 B[i, j] = 0
             else B[i, j] = r^2 * log(r)
@@ -94,7 +99,7 @@ function (x, type = c("pspline", "2dspline", "markov", "radial",
         x = x[order(x[, 1]), ]
         knots = x[seq(1, dim(x)[1], length = min(50, dim(x)[1])), 
             ]
-        B = matrix(NA, nrow = dim(x)[1], ncol = dim(knots)[1])
+        B = matrix(NA, nrow = dim(newdata)[1], ncol = dim(knots)[1])
         P = matrix(0, nrow = dim(B)[2], ncol = dim(B)[2])
         for (i in 1:dim(B)[2]) for (j in 1:dim(B)[2]) {
             P[i, j] = sqrt(sum((knots[i, ] - knots[j, ])^2))
@@ -102,8 +107,8 @@ function (x, type = c("pspline", "2dspline", "markov", "radial",
         phi = max(P)/c
         P = P/phi
         P = exp(-P) * (1 + P)
-        for (i in 1:dim(x)[1]) for (j in 1:dim(knots)[1]) {
-            r = sqrt(sum((x[i, ] - knots[j, ])^2))
+        for (i in 1:dim(newdata)[1]) for (j in 1:dim(knots)[1]) {
+            r = sqrt(sum((newdata[i, ] - knots[j, ])^2))
             B[i, j] = exp(-r/phi) * (1 + r/phi)
         }
     }
@@ -116,8 +121,9 @@ function (x, type = c("pspline", "2dspline", "markov", "radial",
         if (any(diag(P) < 0) || any(P - diag(P) > 0) || is.null(dimnames(P)[[1]])) 
             stop("Maldefined Neighbourhood.")
         districts = dimnames(P)[[1]]
-        B = matrix(0, nrow = length(x), ncol = dim(P)[2])
-        for (i in 1:length(x)) B[i, which(districts == x[i])] = 1
+        B = matrix(0, nrow = length(newdata), ncol = dim(P)[2])
+        for (i in 1:length(newdata)) B[i, which(districts == 
+            newdata[i])] = 1
         if (center) {
             e <- eigen(P)
             L <- e$vectors[, -dim(e$vectors)[2]] * sqrt(e$values[-length(e$values)])
@@ -128,30 +134,35 @@ function (x, type = c("pspline", "2dspline", "markov", "radial",
     }
     else if (type == "random") {
         districts = sort(unique(x))
-        B = matrix(0, nrow = length(x), ncol = length(districts))
-        for (i in 1:length(x)) B[i, which(districts == x[i])] = 1
+        B = matrix(0, nrow = length(newdata), ncol = length(districts))
+        for (i in 1:length(newdata)) B[i, which(districts == 
+            newdata[i])] = 1
         P = diag(nrow = dim(B)[2])
     }
     else if (type == "ridge") {
-        B = matrix(NA, nrow = dim(x)[1], ncol = dim(x)[2])
+        B = matrix(NA, nrow = dim(newdata)[1], ncol = dim(x)[2])
         for (i in 1:dim(x)[2]) B[, i] = x[, i]
         P = diag(nrow = dim(B)[2])
     }
     else if (type == "special") {
         if (is.na(B) || is.na(P)) 
             stop("In 'special' case: Base and Penalty matrix have to be specified.")
-        B = as.matrix(B)
+        if (is.vector(newdata)) 
+            l = length(newdata)
+        else if (is.matrix(newdata) || is.data.frame(newdata)) 
+            l = nrow(newdata)
+        B = as.matrix(object$B)[1:l, ]
         P = as.matrix(P)
     }
     else if (type == "parametric") {
         if (is.vector(x)) {
-            B = matrix(x, ncol = 1)
+            B = matrix(newdata, ncol = 1)
         }
         else if (is.matrix(x)) {
-            B = x
+            B = newdata
         }
         else if (is.data.frame(x)) {
-            B = as.matrix(x)
+            B = as.matrix(newdata)
         }
         if (center) 
             B = apply(B, 2, function(x) {
@@ -159,8 +170,5 @@ function (x, type = c("pspline", "2dspline", "markov", "radial",
             })
         P = matrix(0, nrow = ncol(B), ncol = ncol(B))
     }
-    rb = list(B = B, P = P, x = x, type = type, bnd = bnd, Zspathelp = Zspathelp, 
-        phi = phi, center = center, by = by)
-    class(rb) = c("regbase")
-    rb
+    B
 }

@@ -15,8 +15,8 @@ Expectile and quantile regression of models with nonlinear effects
 \tabular{ll}{
 Package: \tab expectreg\cr
 Type: \tab Package\cr
-Version: \tab 0.16\cr
-Date: \tab 2010-09-07\cr
+Version: \tab 0.20\cr
+Date: \tab 2011-02-24\cr
 License: \tab GPL (>= 2)\cr
 LazyLoad: \tab yes\cr
 }
@@ -43,14 +43,6 @@ Maintainer: Fabian Sobotka <fabian.sobotka@uni-oldenburg.de>
 
 }
 \references{
-Koenker R (2005)
-\emph{ Quantile Regression }
-Cambridge University Press, New York
-
-Schnabel S and Eilers P (2009)
-\emph{ Optimal expectile smoothing }
-Computational Statistics and Data Analysis, 53:4168-4177
-
 Fenske N and Kneib T and Hothorn T (2009)
 \emph{ Identifying Risk Factors for Severe Childhood Malnutrition
 by Boosting Additive Quantile Regression}
@@ -59,6 +51,23 @@ Technical Report 052, University of Munich
 He X (1997)
 \emph{ Quantile Curves without Crossing }
 The American Statistician, 51(2):186-192
+
+Koenker R (2005)
+\emph{ Quantile Regression }
+Cambridge University Press, New York
+
+Schnabel S and Eilers P (2009)
+\emph{ Optimal expectile smoothing }
+Computational Statistics and Data Analysis, 53:4168-4177
+
+Schnabel S and Eilers P (2010)
+\emph{ A location scale model for non-crossing expectile curves }
+Statistics and Computing (submitted)
+
+Sobotka F and Kneib T (2010)
+\emph{ Geoadditive Expectile Regression }
+Computational Statistics and Data Analysis,
+doi: 10.1016/j.csda.2010.11.015.
 }
 
 \keyword{ package }
@@ -77,4 +86,7 @@ data(dutchboys)
 expreg <- expectile.restricted(dutchboys[,3] ~ base(dutchboys[,2],"pspline"),smooth="schall")
 ## The calculation of expectiles for given distributions
 enorm(0.1)
+## Introducing the expectiles-meet-quantiles distribution
+x = seq(-5,5,length=100)
+plot(x,demq(x),type="l")
 }

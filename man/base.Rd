@@ -13,7 +13,7 @@ Additionally a penalty matrix is generated.
 \usage{
 base(x, type = c("pspline", "2dspline", "markov", "radial", "krig", 
                  "random", "ridge", "special", "parametric"),
-                 B = NA, P = NA, bnd = NA, center =TRUE)
+                 B = NA, P = NA, bnd = NA, center = TRUE, by = NA)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -42,6 +42,10 @@ See \code{\link[BayesX]{read.bnd}}.
   \item{center}{
 Logical to state whether the basis shall be centered in order to fit additive models
 with one central intercept.  
+}
+  \item{by}{
+An optional variable defining varying coefficients, either a factor or numeric variable.
+Per default treatment coding is used. Note that the main effect needs to be specified in a separate basis.
 }
 }
 \details{
@@ -88,6 +92,8 @@ List consisting of:
                     for calculation of the fitted values. }
   \item{phi}{ Constant only needed with 'kriging' \code{type},
               otherwise 'NA'. }
+  \item{center}{ The boolean value of the argument \code{center}.
+         }
 
 }
 \references{

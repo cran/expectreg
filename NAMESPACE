@@ -6,11 +6,12 @@ export(expectile.laws,
        bundle.density,
        base,
        quant.boost,
-       pkoenker,
-       qkoenker,
-       dkoenker,
-       ekoenker,
-       rkoenker,
+       quant.bundle,
+       pemq,
+       qemq,
+       demq,
+       eemq,
+       remq,
        ebeta,
        enorm,
        eunif,
@@ -21,4 +22,6 @@ export(expectile.laws,
        elnorm)
 
 S3method(plot, expectreg)
+S3method(print, expectreg)
 S3method(plot, bundledensity)
+S3method(predict, regbase)

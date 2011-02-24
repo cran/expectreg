@@ -3,7 +3,7 @@ function (y, B, p, lambda, DD, nb)
 {
     w1 <- 0 * y + 0.5
     n <- ncol(B)
-    lambda = c(0, rep(lambda, times = nb))
+    lambda = c(rep(0, times = n - sum(nb)), rep(lambda, times = nb))
     P <- sqrt(lambda) * DD
     augm <- rep(0, dim(P)[1])
     dw1 = 1

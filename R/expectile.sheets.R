@@ -1,5 +1,5 @@
 expectile.sheets <-
-function (formula, data = NULL, smooth = c("acv", "none"), lambda = 0.1, 
+function (formula, data = NULL, smooth = c("acv", "fixed"), lambda = 0.1, 
     lambdap = 5, expectiles = NA, density = FALSE) 
 {
     smooth = match.arg(smooth)
@@ -38,6 +38,8 @@ function (formula, data = NULL, smooth = c("acv", "none"), lambda = 0.1,
     krig.phi = list()
     B = list()
     DD = list()
+    center = TRUE
+    varying = list()
     for (i in 1:length(labels(terms(formula)))) {
         types[[i]] = strsplit(labels(terms(formula))[i], "(", 
             fixed = TRUE)[[1]][1]
@@ -57,6 +59,8 @@ function (formula, data = NULL, smooth = c("acv", "none"), lambda = 0.1,
     Zspathelp[[1]] = design[[1]][[6]]
     nb[1] = ncol(design[[1]][[1]])
     krig.phi[[1]] = design[[1]][[7]]
+    center = center && design[[1]][[8]]
+    varying[[1]] = design[[1]][[9]]
     if (length(labels(terms(formula))) > 1) 
         for (i in 2:length(labels(terms(formula)))) {
             B[[i]] = design[[i]][[1]]
@@ -67,86 +71,18 @@ function (formula, data = NULL, smooth = c("acv", "none"), lambda = 0.1,
             Zspathelp[[i]] = design[[i]][[6]]
             nb[i] = ncol(design[[i]][[1]])
             krig.phi[[i]] = design[[i]][[7]]
+            center = center && design[[i]][[8]]
+            varying[[i]] = design[[i]][[9]]
         }
     lala <- matrix(c(rep(lambda, nterms), rep(lambdap, nterms)), 
         nrow = nterms, ncol = 2, dimnames = list(1:nterms, c("curve", 
             "sheet")))
     vector.a.ma.schall <- matrix(NA, nrow = sum(nb) + 1, ncol = np)
     med = which(pp == 0.5)
-    penalty <- lambda
-    if (smooth == "schall") {
-        dc = 1
-        dw = 1
-        w <- matrix(0.5, nrow = m, ncol = nterms)
-        it = 1
-        while (dc >= 0.01 && it < 100) {
-            aa <- asyregpen.lsfit(yy, B, 0.5, lala[, 1], DD, 
-                nb)
-            vector.a.ma.schall[, med] <- aa$a
-            residuals = yy - B %*% vector.a.ma.schall[, med]
-            b <- rep(1, ncol(B))
-            cc <- pp - 0.5
-            for (i in 1:20) {
-                mo <- fitampllsfit(residuals, B, b, pp, cc, DD, 
-                  lala[, 2], nb)
-                b <- mo$b/((sum(mo$b^2)/length(mo$b))^(1/2))
-                c0 <- cc
-                cc <- fitasy(residuals, B, b, pp, cc)
-                dc <- max(abs(cc - c0))
-                if (dc < 1e-06) 
-                  break
-            }
-            for (q in 1:np) {
-                vector.a.ma.schall[, q] = vector.a.ma.schall[, 
-                  med] + cc[q] * b
-            }
-            sig.med <- vector()
-            tau.med <- vector()
-            sig.res <- vector()
-            tau.res <- vector()
-            lmed <- lala[, 1]
-            lres <- lala[, 2]
-            for (i in 1:nterms) {
-                partbasis = (sum(nb[0:(i - 1)]) + 1):(sum(nb[0:i]))
-                partB = B[, -1][, partbasis]
-                partDD = DD[, -1][-1, ][partbasis, partbasis]
-                partaa = aa$a[-1][partbasis]
-                partw = aa$weight[-1][partbasis]
-                v <- partDD %*% partaa
-                z <- B %*% aa$a
-                w[, i] <- 0.5 * (yy > z) + 0.5 * (yy <= z)
-                H = solve(t(partB) %*% (w[, i] * partB) + lala[i, 
-                  1] * t(partDD) %*% partDD)
-                H = apply(sqrt(w[, i]) * partB, 1, function(x) {
-                  t(x) %*% H %*% x
-                })
-                sig.med[i] <- sum(w[, i] * (yy - z)^2, na.rm = TRUE)/(m - 
-                  sum(aa$diag.hat.ma))
-                tau.med[i] <- sum(v^2)/sum(H) + 1e-06
-                lala[i, 1] <- max(sig.med[i]/tau.med[i], 1e-10)
-                partb = b[-1][partbasis]
-                v = partDD %*% partb
-                z = B %*% b
-                w[, i] <- 0.5 * (residuals > z) + 0.5 * (residuals <= 
-                  z)
-                H = solve(t(partB) %*% (w[, i] * partB) + lala[i, 
-                  2] * t(partDD) %*% partDD)
-                H = apply(sqrt(w[, i]) * partB, 1, function(x) {
-                  t(x) %*% H %*% x
-                })
-                sig.res[i] <- sum(w[, i] * (residuals - z)^2, 
-                  na.rm = TRUE)/(m - sum(aa$diag.hat.ma))
-                tau.res[i] <- sum(v^2)/sum(H) + 1e-06
-                lala[i, 2] <- max(sig.res[i]/tau.res[i], 1e-10)
-            }
-            dc <- max(abs(log10(lmed) - log10(lala[, 1]))) + 
-                max(abs(log10(lres) - log10(lala[, 2])))
-            it = it + 1
-        }
-    }
-    else if (smooth == "acv") {
+    if (smooth == "acv") {
         acv.min = nlm(acv.sheets, p = lala, yy = yy, B = B, pp = pp, 
-            DD = DD, nb = nb, ndigit = 8, iterlim = 50, gradtol = 1e-04)
+            DD = DD, nb = nb, center = center, by = varying, 
+            ndigit = 8, iterlim = 50, gradtol = 1e-04)
         min.lambda = matrix(abs(acv.min$estimate), ncol = 2)
         lala[, 1] <- min.lambda[, 1]
         lala[, 2] <- min.lambda[, 2]
@@ -155,7 +91,7 @@ function (formula, data = NULL, smooth = c("acv", "none"), lambda = 0.1,
         vv <- log(ps/(1 - ps))
         w <- runif(m * np)
         p2f.new <- pspfit2d.new(B, DD, ps, ynp, w, lala[, 1], 
-            lala[, 2])
+            lala[, 2], center, varying)
         vector.a.ma.schall <- matrix(p2f.new$coef, ncol = np, 
             byrow = T)
     }
@@ -165,15 +101,17 @@ function (formula, data = NULL, smooth = c("acv", "none"), lambda = 0.1,
         vv <- log(ps/(1 - ps))
         w <- runif(m * np)
         p2f.new <- pspfit2d.new(B, DD, ps, ynp, w, lala[, 1], 
-            lala[, 2])
+            lala[, 2], center, varying)
     }
     curves = p2f.new$curves
     Z <- list()
     coefficients <- list()
     final.lambdas <- list()
     intercept = p2f.new$intercept
+    desmat = 1
     for (k in 1:length(design)) {
         final.lambdas[[k]] = lala[k, ]
+        desmat = cbind(desmat, B[[k]])
         partbasis = (sum(nb[0:(k - 1)]) + 1):(sum(nb[0:k]))
         dev.new()
         if (types[[k]] == "pspline") {
@@ -187,7 +125,7 @@ function (formula, data = NULL, smooth = c("acv", "none"), lambda = 0.1,
                   100))], pp.plot], col = rainbow(np.plot + 1)[1:np.plot], 
                 lty = 1)
             legend(x = "topright", pch = 19, cex = 1, col = rev(rainbow(np.plot + 
-                1)[1:np.plot]), legend = rev(pp), bg = "white", 
+                1)[1:np.plot]), legend = rev(round(pp, 2)), bg = "white", 
                 bty = "n")
         }
         else if (types[[k]] == "markov") {
@@ -324,6 +262,22 @@ function (formula, data = NULL, smooth = c("acv", "none"), lambda = 0.1,
                 coefficients[[k]][, i] = vector.a.ma.schall[partbasis, 
                   i, drop = FALSE]
             }
+            matplot(1:nb[k], coefficients[[k]][, pp.plot], col = rainbow(np.plot + 
+                1)[1:np.plot], pch = 15)
+            legend(x = "bottomright", pch = 19, cex = 1, col = rev(rainbow(np.plot + 
+                1)[1:np.plot]), legend = rev(pp[pp.plot]), bg = "white", 
+                bty = "n")
+        }
+        else if (types[[k]] == "special") {
+            Z[[k]] <- matrix(NA, m, np)
+            coefficients[[k]] = matrix(NA, nrow = nb[k], ncol = np)
+            helper[[k]] = NA
+            for (i in 1:np) {
+                Z[[k]][, i] <- B[[k]] %*% vector.a.ma.schall[partbasis, 
+                  i, drop = FALSE] + intercept[i]
+                coefficients[[k]][, i] = vector.a.ma.schall[partbasis, 
+                  i, drop = FALSE]
+            }
             plot(x[[k]], yy, cex = 0.5, pch = 20, col = "grey42", 
                 xlab = "x", ylab = "y", ylim = range(cbind(yy, 
                   Z[[k]])))
@@ -335,7 +289,8 @@ function (formula, data = NULL, smooth = c("acv", "none"), lambda = 0.1,
         }
     }
     result = list(lambda = final.lambdas, intercepts = intercept, 
-        values = curves, response = yy, covariates = x, formula = formula)
+        values = curves, response = yy, covariates = x, formula = formula, 
+        design = desmat, fitted = desmat %*% p2f.new$coef)
     class(result) = c("expectreg", "sheets")
     result
 }

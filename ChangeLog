@@ -1,3 +1,26 @@
+2011-02-24 version 0.20
+
+new features:
+- functions (d,p,q,r,e)emq replace the 'koenker' distribution functions, being more general
+- function plot.expectreg now also works for boosting
+- introducing a 'by' argument for varying coefficients in function base
+- function quant.bundle added
+- print method for class 'expectreg' added
+- predict method for base and therefore for class 'regbase' added
+
+changes:
+- boosting results now really seperate for each covariate
+- not centering bases is now recognised by expectile.(laws,restricted,bundle,sheets)
+- base now returns an object of class 'regbase'
+- fixed smoothing option renamed from 'none' to 'fixed'
+- schall algorithm returns warning if no convergence is achieved
+- vignette is now available via call: 'vignette("expectreg")'
+
+bugfixes:
+- correcting the plot function for the 'expectreg' class
+- correcting theoretical expectiles of gamma (and therefore exponential, chi squared), lognormal
+- user defined covariate basis of type 'special' added to output
+
 2010-09-07 version 0.16
 
 new features: 

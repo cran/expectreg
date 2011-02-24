@@ -8,10 +8,7 @@ function (bundle)
         basis = cbind(basis, eval(parse(text = labels(terms(bundle$formula))[i]))[[1]])
     }
     np = length(bundle$intercepts)
-    if (np == 99) 
-        pp <- seq(0.01, 0.99, by = 0.01)
-    else pp <- c(0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 0.8, 0.9, 0.95, 
-        0.98, 0.99)
+    pp <- bundle$expectiles
     rst <- (bundle$response - (cbind(1, basis) %*% bundle$trend.coef))/(cbind(1, 
         basis) %*% bundle$residual.coef)
     u <- seq(1.2 * min(rst), 1.2 * max(rst), length = 100)

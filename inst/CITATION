@@ -13,3 +13,32 @@ paste("Fabian Sobotka, Thomas Kneib, Sabine Schnabel (",
 year,
 "). expectreg: Expectile and Quantile Regression. ",
 vers, ".", sep=""))
+
+    citEntry(entry="Article",
+         title = "Geoadditive Expectile Regression",
+         author = personList(as.person("Fabian Sobotka"), as.person("Thomas Kneib")),
+         journal      = "Computational Statistics and Data Analysis (to appear)",
+         year         = "2010",
+         note         = "doi: 10.1016/j.csda.2010.11.015",
+
+         textVersion =
+         paste("Fabian Sobotka and Thomas Kneib (2010).",
+               "Geoadditive Expectile Regression.",
+               "Computational Statistics and Data Analysis,",
+               "doi: 10.1016/j.csda.2010.11.015."),
+   )
+
+
+    citEntry(entry="Article",
+         title = "Optimal Expectile Smoothing",
+         author = personList(as.person("Sabine Schnabel"), as.person("Paul Eilers")),
+         journal      = "Computational Statistics and Data Analysis",
+         year         = "2009",
+         volume       = "53",
+         pages        = "4168--4177",
+
+         textVersion =
+         paste("Sabine Schnabel and Paul Eilers (2009).",
+               "Optimal Expectile Smoothing.",
+               "Computational Statistics and Data Analysis, 53:4168-4177."),
+   )
