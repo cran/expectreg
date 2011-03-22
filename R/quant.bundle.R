@@ -21,7 +21,7 @@ function (formula, data = NULL, smooth = c("schall", "acv", "fixed"),
     }
     np <- length(pp)
     np.plot <- length(pp.plot)
-    yy = eval(parse(text = formula[2]), envir = data, enclos = .GlobalEnv)
+    yy = eval(parse(text = formula[2]), envir = data, enclos = environment(formula))
     m = length(yy)
     design = list()
     x = list()
@@ -37,8 +37,8 @@ function (formula, data = NULL, smooth = c("schall", "acv", "fixed"),
             fixed = TRUE)[[1]][1]
         if (types[[i]] == labels(terms(formula))[i]) {
             design[[i]] = base(matrix(eval(parse(text = labels(terms(formula))[i]), 
-                envir = data, enclos = .GlobalEnv), nrow = m), 
-                "parametric")
+                envir = data, enclos = environment(formula)), 
+                nrow = m), "parametric")
             formula = eval(substitute(update(formula, . ~ variable2 + 
                 . - variable1), list(variable1 = as.name(types[[i]]), 
                 variable2 = as.name(paste("base(", types[[i]], 
@@ -46,7 +46,7 @@ function (formula, data = NULL, smooth = c("schall", "acv", "fixed"),
             types[[i]] = "parametric"
         }
         else design[[i]] = eval(parse(text = labels(terms(formula))[i]), 
-            envir = data, enclos = .GlobalEnv)
+            envir = data, enclos = environment(formula))
     }
     nterms = length(design)
     varying[[1]] = design[[1]][[9]]

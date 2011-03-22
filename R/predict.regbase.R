@@ -18,7 +18,7 @@ function (object, newdata = NULL, ...)
         x1 <- max(x) + 0.001
         dx = (x1 - x0)/(B.size - 1)
         B = splineDesign(knots = seq(x0 - dx * B.deg, x1 + dx * 
-            B.deg, by = dx), x = newdata, ord = B.deg + 1)
+            B.deg, by = dx), x = newdata, ord = B.deg + 1, outer.ok = TRUE)
         P <- diag(dim(B)[2])
         P <- diff(P, diff = diff.size)
         if (center) {
@@ -42,13 +42,13 @@ function (object, newdata = NULL, ...)
         dx = (x1 - x0)/(B.size - B.deg)
         Bx = splineDesign(knots = seq(x0 - dx * B.deg, x1 + dx * 
             B.deg, by = dx), x = newdata[, 1], ord = B.deg + 
-            1)
+            1, outer.ok = TRUE)
         y0 <- min(x[, 2]) - 0.001
         y1 <- max(x[, 2]) + 0.001
         dy = (y1 - y0)/(B.size - B.deg)
         By = splineDesign(knots = seq(y0 - dy * B.deg, y1 + dy * 
             B.deg, by = dy), x = newdata[, 2], ord = B.deg + 
-            1)
+            1, outer.ok = TRUE)
         B = matrix(NA, nrow = dim(x)[1], ncol = dim(Bx)[2] * 
             dim(By)[2])
         for (i in 1:dim(Bx)[1]) B[i, ] = as.vector(Bx[i, ] %o% 
@@ -80,18 +80,12 @@ function (object, newdata = NULL, ...)
         knots = x[seq(1, dim(x)[1], length = min(50, dim(x)[1])), 
             ]
         B = matrix(NA, nrow = dim(newdata)[1], ncol = dim(knots)[1])
-        for (i in 1:dim(newdata)[1]) for (j in 1:dim(knots)[1]) {
-            r = sqrt(sum((newdata[i, ] - knots[j, ])^2))
-            if (r == 0) 
-                B[i, j] = 0
-            else B[i, j] = r^2 * log(r)
-        }
-        P = matrix(0, nrow = dim(B)[2], ncol = dim(B)[2])
-        for (i in 1:dim(B)[2]) for (j in 1:dim(B)[2]) {
-            r = sqrt(sum((knots[i, ] - knots[j, ])^2))
-            if (r == 0) 
-                P[i, j] = 0
-            else P[i, j] = r^2 * log(r)
+        for (j in 1:dim(knots)[1]) {
+            r = sqrt(rowSums((newdata - matrix(unlist(knots[j, 
+                ]), nrow = nrow(newdata), ncol = ncol(knots), 
+                byrow = T))^2))
+            r[r == 0] = 1
+            B[, j] = r^2 * log(r)
         }
     }
     else if (type == "krig") {
@@ -105,11 +99,11 @@ function (object, newdata = NULL, ...)
             P[i, j] = sqrt(sum((knots[i, ] - knots[j, ])^2))
         }
         phi = max(P)/c
-        P = P/phi
-        P = exp(-P) * (1 + P)
-        for (i in 1:dim(newdata)[1]) for (j in 1:dim(knots)[1]) {
-            r = sqrt(sum((newdata[i, ] - knots[j, ])^2))
-            B[i, j] = exp(-r/phi) * (1 + r/phi)
+        for (j in 1:dim(knots)[1]) {
+            r = sqrt(rowSums((newdata - matrix(unlist(knots[j, 
+                ]), nrow = nrow(newdata), ncol = ncol(knots), 
+                byrow = T))^2))
+            B[, j] = exp(-r/phi) * (1 + r/phi)
         }
     }
     else if (type == "markov") {
@@ -124,6 +118,7 @@ function (object, newdata = NULL, ...)
         B = matrix(0, nrow = length(newdata), ncol = dim(P)[2])
         for (i in 1:length(newdata)) B[i, which(districts == 
             newdata[i])] = 1
+        Zspathelp = diag(ncol(P))
         if (center) {
             e <- eigen(P)
             L <- e$vectors[, -dim(e$vectors)[2]] * sqrt(e$values[-length(e$values)])

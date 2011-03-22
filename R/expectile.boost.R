@@ -29,20 +29,20 @@ function (formula, data = NULL, mstop = NA, expectiles = NA,
     bls <- list()
     x <- list()
     bnd = list()
-    yy = eval(parse(text = formula[2]), envir = data, enclos = .GlobalEnv)
+    yy = eval(parse(text = formula[2]), envir = data, enclos = environment(formula))
     for (i in 1:length(blsstr)) {
         types[[i]] = strsplit(blsstr[i], "(", fixed = TRUE)[[1]][1]
         if (types[[i]] == blsstr[i]) {
             types[[i]] = "parametric"
             x[[i]] = eval(parse(text = blsstr[i]), envir = data, 
-                enclos = .GlobalEnv)
+                enclos = environment(formula))
             bls[[i]] = NULL
         }
         else {
             bls[[i]] <- eval(parse(text = blsstr[i]), envir = data, 
-                enclos = .GlobalEnv)
+                enclos = environment(formula))
             x[[i]] <- eval(parse(text = bls[[i]]$get_names()), 
-                envir = data, enclos = .GlobalEnv)
+                envir = data, enclos = environment(formula))
         }
         if (types[[i]] != "bmrf") 
             bnd[[i]] = NA
@@ -186,71 +186,6 @@ function (formula, data = NULL, mstop = NA, expectiles = NA,
             if (types[[k]] == "2dspline") 
                 z[[k]][[i]] = coef.vector[[i]][[2]][[k]]
             else z[[k]][, i] = coef.vector[[i]][[2]][[k]]
-        }
-    }
-    for (k in 1:length(blsstr)) {
-        dev.new()
-        if (types[[k]] == "pspline") {
-            plot(x[[k]], yy, cex = 0.5, pch = 20, col = "grey42", 
-                xlab = "x", ylab = "y", ylim = range(cbind(yy, 
-                  values[[k]])))
-            matlines(sort(x[[k]]), z[[k]][order(x[[k]]), ], col = rainbow(np + 
-                1)[1:np], lty = 1, lwd = 1)
-            legend(x = "topright", pch = 19, cex = 1, col = rev(rainbow(np + 
-                1)[1:np]), legend = rev(pp), bg = "white", bty = "n")
-        }
-        else if (types[[k]] == "2dspline") {
-            x.min = apply(x[[k]], 2, min)
-            x.max = apply(x[[k]], 2, max)
-            par(mfrow = (c(row.grid, col.grid)))
-            for (i in 1:np) {
-                persp(seq(x.min[1], x.max[1], length = 20), seq(x.min[2], 
-                  x.max[2], length = 20), z[[k]][[i]], ticktype = "detailed", 
-                  phi = 40, zlim = range(unlist(z[[k]])), col = "lightblue", 
-                  xlab = "X", ylab = "Y", zlab = "Z", main = pp[i])
-            }
-        }
-        else if (types[[k]] == "random") {
-            plot(seq(0, 1.1 * max(x[[k]]), length = 10), seq(0, 
-                max(z), length = 10), type = "n", xlab = "Group", 
-                ylab = "coefficients")
-            points(rep(sort(unique(x[[k]])), times = np), z[[k]], 
-                col = rainbow(np + 1)[1:np])
-            legend(x = "right", pch = 19, cex = 1, col = rev(rainbow(np + 
-                1)[1:np]), legend = rev(pp), bg = "white", bty = "n")
-        }
-        else if (types[[k]] == "markov") {
-            helper[[k]] = bnd[[k]]
-            if (class(bnd[[k]]) != "bnd") {
-                plot(seq(0, 1.1 * max(x[[k]]), length = 10), 
-                  seq(0, max(z), length = 10), type = "n", xlab = "Districts", 
-                  ylab = "coefficients")
-                points(rep(as.numeric(attr(bnd[[k]], "regions")), 
-                  times = np), z[[k]], col = rainbow(np + 1)[1:np])
-                legend(x = "right", pch = 19, cex = 1, col = rev(rainbow(np + 
-                  1)[1:np]), legend = rev(pp), bg = "white", 
-                  bty = "n")
-            }
-            else {
-                par(mfrow = (c(row.grid, col.grid)))
-                plot.limits = range(z[[k]])
-                n = as.numeric(attr(bnd[[k]], "regions"))
-                for (i in 1:np) {
-                  re = data.frame(cbind(n, z[[k]][, i]))
-                  drawmap(re, bnd[[k]], regionvar = 1, plotvar = 2, 
-                    mar.min = NULL, limits = plot.limits, main = pp[i], 
-                    cols = "grey", swapcolors = TRUE)
-                }
-            }
-        }
-        else if (types[[k]] == "parametric") {
-            plot(x[[k]], yy, cex = 0.5, pch = 20, col = "grey42", 
-                xlab = "x", ylab = "y", ylim = range(cbind(yy, 
-                  values[[k]])))
-            matlines(sort(x[[k]]), z[[k]][order(x[[k]]), ], col = rainbow(np + 
-                1)[1:np], lty = 1)
-            legend(x = "bottomright", pch = 19, cex = 1, col = rev(rainbow(np + 
-                1)[1:np]), legend = rev(pp), bg = "white", bty = "n")
         }
     }
     result = list(values = values, response = yy, covariates = x, 

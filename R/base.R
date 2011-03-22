@@ -51,19 +51,18 @@ function (x, type = c("pspline", "2dspline", "markov", "radial",
         D = diff(diag(dim(Bx)[2]), diff = diff.size)
         P = t(D) %*% D
         P = diag(dim(Bx)[2]) %x% P + P %x% diag(dim(Bx)[2])
+        ek = eigen(P)
+        ek$values = ek$values[1:(length(ek$values) - 2 * diff.size)]
+        ek$vectors = ek$vectors[, 1:(dim(ek$vectors)[2] - 2 * 
+            diff.size)]
+        P = t(ek$vectors %*% sqrt(diag(ek$values)))
         if (center) {
             tildeX = matrix(1, nrow = dim(Bx)[2] * dim(By)[2], 
                 ncol = 4)
             tildeX[, 2] = rep(1:dim(Bx)[2], times = dim(By)[2])
             tildeX[, 3] = rep(1:dim(By)[2], each = dim(Bx)[2])
             tildeX[, 4] = tildeX[, 2] * tildeX[, 3]
-            ek = eigen(P)
-            ek$values = ek$values[1:(length(ek$values) - 2 * 
-                diff.size)]
-            ek$vectors = ek$vectors[, 1:(dim(ek$vectors)[2] - 
-                2 * diff.size)]
-            L = ek$vectors %*% sqrt(diag(ek$values))
-            tildeU = L %*% solve(t(L) %*% L)
+            tildeU = t(P) %*% solve(P %*% t(P))
             X = B %*% tildeX
             U = B %*% tildeU
             B = cbind(X[, -1], U)
@@ -75,36 +74,40 @@ function (x, type = c("pspline", "2dspline", "markov", "radial",
         knots = x[seq(1, dim(x)[1], length = min(50, dim(x)[1])), 
             ]
         B = matrix(NA, nrow = dim(x)[1], ncol = dim(knots)[1])
-        for (i in 1:dim(x)[1]) for (j in 1:dim(knots)[1]) {
-            r = sqrt(sum((x[i, ] - knots[j, ])^2))
-            if (r == 0) 
-                B[i, j] = 0
-            else B[i, j] = r^2 * log(r)
+        for (j in 1:dim(knots)[1]) {
+            r = sqrt(rowSums((x - matrix(unlist(knots[j, ]), 
+                nrow = nrow(x), ncol = ncol(knots), byrow = T))^2))
+            r[r == 0] = 1
+            B[, j] = r^2 * log(r)
         }
         P = matrix(0, nrow = dim(B)[2], ncol = dim(B)[2])
-        for (i in 1:dim(B)[2]) for (j in 1:dim(B)[2]) {
-            r = sqrt(sum((knots[i, ] - knots[j, ])^2))
-            if (r == 0) 
-                P[i, j] = 0
-            else P[i, j] = r^2 * log(r)
+        for (j in 1:dim(B)[2]) {
+            r = sqrt(rowSums((matrix(unlist(knots), nrow = nrow(knots), 
+                ncol = ncol(knots)) - matrix(unlist(knots[j, 
+                ]), nrow = nrow(knots), ncol = ncol(knots), byrow = T))^2))
+            r[r == 0] = 1
+            P[, j] = r^2 * log(r)
         }
     }
     else if (type == "krig") {
-        c = 9.233
+        cons = 9.233
         x = x[order(x[, 1]), ]
         knots = x[seq(1, dim(x)[1], length = min(50, dim(x)[1])), 
             ]
         B = matrix(NA, nrow = dim(x)[1], ncol = dim(knots)[1])
         P = matrix(0, nrow = dim(B)[2], ncol = dim(B)[2])
-        for (i in 1:dim(B)[2]) for (j in 1:dim(B)[2]) {
-            P[i, j] = sqrt(sum((knots[i, ] - knots[j, ])^2))
+        for (j in 1:dim(B)[2]) {
+            P[, j] = sqrt(rowSums((matrix(unlist(knots), nrow = nrow(knots), 
+                ncol = ncol(knots)) - matrix(unlist(knots[j, 
+                ]), nrow = nrow(knots), ncol = ncol(knots), byrow = T))^2))
         }
-        phi = max(P)/c
+        phi = max(P)/cons
         P = P/phi
         P = exp(-P) * (1 + P)
-        for (i in 1:dim(x)[1]) for (j in 1:dim(knots)[1]) {
-            r = sqrt(sum((x[i, ] - knots[j, ])^2))
-            B[i, j] = exp(-r/phi) * (1 + r/phi)
+        for (j in 1:dim(knots)[1]) {
+            r = sqrt(rowSums((x - matrix(unlist(knots[j, ]), 
+                nrow = nrow(x), ncol = ncol(knots), byrow = T))^2))
+            B[, j] = exp(-r/phi) * (1 + r/phi)
         }
     }
     else if (type == "markov") {
@@ -118,12 +121,13 @@ function (x, type = c("pspline", "2dspline", "markov", "radial",
         districts = dimnames(P)[[1]]
         B = matrix(0, nrow = length(x), ncol = dim(P)[2])
         for (i in 1:length(x)) B[i, which(districts == x[i])] = 1
+        Zspathelp = diag(ncol(P))
+        e <- eigen(P)
+        P <- t(e$vectors[, -dim(e$vectors)[2]] * sqrt(e$values[-length(e$values)]))
         if (center) {
-            e <- eigen(P)
-            L <- e$vectors[, -dim(e$vectors)[2]] * sqrt(e$values[-length(e$values)])
-            Zspathelp <- L %*% solve(t(L) %*% L)
+            Zspathelp <- t(P) %*% solve(P %*% t(P))
             B <- B %*% Zspathelp
-            P = diag(nrow = dim(P)[1] - 1)
+            P = diag(nrow = dim(P)[2] - 1)
         }
     }
     else if (type == "random") {

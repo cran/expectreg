@@ -1,3 +1,19 @@
+2011-03-22 version 0.21
+
+new features:
+- function expectile.noncross added that uses quadratric programming with constraints
+- function expectile.cdf added that estimates a CDF from an 'expectreg' object
+
+changes:
+- optimising kriging and radial basis computation
+- expectile plots only with the use of S3method
+- formula evaluation not based on GlobalEnv anymore
+
+bugfixes:
+- correcting penalty matrices for non-centered basis
+- sheets now plot correctly and return an appropriate object
+- correcting sheet intercept in additive models and centered bases
+
 2011-02-24 version 0.20
 
 new features:

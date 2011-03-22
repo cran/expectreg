@@ -27,7 +27,7 @@ function (formula, data = NULL, smooth = c("acv", "fixed"), lambda = 0.1,
     }
     np <- length(pp)
     np.plot <- length(pp.plot)
-    yy = eval(parse(text = formula[2]), envir = data, enclos = .GlobalEnv)
+    yy = eval(parse(text = formula[2]), envir = data, enclos = environment(formula))
     m = length(yy)
     design = list()
     x = list()
@@ -48,7 +48,7 @@ function (formula, data = NULL, smooth = c("acv", "fixed"), lambda = 0.1,
             types[[i]] = "parametric"
         }
         else design[[i]] = eval(parse(text = labels(terms(formula))[i]), 
-            envir = data, enclos = .GlobalEnv)
+            envir = data, enclos = environment(formula))
     }
     nterms = length(design)
     B[[1]] = design[[1]][[1]]
@@ -105,192 +105,29 @@ function (formula, data = NULL, smooth = c("acv", "fixed"), lambda = 0.1,
     }
     curves = p2f.new$curves
     Z <- list()
-    coefficients <- list()
+    coefficients <- NA
     final.lambdas <- list()
+    helper <- list()
     intercept = p2f.new$intercept
     desmat = 1
     for (k in 1:length(design)) {
         final.lambdas[[k]] = lala[k, ]
         desmat = cbind(desmat, B[[k]])
-        partbasis = (sum(nb[0:(k - 1)]) + 1):(sum(nb[0:k]))
-        dev.new()
-        if (types[[k]] == "pspline") {
-            Z[[k]] <- matrix(NA, m, np)
-            coefficients[[k]] = matrix(NA, nrow = nb[k], ncol = np)
-            plot(x[[k]], yy, cex = 0.5, pch = 20, col = "grey42", 
-                xlab = "x", ylab = "y", ylim = range(cbind(yy, 
-                  curves[[k]]), na.rm = TRUE))
-            matlines(sort(x[[k]])[seq(1, m, length = min(m, 100))], 
-                curves[[k]][order(x[[k]])[seq(1, m, length = min(m, 
-                  100))], pp.plot], col = rainbow(np.plot + 1)[1:np.plot], 
-                lty = 1)
-            legend(x = "topright", pch = 19, cex = 1, col = rev(rainbow(np.plot + 
-                1)[1:np.plot]), legend = rev(round(pp, 2)), bg = "white", 
-                bty = "n")
-        }
-        else if (types[[k]] == "markov") {
-            Z[[k]] <- matrix(NA, m, np)
-            coefficients[[k]] = matrix(NA, nrow = nb[k] + 1, 
-                ncol = np)
-            if (class(bnd[[k]]) != "bnd") {
-                plot(seq(0, 1.1 * max(x[[k]]), length = 10), 
-                  seq(0, max(z[, pp.plot]), length = 10), type = "n", 
-                  xlab = "District", ylab = "coefficients")
-                matpoints(sort(x[[k]]), curves[[k]][order(x[[k]]), 
-                  pp.plot], col = rainbow(np.plot + 1)[1:np.plot])
-                legend(x = "right", pch = 19, cex = 1, col = rev(rainbow(np.plot + 
-                  1)[1:np.plot]), legend = rev(pp.plot/100), 
-                  bg = "white", bty = "n")
-            }
-            else {
-                par(mfrow = (c(row.grid, col.grid)))
-                plot.limits = range(z)
-                for (i in 1:np.plot) {
-                  re = data.frame(cbind(x[[k]], curves[[k]][, 
-                    pp.plot[i]]))
-                  drawmap(re, bnd[[k]], regionvar = 1, plotvar = 2, 
-                    mar.min = NULL, limits = plot.limits, main = pp.plot[i]/100)
-                }
-            }
-        }
-        else if (types[[k]] == "2dspline") {
-            Z[[k]] <- matrix(NA, m, np)
-            coefficients[[k]] = matrix(NA, nrow = nb[k], ncol = np)
-            par(mfrow = (c(row.grid, col.grid)))
-            for (i in 1:np) {
-                if (i %in% pp.plot) {
-                  z = interp(x[[k]][, 1], x[[k]][, 2], curves[[k]][, 
-                    i])
-                  persp(z[[1]], z[[2]], z[[3]], ticktype = "detailed", 
-                    phi = 40, zlim = range(yy), col = "lightblue", 
-                    xlab = "X", ylab = "Y", zlab = "Z", main = pp.plot[i]/100)
-                }
-            }
-        }
-        else if (types[[k]] == "radial") {
-            Z[[k]] <- matrix(NA, m, np)
-            coefficients[[k]] = matrix(NA, nrow = nb[k], ncol = np)
-            par(mfrow = (c(row.grid, col.grid)))
-            for (i in 1:np) {
-                if (i %in% pp.plot) {
-                  z = interp(x[[k]][, 1], x[[k]][, 2], curves[[k]][, 
-                    i])
-                  persp(z[[1]], z[[2]], z[[3]], ticktype = "detailed", 
-                    phi = 40, zlim = range(yy), col = "lightblue", 
-                    xlab = "X", ylab = "Y", zlab = "Z", main = pp.plot[i]/100)
-                }
-            }
+        if (types[[k]] == "markov") {
+            coefficients[[k]] = matrix(NA, nrow = nb[k] + 1 * 
+                center, ncol = np)
+            helper[[k]] = list(bnd[[k]], Zspathelp[[k]])
         }
         else if (types[[k]] == "krig") {
-            Z[[k]] <- matrix(NA, m, np)
             coefficients[[k]] = matrix(NA, nrow = nb[k], ncol = np)
-            x.min = apply(x[[k]], 2, min)
-            x.max = apply(x[[k]], 2, max)
-            x.gitter = cbind(rep(seq(x.min[1], x.max[1], length = 50), 
-                times = 50), rep(seq(x.min[2], x.max[2], length = 50), 
-                each = 50))
-            x[[k]] = x[[k]][order(x[[k]][, 1]), ]
-            knots = x[[k]][seq(1, dim(x[[k]])[1], length = min(50, 
-                dim(x[[k]])[1])), ]
-            B.gitter = matrix(NA, nrow = dim(x.gitter)[1], ncol = dim(knots)[1])
-            for (i in 1:dim(x.gitter)[1]) for (j in 1:dim(knots)[1]) {
-                r = sqrt(sum((x.gitter[i, ] - knots[j, ])^2))/krig.phi[[k]]
-                B.gitter[i, j] = exp(-r) * (1 + r)
-            }
-            par(mfrow = (c(row.grid, col.grid)))
-            for (i in 1:np) {
-                Z[[k]][, i] = B[[k]] %*% vector.a.ma.schall[partbasis, 
-                  i, drop = FALSE] + intercept[i]
-                coefficients[[k]][, i] = vector.a.ma.schall[partbasis, 
-                  i, drop = FALSE]
-                if (i %in% pp.plot) {
-                  z <- B.gitter %*% vector.a.ma.schall[partbasis, 
-                    i, drop = FALSE] + intercept[i]
-                  z = t(matrix(z, nrow = 50, ncol = 50))
-                  persp(seq(x.min[1], x.max[1], length = 50), 
-                    seq(x.min[2], x.max[2], length = 50), z, 
-                    ticktype = "detailed", phi = 40, zlim = range(yy), 
-                    col = "lightblue", xlab = "X", ylab = "Y", 
-                    zlab = "Z", main = pp.plot[i]/100)
-                }
-            }
+            helper[[k]] = krig.phi[[k]]
         }
-        else if (types[[k]] == "random") {
-            Z[[k]] <- matrix(NA, m, np)
-            coefficients[[k]] = matrix(NA, nrow = nb[k], ncol = np)
-            for (i in 1:np) {
-                Z[[k]][, i] <- B[[k]] %*% vector.a.ma.schall[partbasis, 
-                  i, drop = FALSE] + intercept[i]
-                coefficients[[k]][, i] = vector.a.ma.schall[partbasis, 
-                  i, drop = FALSE]
-            }
-            plot(seq(0, 1.1 * max(x[[k]]), length = 10), seq(0, 
-                max(coefficients[[k]] + intercept), length = 10), 
-                type = "n", xlab = "Group", ylab = "coefficients")
-            points(rep(sort(unique(x[[k]])), times = np.plot), 
-                (coefficients[[k]] + intercept)[, pp.plot], col = rainbow(np.plot + 
-                  1)[1:np.plot])
-            legend(x = "right", pch = 19, cex = 1, col = rev(rainbow(np.plot + 
-                1)[1:np.plot]), legend = rev(pp.plot/100), bg = "white", 
-                bty = "n")
-        }
-        else if (types[[k]] == "ridge") {
-            Z[[k]] <- matrix(NA, m, np)
-            coefficients[[k]] = matrix(NA, nrow = nb[k], ncol = np)
-            for (i in 1:np) {
-                Z[[k]][, i] <- B[[k]] %*% vector.a.ma.schall[partbasis, 
-                  i, drop = FALSE] + intercept[i]
-                coefficients[[k]][, i] = vector.a.ma.schall[partbasis, 
-                  i, drop = FALSE]
-            }
-            plot(seq(0, 1.1 * dim(x[[k]])[2], length = 10), seq(0, 
-                max(coefficients[[k]] + intercept), length = 10), 
-                type = "n", xlab = "X variables", ylab = "coefficients")
-            points(rep(1:dim(x[[k]])[2], times = np.plot), (coefficients[[k]] + 
-                intercept)[, pp.plot], col = rainbow(np.plot + 
-                1)[1:np.plot])
-            legend(x = "right", pch = 19, cex = 1, col = rev(rainbow(np.plot + 
-                1)[1:np.plot]), legend = rev(pp.plot/100), bg = "white", 
-                bty = "n")
-        }
-        else if (types[[k]] == "parametric") {
-            Z[[k]] <- matrix(NA, m, np)
-            coefficients[[k]] = matrix(NA, nrow = nb[k], ncol = np)
-            for (i in 1:np) {
-                Z[[k]][, i] <- B[[k]] %*% vector.a.ma.schall[partbasis, 
-                  i, drop = FALSE] + intercept[i]
-                coefficients[[k]][, i] = vector.a.ma.schall[partbasis, 
-                  i, drop = FALSE]
-            }
-            matplot(1:nb[k], coefficients[[k]][, pp.plot], col = rainbow(np.plot + 
-                1)[1:np.plot], pch = 15)
-            legend(x = "bottomright", pch = 19, cex = 1, col = rev(rainbow(np.plot + 
-                1)[1:np.plot]), legend = rev(pp[pp.plot]), bg = "white", 
-                bty = "n")
-        }
-        else if (types[[k]] == "special") {
-            Z[[k]] <- matrix(NA, m, np)
-            coefficients[[k]] = matrix(NA, nrow = nb[k], ncol = np)
-            helper[[k]] = NA
-            for (i in 1:np) {
-                Z[[k]][, i] <- B[[k]] %*% vector.a.ma.schall[partbasis, 
-                  i, drop = FALSE] + intercept[i]
-                coefficients[[k]][, i] = vector.a.ma.schall[partbasis, 
-                  i, drop = FALSE]
-            }
-            plot(x[[k]], yy, cex = 0.5, pch = 20, col = "grey42", 
-                xlab = "x", ylab = "y", ylim = range(cbind(yy, 
-                  Z[[k]])))
-            matlines(sort(x[[k]]), Z[[k]][order(x[[k]]), pp.plot], 
-                col = rainbow(np.plot + 1)[1:np.plot], lty = 1)
-            legend(x = "bottomright", pch = 19, cex = 1, col = rev(rainbow(np.plot + 
-                1)[1:np.plot]), legend = rev(pp), bg = "white", 
-                bty = "n")
-        }
+        else helper[[k]] = NA
     }
     result = list(lambda = final.lambdas, intercepts = intercept, 
-        values = curves, response = yy, covariates = x, formula = formula, 
-        design = desmat, fitted = desmat %*% p2f.new$coef)
+        coefficients = NULL, values = curves, response = yy, 
+        covariates = x, formula = formula, expectiles = pp, effects = types, 
+        helper = helper, design = desmat, fitted = p2f.new$fit)
     class(result) = c("expectreg", "sheets")
     result
 }

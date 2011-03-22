@@ -2,6 +2,7 @@
 \Rdversion{1.1}
 \alias{expectile.laws}
 \alias{expectile.sheets}
+\alias{expectile.noncross}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Expectile regression of additive models
@@ -15,6 +16,8 @@ for continuous, spatial or random effects.
 expectile.laws(formula, data = NULL, smooth = c("schall", "acv", "fixed"), lambda = 0.1, expectiles = NA, parallel = FALSE)
 
 expectile.sheets(formula, data = NULL, smooth = c("acv", "fixed"), lambda = 0.1, lambdap = 5, expectiles = NA, density = FALSE)
+
+expectile.noncross(formula, data  = NULL, smooth = c("schall", "acv", "fixed"), lambda = 0.1, expectiles = NA) 
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -66,6 +69,10 @@ The expectile sheets construct a p-spline basis for the expectiles and perform a
 by fitting the tensor product of the expectile spline basis and the basis of the covariates.
 In consequence there will be most likely no crossing of expectiles but also a good fit in heteroscedastic scenarios.
 "schall" smoothing does not yet work for sheets.
+
+The noncross function also fits a sheet over all expectiles, but it uses quadratic programming with constraints,
+so crossing of expectiles will definitely not happen. So far the function is implemented for one covariate and will work
+with all smoothing methods.
 }
 \value{
 An object of class 'expectreg', which is basically a list consisting of:
@@ -113,6 +120,10 @@ Wageningen University and Research Centre \cr
 Paul Eilers \cr
 Erasmus Medical Center Rotterdam \cr
 \url{http://www.erasmusmc.nl}
+
+Linda Schulze Waltrup \cr
+University Bielefeld \cr
+\url{http://www.uni-bielefeld.de} \cr
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
@@ -124,6 +135,7 @@ Erasmus Medical Center Rotterdam \cr
 data(dutchboys)
 
 expreg <- expectile.laws(dutchboys[,3] ~ base(dutchboys[,2],"pspline"),smooth="schall",expectiles=c(0.05,0.2,0.8,0.95))
+plot(expreg)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

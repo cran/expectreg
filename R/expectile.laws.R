@@ -18,7 +18,7 @@ function (formula, data = NULL, smooth = c("schall", "acv", "fixed"),
             row.grid = row.grid + 1
     }
     np <- length(pp)
-    yy = eval(parse(text = formula[2]), envir = data, enclos = .GlobalEnv)
+    yy = eval(parse(text = formula[2]), envir = data, enclos = environment(formula))
     m = length(yy)
     design = list()
     x = list()
@@ -34,8 +34,8 @@ function (formula, data = NULL, smooth = c("schall", "acv", "fixed"),
             fixed = TRUE)[[1]][1]
         if (types[[i]] == labels(terms(formula))[i]) {
             design[[i]] = base(matrix(eval(parse(text = labels(terms(formula))[i]), 
-                envir = data, enclos = .GlobalEnv), nrow = m), 
-                "parametric")
+                envir = data, enclos = environment(formula)), 
+                nrow = m), "parametric")
             formula = eval(substitute(update(formula, . ~ variable2 + 
                 . - variable1), list(variable1 = as.name(types[[i]]), 
                 variable2 = as.name(paste("base(", types[[i]], 
@@ -43,7 +43,7 @@ function (formula, data = NULL, smooth = c("schall", "acv", "fixed"),
             types[[i]] = "parametric"
         }
         else design[[i]] = eval(parse(text = labels(terms(formula))[i]), 
-            envir = data, enclos = .GlobalEnv)
+            envir = data, enclos = environment(formula))
     }
     nterms = length(design)
     varying[[1]] = design[[1]][[9]]
@@ -95,7 +95,7 @@ function (formula, data = NULL, smooth = c("schall", "acv", "fixed"),
         if (smooth == "schall") {
             dc = 1
             dw = 1
-            w <- matrix(1, nrow = m, ncol = nterms)
+            w <- rep(1, times = m)
             it = 1
             while ((dc >= 0.01 || dw != 0) && it < 100) {
                 aa <- asyregpen.lsfit(yy, B, pp, lala, DD, nb)
@@ -115,15 +115,14 @@ function (formula, data = NULL, smooth = c("schall", "acv", "fixed"),
                     partaa = aa$a[partbasis]
                   }
                   v <- partDD %*% partaa
-                  z <- B %*% aa$a
-                  w[, i] <- pp * (yy > z) + (1 - pp) * (yy <= 
-                    z)
-                  H = solve(t(partB) %*% (w[, i] * partB) + lala[i] * 
+                  z <- aa$fitted
+                  w <- aa$weight
+                  H = solve(t(partB) %*% (w * partB) + lala[i] * 
                     t(partDD) %*% partDD)
-                  H = apply(sqrt(w[, i]) * partB, 1, function(x) {
+                  H = apply(sqrt(w) * partB, 1, function(x) {
                     t(x) %*% H %*% x
                   })
-                  sig2 <- sum(w[, i] * (yy - z)^2, na.rm = TRUE)/(m - 
+                  sig2 <- sum(w * (yy - z)^2, na.rm = TRUE)/(m - 
                     sum(aa$diag.hat.ma))
                   tau2 <- sum(v^2)/sum(diag(H)) + 1e-06
                   lala[i] = max(sig2/tau2, 1e-10)
@@ -172,7 +171,6 @@ function (formula, data = NULL, smooth = c("schall", "acv", "fixed"),
     for (k in 1:length(design)) {
         final.lambdas[[k]] = lala[k, ]
         partbasis = (sum(nb[0:(k - 1)]) + 1):(sum(nb[0:k]))
-        dev.new()
         if (types[[k]] == "pspline") {
             Z[[k]] <- matrix(NA, m, np)
             coefficients[[k]] = matrix(NA, nrow = nb[k], ncol = np)
@@ -183,140 +181,50 @@ function (formula, data = NULL, smooth = c("schall", "acv", "fixed"),
                 coefficients[[k]][, i] = vector.a.ma.schall[partbasis, 
                   i, drop = FALSE]
             }
-            plot(x[[k]], yy, cex = 0.5, pch = 20, col = "grey42", 
-                xlab = "x", ylab = "y", ylim = range(cbind(yy, 
-                  Z[[k]]), na.rm = TRUE))
-            matlines(sort(x[[k]])[seq(1, m, length = min(m, 100))], 
-                Z[[k]][order(x[[k]])[seq(1, m, length = min(m, 
-                  100))], ], col = rainbow(np + 1)[1:np], lty = 1)
-            legend(x = "bottomright", pch = 19, cex = 1, col = rev(rainbow(np + 
-                1)[1:np]), legend = rev(round(pp, 2)), bg = "white", 
-                bty = "n")
         }
         else if (types[[k]] == "markov") {
             Z[[k]] <- matrix(NA, m, np)
-            coefficients[[k]] = matrix(NA, nrow = nb[k] + 1, 
-                ncol = np)
-            z = NULL
+            coefficients[[k]] = matrix(NA, nrow = nb[k] + 1 * 
+                center, ncol = np)
             helper[[k]] = list(bnd[[k]], Zspathelp[[k]])
             for (i in 1:np) {
                 Z[[k]][, i] = design[[k]][[1]] %*% vector.a.ma.schall[partbasis, 
                   i, drop = FALSE] + intercept[i]
                 coefficients[[k]][, i] = Zspathelp[[k]] %*% vector.a.ma.schall[partbasis, 
                   i, drop = FALSE]
-                z = cbind(z, diag(dim(Zspathelp[[k]])[1]) %*% 
-                  Zspathelp[[k]] %*% vector.a.ma.schall[partbasis, 
-                  i, drop = FALSE] + intercept[i])
-            }
-            if (class(bnd[[k]]) != "bnd") {
-                plot(seq(0, 1.1 * max(x[[k]]), length = 10), 
-                  seq(0, max(z[, i]), length = 10), type = "n", 
-                  xlab = "District", ylab = "coefficients")
-                points(rep(as.numeric(attr(bnd[[k]], "regions")), 
-                  times = np), z[, i], col = rainbow(np + 1)[1:np])
-                legend(x = "right", pch = 19, cex = 1, col = rev(rainbow(np + 
-                  1)[1:np]), legend = rev(pp), bg = "white", 
-                  bty = "n")
-            }
-            else {
-                par(mfrow = (c(row.grid, col.grid)))
-                plot.limits = range(z)
-                for (i in 1:np) {
-                  re = data.frame(cbind(as.numeric(attr(bnd[[k]], 
-                    "regions")), z[, i]))
-                  drawmap(re, bnd[[k]], regionvar = 1, plotvar = 2, 
-                    mar.min = NULL, limits = plot.limits, main = pp[i], 
-                    cols = "grey", swapcolors = TRUE)
-                }
             }
         }
         else if (types[[k]] == "2dspline") {
             Z[[k]] <- matrix(NA, m, np)
             coefficients[[k]] = matrix(NA, nrow = nb[k], ncol = np)
             helper[[k]] = NA
-            x.min = apply(x[[k]], 2, min)
-            x.max = apply(x[[k]], 2, max)
-            x.gitter = cbind(rep(seq(x.min[1], x.max[1], length = 50), 
-                times = 50), rep(seq(x.min[2], x.max[2], length = 50), 
-                each = 50))
-            B.gitter = base(x.gitter, "2dspline")[[1]]
-            par(mfrow = (c(row.grid, col.grid)))
             for (i in 1:np) {
-                z <- B.gitter %*% vector.a.ma.schall[partbasis, 
-                  i, drop = FALSE] + intercept[i]
                 Z[[k]][, i] = design[[k]][[1]] %*% vector.a.ma.schall[partbasis, 
                   i, drop = FALSE] + intercept[i]
                 coefficients[[k]][, i] = vector.a.ma.schall[partbasis, 
                   i, drop = FALSE]
-                z = t(matrix(z, nrow = 50, ncol = 50))
-                persp(seq(x.min[1], x.max[1], length = 50), seq(x.min[2], 
-                  x.max[2], length = 50), z, ticktype = "detailed", 
-                  phi = 40, zlim = range(yy), col = "lightblue", 
-                  xlab = "X", ylab = "Y", zlab = "Z", main = pp[i])
             }
         }
         else if (types[[k]] == "radial") {
             Z[[k]] <- matrix(NA, m, np)
             coefficients[[k]] = matrix(NA, nrow = nb[k], ncol = np)
             helper[[k]] = NA
-            x.min = apply(x[[k]], 2, min)
-            x.max = apply(x[[k]], 2, max)
-            x.gitter = cbind(rep(seq(x.min[1], x.max[1], length = 50), 
-                times = 50), rep(seq(x.min[2], x.max[2], length = 50), 
-                each = 50))
-            x.ord = x[[k]][order(x[[k]][, 1]), ]
-            knots = x.ord[seq(1, dim(x[[k]])[1], length = min(50, 
-                dim(x[[k]])[1])), ]
-            B.gitter = matrix(NA, nrow = dim(x.gitter)[1], ncol = dim(knots)[1])
-            for (i in 1:dim(x.gitter)[1]) for (j in 1:dim(knots)[1]) {
-                r = sqrt(sum((x.gitter[i, ] - knots[j, ])^2))
-                B.gitter[i, j] = r^2 * log(r)
-            }
-            par(mfrow = (c(row.grid, col.grid)))
             for (i in 1:np) {
-                z <- B.gitter %*% vector.a.ma.schall[partbasis, 
-                  i, drop = FALSE] + intercept[i]
                 Z[[k]][, i] = design[[k]][[1]] %*% vector.a.ma.schall[partbasis, 
                   i, drop = FALSE] + intercept[i]
                 coefficients[[k]][, i] = vector.a.ma.schall[partbasis, 
                   i, drop = FALSE]
-                z = t(matrix(z, nrow = 50, ncol = 50))
-                persp(seq(x.min[1], x.max[1], length = 50), seq(x.min[2], 
-                  x.max[2], length = 50), z, ticktype = "detailed", 
-                  phi = 40, zlim = range(yy), col = "lightblue", 
-                  xlab = "X", ylab = "Y", zlab = "Z", main = pp[i])
             }
         }
         else if (types[[k]] == "krig") {
             Z[[k]] <- matrix(NA, m, np)
             coefficients[[k]] = matrix(NA, nrow = nb[k], ncol = np)
             helper[[k]] = krig.phi[[k]]
-            x.min = apply(x[[k]], 2, min)
-            x.max = apply(x[[k]], 2, max)
-            x.gitter = cbind(rep(seq(x.min[1], x.max[1], length = 50), 
-                times = 50), rep(seq(x.min[2], x.max[2], length = 50), 
-                each = 50))
-            x.ord = x[[k]][order(x[[k]][, 1]), ]
-            knots = x.ord[seq(1, dim(x[[k]])[1], length = min(50, 
-                dim(x[[k]])[1])), ]
-            B.gitter = matrix(NA, nrow = dim(x.gitter)[1], ncol = dim(knots)[1])
-            for (i in 1:dim(x.gitter)[1]) for (j in 1:dim(knots)[1]) {
-                r = sqrt(sum((x.gitter[i, ] - knots[j, ])^2))/krig.phi[[k]]
-                B.gitter[i, j] = exp(-r) * (1 + r)
-            }
-            par(mfrow = (c(row.grid, col.grid)))
             for (i in 1:np) {
-                z <- B.gitter %*% vector.a.ma.schall[partbasis, 
-                  i, drop = FALSE] + intercept[i]
                 Z[[k]][, i] = design[[k]][[1]] %*% vector.a.ma.schall[partbasis, 
                   i, drop = FALSE] + intercept[i]
                 coefficients[[k]][, i] = vector.a.ma.schall[partbasis, 
                   i, drop = FALSE]
-                z = t(matrix(z, nrow = 50, ncol = 50))
-                persp(seq(x.min[1], x.max[1], length = 50), seq(x.min[2], 
-                  x.max[2], length = 50), z, ticktype = "detailed", 
-                  phi = 40, zlim = range(yy), col = "lightblue", 
-                  xlab = "X", ylab = "Y", zlab = "Z", main = pp[i])
             }
         }
         else if (types[[k]] == "random") {
@@ -329,13 +237,6 @@ function (formula, data = NULL, smooth = c("schall", "acv", "fixed"),
                 coefficients[[k]][, i] = vector.a.ma.schall[partbasis, 
                   i, drop = FALSE]
             }
-            plot(seq(0, 1.1 * max(x[[k]]), length = 10), seq(0, 
-                max(coefficients[[k]] + intercept), length = 10), 
-                type = "n", xlab = "Group", ylab = "coefficients")
-            points(rep(sort(unique(x[[k]])), times = np), coefficients[[k]] + 
-                intercept, col = rainbow(np + 1)[1:np])
-            legend(x = "right", pch = 19, cex = 1, col = rev(rainbow(np + 
-                1)[1:np]), legend = rev(pp), bg = "white", bty = "n")
         }
         else if (types[[k]] == "ridge") {
             Z[[k]] <- matrix(NA, m, np)
@@ -347,13 +248,6 @@ function (formula, data = NULL, smooth = c("schall", "acv", "fixed"),
                 coefficients[[k]][, i] = vector.a.ma.schall[partbasis, 
                   i, drop = FALSE]
             }
-            plot(seq(0, 1.1 * dim(x[[k]])[2], length = 10), seq(0, 
-                max(coefficients[[k]] + intercept), length = 10), 
-                type = "n", xlab = "X variables", ylab = "coefficients")
-            points(rep(1:dim(x[[k]])[2], times = np), coefficients[[k]] + 
-                intercept, col = rainbow(np + 1)[1:np])
-            legend(x = "right", pch = 19, cex = 1, col = rev(rainbow(np + 
-                1)[1:np]), legend = rev(pp), bg = "white", bty = "n")
         }
         else if (types[[k]] == "parametric") {
             Z[[k]] <- matrix(NA, m, np)
@@ -365,10 +259,6 @@ function (formula, data = NULL, smooth = c("schall", "acv", "fixed"),
                 coefficients[[k]][, i] = vector.a.ma.schall[partbasis, 
                   i, drop = FALSE]
             }
-            matplot(1:nb[k], coefficients[[k]], col = rainbow(np + 
-                1)[1:np], type = "p", pch = 15)
-            legend(x = "bottomright", pch = 19, cex = 1, col = rev(rainbow(np + 
-                1)[1:np]), legend = rev(pp), bg = "white", bty = "n")
         }
         else if (types[[k]] == "special") {
             Z[[k]] <- matrix(NA, m, np)
@@ -380,13 +270,6 @@ function (formula, data = NULL, smooth = c("schall", "acv", "fixed"),
                 coefficients[[k]][, i] = vector.a.ma.schall[partbasis, 
                   i, drop = FALSE]
             }
-            plot(x[[k]], yy, cex = 0.5, pch = 20, col = "grey42", 
-                xlab = "x", ylab = "y", ylim = range(cbind(yy, 
-                  Z[[k]])))
-            matlines(sort(x[[k]]), Z[[k]][order(x[[k]]), ], col = rainbow(np + 
-                1)[1:np], lty = 1)
-            legend(x = "bottomright", pch = 19, cex = 1, col = rev(rainbow(np + 
-                1)[1:np]), legend = rev(pp), bg = "white", bty = "n")
         }
     }
     result = list(lambda = final.lambdas, intercepts = intercept, 

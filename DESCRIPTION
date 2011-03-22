@@ -1,14 +1,17 @@
 Package: expectreg
 Type: Package
 Title: Expectile Regression
-Version: 0.20
-Date: 2011-02-24
-Author: Fabian Sobotka <fabian.sobotka@uni-oldenburg.de>, Thomas Kneib
-        <thomas.kneib@uni-oldenburg.de>, Sabine Schnabel
-        <sabine.schnabel@wur.nl> and Paul Eilers
-        <p.eilers@erasmusmc.nl>.
+Version: 0.21
+Date: 2011-03-22
+Author: Fabian Sobotka <fabian.sobotka@uni-oldenburg.de>, Sabine
+        Schnabel <sabine.schnabel@wur.nl> and Linda Schulze Waltrup
+        <lschulze_waltrup@wiwi.uni-bielefeld.de> with contributions
+        from Paul Eilers <p.eilers@erasmusmc.nl>, Thomas Kneib
+        <thomas.kneib@uni-oldenburg.de> and Goeran Kauermann
+        <gkauermann@uni-bielefeld.de>.
 Maintainer: Fabian Sobotka <fabian.sobotka@uni-oldenburg.de>
-Depends: R (>= 2.10.0), mboost (>= 2.0.0), BayesX (>= 0.2-4), splines
+Depends: R (>= 2.10.0), mboost (>= 2.0.0), BayesX (>= 0.2-4), splines,
+        quadprog
 Suggests: multicore
 Description: Expectile and quantile regression of models with nonlinear
         effects e.g. spatial, random, ridge using least asymmetric
@@ -17,6 +20,6 @@ Description: Expectile and quantile regression of models with nonlinear
 License: GPL (>= 2)
 LazyLoad: yes
 URL: http://www.r-project.org
-Packaged: 2011-02-28 10:06:29 UTC; Sobotka
+Packaged: 2011-03-22 17:05:46 UTC; Sobotka
 Repository: CRAN
-Date/Publication: 2011-02-28 11:47:00
+Date/Publication: 2011-03-22 17:41:26

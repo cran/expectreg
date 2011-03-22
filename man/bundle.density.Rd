@@ -42,3 +42,8 @@ data(dutchboys)
 expbund <- expectile.bundle(dutchboys[,3] ~ base(dutchboys[,2],"pspline"),smooth="fixed")
 bundle.density(expbund)
 }
+
+\keyword{ distribution }
+\keyword{ nonparametric }% __ONLY ONE__ keyword per line
+\keyword{ multivariate }
+\keyword{ nonlinear }

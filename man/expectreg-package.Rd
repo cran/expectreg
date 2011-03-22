@@ -15,19 +15,19 @@ Expectile and quantile regression of models with nonlinear effects
 \tabular{ll}{
 Package: \tab expectreg\cr
 Type: \tab Package\cr
-Version: \tab 0.20\cr
-Date: \tab 2011-02-24\cr
+Version: \tab 0.21\cr
+Date: \tab 2011-03-22\cr
 License: \tab GPL (>= 2)\cr
 LazyLoad: \tab yes\cr
 }
 
 \itemize{
-\item This package requires the packages \code{\link[BayesX]{BayesX}}, \code{\link[mboost]{mboost}} and \code{\link[splines]{splines}}.
+\item This package requires the packages \code{\link[BayesX]{BayesX}}, \code{\link[mboost]{mboost}}, \code{\link[splines]{splines}} and \code{quadprog}.
 }
 
 }
 \author{
-Fabian Sobotka, Thomas Kneib \cr
+Fabian Sobotka \cr
 University Oldenburg \cr
 \url{http://www.uni-oldenburg.de} \cr
 
@@ -35,9 +35,23 @@ Sabine Schnabel \cr
 Wageningen University and Research Centre \cr
 \url{http://www.wur.nl}
 
+Linda Schulze Waltrup \cr
+University Bielefeld \cr
+\url{http://www.uni-bielefeld.de} \cr
+
+with contributions from
+
 Paul Eilers \cr
 Erasmus Medical Center Rotterdam \cr
 \url{http://www.erasmusmc.nl}
+
+Thomas Kneib \cr
+University Oldenburg \cr
+\url{http://www.uni-oldenburg.de} \cr
+
+Goeran Kauermann \cr
+University Bielefeld \cr
+\url{http://www.uni-bielefeld.de} \cr
 
 Maintainer: Fabian Sobotka <fabian.sobotka@uni-oldenburg.de>
 

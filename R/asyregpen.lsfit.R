@@ -19,5 +19,7 @@ function (y, B, p, lambda, DD, nb)
         it = it + 1
     }
     diag.hat.ma1 <- hat(model$qr)[1:length(y)]
+    if (it == 50) 
+        warning("IWLS weights did not converge after 50 iterations.")
     list(a = a1, diag.hat.ma = diag.hat.ma1, weight = w1, fitted = z1)
 }

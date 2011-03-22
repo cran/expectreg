@@ -140,6 +140,7 @@ Erasmus Medical Center Rotterdam \cr
 data(dutchboys)
 
 exprest <- expectile.restricted(dutchboys[,3] ~ base(dutchboys[,2],"pspline"),smooth="acv")
+plot(exprest)
 
 expbund <- expectile.bundle(dutchboys[,3] ~ base(dutchboys[,2],"pspline"),smooth="fixed")
 }
