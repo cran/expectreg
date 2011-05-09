@@ -9,8 +9,11 @@ function (object, newdata = NULL, ...)
     x = object$x
     if (is.null(newdata)) 
         newdata = x
+    else if (length(which(names(newdata) == object$xname)) > 
+        0) 
+        newdata = newdata[, which(names(newdata) == object$xname)]
+    else stop("Names of newdata not consistent with original.")
     if (type == "pspline") {
-        require(splines)
         B.deg = 2
         B.size = 20
         diff.size = 2
@@ -33,7 +36,6 @@ function (object, newdata = NULL, ...)
         }
     }
     else if (type == "2dspline") {
-        require(splines)
         B.deg = 2
         B.size = 20
         diff.size = 2
@@ -107,7 +109,6 @@ function (object, newdata = NULL, ...)
         }
     }
     else if (type == "markov") {
-        require(BayesX)
         if (any(!is.na(bnd)) && any(is.na(P))) 
             P = bnd2gra(bnd)
         if (all(is.na(P))) 
@@ -151,6 +152,7 @@ function (object, newdata = NULL, ...)
     }
     else if (type == "parametric") {
         if (is.vector(x)) {
+            x = matrix(x, ncol = 1)
             B = matrix(newdata, ncol = 1)
         }
         else if (is.matrix(x)) {
@@ -160,10 +162,11 @@ function (object, newdata = NULL, ...)
             B = as.matrix(newdata)
         }
         if (center) 
-            B = apply(B, 2, function(x) {
-                x - sum(x)/length(x)
-            })
+            for (i in 1:ncol(B)) B[, i] = B[, i] - sum(x[, i])/length(x[, 
+                i])
         P = matrix(0, nrow = ncol(B), ncol = ncol(B))
     }
+    if (any(!is.na(object$by))) 
+        B = B * object$by
     B
 }

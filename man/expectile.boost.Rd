@@ -60,12 +60,19 @@ An object of class 'expectreg', which is basically a list consisting of:
     \item{effects}{ List of characters giving the types of covariates. }
     \item{helper}{ List of additional parameters like neighbourhood structure for spatial effects or 'phi' for kriging. }
     \item{fitted}{ Fitted values \eqn{ \hat{y} }. }
+\code{\link[=plot.expectreg]{plot}}, \code{\link[=predict.expectreg]{predict}}, \code{\link[=resid.expectreg]{resid}}, \code{\link[=fitted.expectreg]{fitted}} and \code{\link[=effects.expectreg]{effects}}
+methods are available for class 'expectreg'.
 }
 \references{
 Fenske N and Kneib T and Hothorn T (2009)
 \emph{ Identifying Risk Factors for Severe Childhood Malnutrition
 by Boosting Additive Quantile Regression}
 Technical Report 052, University of Munich
+
+Sobotka F and Kneib T (2010)
+\emph{ Geoadditive Expectile Regression }
+Computational Statistics and Data Analysis,
+doi: 10.1016/j.csda.2010.11.015.
 }
 \author{
 Fabian Sobotka, Thomas Kneib \cr

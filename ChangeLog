@@ -1,3 +1,17 @@
+2011-05-09 version 0.25
+
+new features:
+- function expectile.noncross now also works for additive parametric models
+- adding methods for class 'expectreg': coef, resid, fitted, effects and predict
+- function expectile added for univariate expectiles corresponding to 'quantile' function
+
+changes:
+- functions can now handle formulas y ~ 1 and y ~ .
+- variable names are now saved throughout the regression functions
+
+bugfixes:
+- minor fixes regarding sheets and plotting them
+
 2011-03-22 version 0.21
 
 new features:

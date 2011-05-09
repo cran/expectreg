@@ -71,8 +71,8 @@ In consequence there will be most likely no crossing of expectiles but also a go
 "schall" smoothing does not yet work for sheets.
 
 The noncross function also fits a sheet over all expectiles, but it uses quadratic programming with constraints,
-so crossing of expectiles will definitely not happen. So far the function is implemented for one covariate and will work
-with all smoothing methods.
+so crossing of expectiles will definitely not happen. So far the function is implemented for one nonlinear or spatial covariate
+and further parametric covariates. It works with all smoothing methods.
 }
 \value{
 An object of class 'expectreg', which is basically a list consisting of:
@@ -92,7 +92,8 @@ An object of class 'expectreg', which is basically a list consisting of:
     \item{helper}{ List of additional parameters like neighbourhood structure for spatial effects or 'phi' for kriging. }
     \item{design}{ Complete design matrix. }
     \item{fitted}{ Fitted values \eqn{ \hat{y} }. }
-A \code{\link{plot}} method is available.
+\code{\link[=plot.expectreg]{plot}}, \code{\link[=predict.expectreg]{predict}}, \code{\link[=resid.expectreg]{resid}}, \code{\link[=fitted.expectreg]{fitted}} and \code{\link[=effects.expectreg]{effects}}
+methods are available for class 'expectreg'.
 }
 \references{
 Schnabel S and Eilers P (2009)
@@ -105,8 +106,8 @@ Computational Statistics and Data Analysis,
 doi: 10.1016/j.csda.2010.11.015.
 
 Schnabel S and Eilers P (2011)
-\emph{ On the use of an expectile sheet for simultaneous estimation of expectile curves }
-(submitted)
+\emph{ Expectile sheets for joint estimation of expectile curves }
+(under review at Statistical Modelling)
 }
 \author{
 Fabian Sobotka, Thomas Kneib \cr

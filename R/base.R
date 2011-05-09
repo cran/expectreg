@@ -6,8 +6,8 @@ function (x, type = c("pspline", "2dspline", "markov", "radial",
     type = match.arg(type)
     Zspathelp = NA
     phi = NA
+    xname = deparse(as.list(match.call())$x)
     if (type == "pspline") {
-        require(splines)
         B.deg = 2
         B.size = 20
         diff.size = 2
@@ -30,7 +30,6 @@ function (x, type = c("pspline", "2dspline", "markov", "radial",
         }
     }
     else if (type == "2dspline") {
-        require(splines)
         B.deg = 2
         B.size = 20
         diff.size = 2
@@ -111,7 +110,6 @@ function (x, type = c("pspline", "2dspline", "markov", "radial",
         }
     }
     else if (type == "markov") {
-        require(BayesX)
         if (any(!is.na(bnd)) && any(is.na(P))) 
             P = bnd2gra(bnd)
         if (all(is.na(P))) 
@@ -164,7 +162,7 @@ function (x, type = c("pspline", "2dspline", "markov", "radial",
         P = matrix(0, nrow = ncol(B), ncol = ncol(B))
     }
     rb = list(B = B, P = P, x = x, type = type, bnd = bnd, Zspathelp = Zspathelp, 
-        phi = phi, center = center, by = by)
+        phi = phi, center = center, by = by, xname = xname)
     class(rb) = c("regbase")
     rb
 }

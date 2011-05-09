@@ -1,3 +1,8 @@
+
+import(stats)
+
+importFrom(splines, splineDesign)
+
 export(expectile.laws,
        expectile.restricted,
        expectile.bundle,
@@ -9,6 +14,7 @@ export(expectile.laws,
        base,
        quant.boost,
        quant.bundle,
+       expectile,
        pemq,
        qemq,
        demq,
@@ -25,5 +31,13 @@ export(expectile.laws,
 
 S3method(plot, expectreg)
 S3method(print, expectreg)
+S3method(residuals,expectreg)
+S3method(resid, expectreg)
+S3method(fitted, expectreg)
+S3method(fitted.values, expectreg)
+S3method(effects, expectreg)
+S3method(coef, expectreg)
+S3method(coefficients, expectreg)
 S3method(plot, bundledensity)
 S3method(predict, regbase)
+S3method(predict, expectreg)

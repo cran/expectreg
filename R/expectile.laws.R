@@ -18,7 +18,8 @@ function (formula, data = NULL, smooth = c("schall", "acv", "fixed"),
             row.grid = row.grid + 1
     }
     np <- length(pp)
-    yy = eval(parse(text = formula[2]), envir = data, enclos = environment(formula))
+    yy = eval(as.expression(formula[[2]]), envir = data, enclos = environment(formula))
+    attr(yy, "name") = deparse(formula[[2]])
     m = length(yy)
     design = list()
     x = list()
@@ -29,17 +30,23 @@ function (formula, data = NULL, smooth = c("schall", "acv", "fixed"),
     krig.phi = list()
     center = TRUE
     varying = list()
-    for (i in 1:length(labels(terms(formula)))) {
+    if (formula[[3]] == "1") {
+        design[[1]] = base(matrix(1, nrow = m, ncol = 1), "parametric", 
+            center = F)
+        smooth = "fixed"
+    }
+    else if (formula[[3]] == ".") {
+        design[[1]] = base(data[, names(data) != all.vars(formula[[2]])], 
+            "parametric")
+        smooth = "fixed"
+    }
+    else for (i in 1:length(labels(terms(formula)))) {
         types[[i]] = strsplit(labels(terms(formula))[i], "(", 
             fixed = TRUE)[[1]][1]
         if (types[[i]] == labels(terms(formula))[i]) {
             design[[i]] = base(matrix(eval(parse(text = labels(terms(formula))[i]), 
                 envir = data, enclos = environment(formula)), 
                 nrow = m), "parametric")
-            formula = eval(substitute(update(formula, . ~ variable2 + 
-                . - variable1), list(variable1 = as.name(types[[i]]), 
-                variable2 = as.name(paste("base(", types[[i]], 
-                  ",'parametric')", sep = "")))))
             types[[i]] = "parametric"
         }
         else design[[i]] = eval(parse(text = labels(terms(formula))[i]), 
@@ -52,13 +59,14 @@ function (formula, data = NULL, smooth = c("schall", "acv", "fixed"),
     else B = design[[1]][[1]]
     DD = as.matrix(design[[1]][[2]])
     x[[1]] = design[[1]][[3]]
+    names(x)[1] = design[[1]]$xname
     types[[1]] = design[[1]][[4]]
     bnd[[1]] = design[[1]][[5]]
     Zspathelp[[1]] = design[[1]][[6]]
     nb[1] = ncol(design[[1]][[1]])
     krig.phi[[1]] = design[[1]][[7]]
     center = center && design[[1]][[8]]
-    if (length(labels(terms(formula))) > 1) 
+    if (length(design) > 1) 
         for (i in 2:length(labels(terms(formula)))) {
             varying[[i]] = design[[i]][[9]]
             if (any(!is.na(varying[[i]]))) 
@@ -69,6 +77,7 @@ function (formula, data = NULL, smooth = c("schall", "acv", "fixed"),
                 cbind(matrix(0, nrow = nrow(design[[i]][[2]]), 
                   ncol = ncol(DD)), design[[i]][[2]]))
             x[[i]] = design[[i]][[3]]
+            names(x)[i] = design[[i]]$xname
             types[[i]] = design[[i]][[4]]
             bnd[[i]] = design[[i]][[5]]
             Zspathelp[[i]] = design[[i]][[6]]
@@ -170,6 +179,7 @@ function (formula, data = NULL, smooth = c("schall", "acv", "fixed"),
     else intercept = rep(0, np)
     for (k in 1:length(design)) {
         final.lambdas[[k]] = lala[k, ]
+        names(final.lambdas)[k] = design[[k]]$xname
         partbasis = (sum(nb[0:(k - 1)]) + 1):(sum(nb[0:k]))
         if (types[[k]] == "pspline") {
             Z[[k]] <- matrix(NA, m, np)
@@ -271,11 +281,31 @@ function (formula, data = NULL, smooth = c("schall", "acv", "fixed"),
                   i, drop = FALSE]
             }
         }
+        names(Z)[k] = design[[k]]$xname
+        names(coefficients)[k] = design[[k]]$xname
     }
     result = list(lambda = final.lambdas, intercepts = intercept, 
         coefficients = coefficients, values = Z, response = yy, 
         covariates = x, formula = formula, expectiles = pp, effects = types, 
         helper = helper, design = cbind(1, B), fitted = fitted)
+    result$predict <- function(newdata = NULL) {
+        BB = list()
+        values = list()
+        bmat = NULL
+        for (k in 1:length(coefficients)) {
+            BB[[k]] = predict(design[[k]], newdata)
+            values[[k]] <- BB[[k]] %*% coefficients[[k]]
+            values[[k]] = t(apply(values[[k]], 1, function(x) {
+                x + intercept
+            }))
+            bmat = cbind(bmat, BB[[k]])
+        }
+        if (center) 
+            bmat = cbind(1, bmat)
+        fitted = bmat %*% rbind(intercept, vector.a.ma.schall)
+        names(values) = names(coefficients)
+        list(fitted = fitted, values = values)
+    }
     class(result) = c("expectreg", "laws")
     result
 }

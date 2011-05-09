@@ -173,13 +173,14 @@ function (formula, data = NULL, mstop = NA, expectiles = NA,
                 z[[k]] = values[[k]]
             }
         }
-        rm(inb)
         gc()
-        list(values, z, fitted)
+        list(values, z, fitted, inb)
     }
     coef.vector = myapply(1:np, function(i) dummy.reg(i, formula, 
         data, mstop, pp, cv10f, types, x, blsstr, bnd))
+    boost.object = list()
     for (i in 1:np) {
+        boost.object[[i]] = coef.vector[[i]][[4]]
         fitted[, i] = coef.vector[[i]][[3]]
         for (k in 1:length(blsstr)) {
             values[[k]][, i] = coef.vector[[i]][[1]][[k]]
@@ -191,6 +192,21 @@ function (formula, data = NULL, mstop = NA, expectiles = NA,
     result = list(values = values, response = yy, covariates = x, 
         formula = formula, expectiles = pp, effects = types, 
         helper = helper, fitted = fitted)
+    result$predict <- function(newdata = NULL) {
+        values = list()
+        fitted = matrix(NA, nrow = nrow(newdata), ncol = np)
+        for (i in 1:np) {
+            fitted[, i] = predict(boost.object[[i]], newdata = newdata)
+        }
+        for (k in 1:length(blsstr)) {
+            values[[k]] = matrix(NA, nrow = nrow(newdata), ncol = np)
+            for (i in 1:np) {
+                values[[k]][, i] = predict(boost.object[[i]], 
+                  which = k, newdata = newdata) + boost.object[[i]]$offset
+            }
+        }
+        list(fitted = fitted, values = values)
+    }
     class(result) = c("expectreg", "boost")
     result
 }

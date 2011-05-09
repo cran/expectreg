@@ -4,12 +4,15 @@ vers <- paste("R package version", desc$Version)
 citEntry(entry="Manual",
 title = "expectreg: Expectile and Quantile Regression",
 author = personList(as.person("Fabian Sobotka"),
+as.person("Sabine Schnabel"),
+as.person("Linda Schulze Waltrup"),
+as.person("Paul Eilers"),
 as.person("Thomas Kneib"),
-as.person("Sabine Schnabel")),
+as.person("Goeran Kauermann")),
 year = year,
 note = vers,
 textVersion =
-paste("Fabian Sobotka, Thomas Kneib, Sabine Schnabel (",
+paste("F. Sobotka, S. Schnabel and L. Schulze Waltrup with contributions from P. Eilers, T. Kneib and G. Kauermann (",
 year,
 "). expectreg: Expectile and Quantile Regression. ",
 vers, ".", sep=""))
@@ -17,7 +20,7 @@ vers, ".", sep=""))
     citEntry(entry="Article",
          title = "Geoadditive Expectile Regression",
          author = personList(as.person("Fabian Sobotka"), as.person("Thomas Kneib")),
-         journal      = "Computational Statistics and Data Analysis (to appear)",
+         journal      = "Computational Statistics and Data Analysis",
          year         = "2010",
          note         = "doi: 10.1016/j.csda.2010.11.015",
 

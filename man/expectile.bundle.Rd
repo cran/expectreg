@@ -97,7 +97,8 @@ quantile regression.
     \item{asymmetry}{ Vector of the asymmetry factors for all expectiles. }
     \item{design}{ Complete design matrix. }
     \item{fitted}{ Fitted values \eqn{ \hat{y} }. }
-A \code{\link{plot}} method is available.
+\code{\link[=plot.expectreg]{plot}}, \code{\link[=predict.expectreg]{predict}}, \code{\link[=resid.expectreg]{resid}}, \code{\link[=fitted.expectreg]{fitted}} and \code{\link[=effects.expectreg]{effects}}
+methods are available for class 'expectreg'.
 }
 \references{
 Schnabel S and Eilers P (2009)
@@ -108,9 +109,9 @@ He X (1997)
 \emph{ Quantile Curves without Crossing }
 The American Statistician, 51(2):186-192
 
-Schnabel S and Eilers P (2010)
+Schnabel S and Eilers P (2011)
 \emph{ A location scale model for non-crossing expectile curves}
-Statistics and Computing (submitted)
+(working paper)
 
 Sobotka F and Kneib T (2010)
 \emph{ Geoadditive Expectile Regression }

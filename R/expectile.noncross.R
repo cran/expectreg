@@ -17,17 +17,23 @@ function (formula, data = NULL, smooth = c("schall", "acv", "fixed"),
         if (length(p) > row.grid * col.grid) 
             row.grid = row.grid + 1
     }
-    y <- as.numeric(eval(parse(text = formula[2])))
+    y = eval(as.expression(formula[[2]]), envir = data, enclos = environment(formula))
+    attr(y, "name") = deparse(formula[[2]])
     n <- length(y)
     mp <- length(p)
     types = list()
     design = list()
-    if (labels(terms(formula))[1] == "1") {
-        x <- c(rep(1, n))
-        Bx <- as.matrix(rep(1, n))
-        lambda <- 0
-        P <- as.matrix(1)
-        types[[1]] = "intercept"
+    helper = list()
+    x = list()
+    if (formula[[3]] == "1") {
+        design[[1]] = base(matrix(1, nrow = n, ncol = 1), "parametric", 
+            center = F)
+        smooth = "fixed"
+    }
+    else if (formula[[3]] == ".") {
+        design[[1]] = base(data[, names(data) != all.vars(formula[[2]])], 
+            "parametric")
+        smooth = "fixed"
     }
     else for (i in 1:length(labels(terms(formula)))) {
         types[[i]] = strsplit(labels(terms(formula))[i], "(", 
@@ -35,11 +41,7 @@ function (formula, data = NULL, smooth = c("schall", "acv", "fixed"),
         if (types[[i]] == labels(terms(formula))[i]) {
             design[[i]] = base(matrix(eval(parse(text = labels(terms(formula))[i]), 
                 envir = data, enclos = environment(formula)), 
-                nrow = n), "parametric")
-            formula = eval(substitute(update(formula, . ~ variable2 + 
-                . - variable1), list(variable1 = as.name(types[[i]]), 
-                variable2 = as.name(paste("base(", types[[i]], 
-                  ",'parametric',center=FALSE)", sep = "")))))
+                nrow = n), "parametric", center = FALSE)
             types[[i]] = "parametric"
             lambda = 0
         }
@@ -56,16 +58,34 @@ function (formula, data = NULL, smooth = c("schall", "acv", "fixed"),
         }
     }
     Bx = design[[1]][[1]]
+    K <- vector(length = length(design))
+    K[1] <- ncol(Bx)
     types[[1]] = design[[1]][[4]]
-    if (types[[1]] == "pspline") 
-        P = t(design[[1]][[2]]) %*% design[[1]][[2]]
-    else P = design[[1]][[2]]
-    x = design[[1]][[3]]
+    P = design[[1]][[2]]
+    x[[1]] = design[[1]][[3]]
+    names(x)[1] = design[[1]]$xname
     if (types[[1]] == "markov") 
-        helper = list(design[[1]][[5]], design[[1]][[6]])
+        helper[[1]] = list(design[[1]][[5]], design[[1]][[6]])
     else if (types[[1]] == "krig") 
-        helper = list(design[[1]][[7]])
-    else helper = list(NA)
+        helper[[1]] = list(design[[1]][[7]])
+    else helper[[1]] = list(NA)
+    if (length(design) > 1) 
+        for (i in 2:length(design)) {
+            Bx = cbind(Bx, design[[i]][[1]])
+            K[i] <- ncol(design[[i]][[1]])
+            types[[i]] = design[[1]][[4]]
+            P = rbind(cbind(P, matrix(0, nrow = nrow(P), ncol = ncol(design[[i]][[2]]))), 
+                cbind(matrix(0, nrow = nrow(design[[i]][[2]]), 
+                  ncol = ncol(P)), design[[i]][[2]]))
+            x[[i]] = design[[i]][[3]]
+            names(x)[i] = design[[i]]$xname
+            if (types[[i]] == "markov") 
+                helper[[i]] = list(design[[i]][[5]], design[[i]][[6]])
+            else if (types[[i]] == "krig") 
+                helper[[i]] = list(design[[i]][[7]])
+            else helper[[i]] = list(NA)
+        }
+    P = t(P) %*% P
     bdegp <- 1
     p.knots = p
     p.knots[1] <- p.knots[1] - 1e-07
@@ -141,12 +161,36 @@ function (formula, data = NULL, smooth = c("schall", "acv", "fixed"),
         difl <- abs(lambda0 - lambda)
         print(it)
     }
-    ncexpect <- list(lambda = list(lambda), intercepts = rep(0, 
-        length(p)), values = list(matrix(z, ncol = length(p))), 
-        coefficients = list(matrix(a_sol, ncol = length(p))), 
+    Z <- list()
+    coefficients <- list()
+    a_sol = matrix(a_sol, ncol = length(p))
+    final.lambdas = list(lambda)
+    for (k in 1:length(design)) {
+        partbasis = (sum(K[0:(k - 1)]) + 1):(sum(K[0:k]))
+        coefficients[[k]] = a_sol[partbasis, ]
+        Z[[k]] = design[[k]][[1]] %*% coefficients[[k]]
+        names(Z)[k] = design[[k]]$xname
+        names(coefficients)[k] = design[[k]]$xname
+        names(final.lambdas)[k] = design[[k]]$xname
+    }
+    ncexpect <- list(lambda = final.lambdas, intercepts = rep(0, 
+        length(p)), values = Z, coefficients = coefficients, 
         response = y, formula = formula, expectiles = p, effects = types, 
-        helper = helper, covariates = list(x), design = Bx, fitted = matrix(z, 
+        helper = helper, covariates = x, design = Bx, fitted = matrix(z, 
             ncol = length(p)))
+    ncexpect$predict <- function(newdata = NULL) {
+        BB = list()
+        values = list()
+        bmat = NULL
+        for (k in 1:length(coefficients)) {
+            BB[[k]] = predict(design[[k]], newdata)
+            values[[k]] <- BB[[k]] %*% coefficients[[k]]
+            bmat = cbind(bmat, BB[[k]])
+        }
+        fitted = bmat %*% a_sol
+        names(values) = names(coefficients)
+        list(fitted = fitted, values = values)
+    }
     class(ncexpect) = c("expectreg", "noncross")
     ncexpect
 }

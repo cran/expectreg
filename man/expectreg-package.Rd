@@ -4,7 +4,7 @@
 \alias{expectreg}
 \docType{package}
 \title{
-Expectile Regression
+Expectile and Quantile Regression
 }
 \description{
 Expectile and quantile regression of models with nonlinear effects
@@ -15,10 +15,11 @@ Expectile and quantile regression of models with nonlinear effects
 \tabular{ll}{
 Package: \tab expectreg\cr
 Type: \tab Package\cr
-Version: \tab 0.21\cr
-Date: \tab 2011-03-22\cr
-License: \tab GPL (>= 2)\cr
+Version: \tab 0.25\cr
+Date: \tab 2011-05-09\cr
+License: \tab GPL-2\cr
 LazyLoad: \tab yes\cr
+LazyData: \tab yes\cr
 }
 
 \itemize{
@@ -74,9 +75,9 @@ Schnabel S and Eilers P (2009)
 \emph{ Optimal expectile smoothing }
 Computational Statistics and Data Analysis, 53:4168-4177
 
-Schnabel S and Eilers P (2010)
-\emph{ A location scale model for non-crossing expectile curves }
-Statistics and Computing (submitted)
+Schnabel S and Eilers P (2011)
+\emph{ Expectile sheets for joint estimation of expectile curves }
+(under review at Statistical Modelling)
 
 Sobotka F and Kneib T (2010)
 \emph{ Geoadditive Expectile Regression }
@@ -103,4 +104,9 @@ enorm(0.1)
 ## Introducing the expectiles-meet-quantiles distribution
 x = seq(-5,5,length=100)
 plot(x,demq(x),type="l")
+
+## giving an expectile analogon to the 'quantile' function
+y = rnorm(1000)
+
+expectile(y)
 }

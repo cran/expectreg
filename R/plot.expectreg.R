@@ -39,8 +39,8 @@ function (x, ...)
             ZZZ = Z[[k]][order(cov[[k]])[seq(1, m, length = min(m, 
                 100))], pp.plot]
             plot(cov[[k]], yy, cex = 0.5, pch = 20, col = "grey42", 
-                xlab = "x", ylab = "y", ylim = range(cbind(yy, 
-                  Z[[k]])))
+                xlab = names(cov)[k], ylab = attr(yy, "name"), 
+                ylim = range(cbind(yy, Z[[k]])))
             matlines(sort(cov[[k]])[seq(1, m, length = min(m, 
                 100))], ZZZ, col = rainbow(np.plot + 1)[1:np.plot], 
                 lty = 1)
@@ -60,8 +60,8 @@ function (x, ...)
                   plot(seq(0, 1.1 * max(cov[[k]]), length = 10), 
                     seq(0, max(z), length = 10), type = "n", 
                     xlab = "Districts", ylab = "coefficients")
-                  matpoints(cov[[k]], Z[[k]], col = rainbow(np + 
-                    1)[1:np])
+                  matpoints(cov[[k]], Z[[k]], col = rainbow(np.plot + 
+                    1)[1:np.plot])
                   legend(x = "right", pch = 19, cex = 1, col = rev(rainbow(np.plot + 
                     1)[1:np.plot]), legend = rev(pp[pp.plot]), 
                     bg = "white", bty = "n")
@@ -112,7 +112,8 @@ function (x, ...)
                       Z[[k]][, i])
                     persp(z[[1]], z[[2]], z[[3]], ticktype = "detailed", 
                       phi = 40, zlim = range(yy), col = "lightblue", 
-                      xlab = "X", ylab = "Y", zlab = "Z", main = pp.plot[i]/100)
+                      xlab = "X", ylab = "Y", zlab = attr(yy, 
+                        "name"), main = pp.plot[i]/100)
                   }
                 }
             }
@@ -133,7 +134,7 @@ function (x, ...)
                       seq(x.min[2], x.max[2], length = 50), z, 
                       ticktype = "detailed", phi = 40, zlim = range(yy), 
                       col = "lightblue", xlab = "X", ylab = "Y", 
-                      zlab = "Z", main = pp.plot[i]/100)
+                      zlab = attr(yy, "name"), main = pp.plot[i]/100)
                   }
                 }
             }
@@ -147,7 +148,8 @@ function (x, ...)
                       Z[[k]][, i])
                     persp(z[[1]], z[[2]], z[[3]], ticktype = "detailed", 
                       phi = 40, zlim = range(yy), col = "lightblue", 
-                      xlab = "X", ylab = "Y", zlab = "Z", main = pp.plot[i]/100)
+                      xlab = "X", ylab = "Y", zlab = attr(yy, 
+                        "name"), main = pp.plot[i]/100)
                   }
                 }
             }
@@ -179,7 +181,7 @@ function (x, ...)
                       seq(x.min[2], x.max[2], length = 50), z, 
                       ticktype = "detailed", phi = 40, zlim = range(yy), 
                       col = "lightblue", xlab = "X", ylab = "Y", 
-                      zlab = "Z", main = pp.plot[i]/100)
+                      zlab = attr(yy, "name"), main = pp.plot[i]/100)
                   }
                 }
             }
@@ -193,7 +195,8 @@ function (x, ...)
                       Z[[k]][, i])
                     persp(z[[1]], z[[2]], z[[3]], ticktype = "detailed", 
                       phi = 40, zlim = range(yy), col = "lightblue", 
-                      xlab = "X", ylab = "Y", zlab = "Z", main = pp.plot[i]/100)
+                      xlab = "X", ylab = "Y", zlab = attr(yy, 
+                        "name"), main = pp.plot[i]/100)
                   }
                 }
             }
@@ -225,26 +228,24 @@ function (x, ...)
                       seq(x.min[2], x.max[2], length = 50), z, 
                       ticktype = "detailed", phi = 40, zlim = range(yy), 
                       col = "lightblue", xlab = "X", ylab = "Y", 
-                      zlab = "Z", main = pp.plot[i]/100)
+                      zlab = attr(yy, "name"), main = pp.plot[i]/100)
                   }
                 }
             }
         }
         else if (types[[k]] == "random") {
             if (inherits(x, "sheets") || inherits(x, "boost")) {
-                plot(seq(0, 1.1 * max(cov[[k]]), length = 10), 
-                  seq(0, max(z), length = 10), type = "n", xlab = "Group", 
-                  ylab = "coefficients")
-                points(rep(sort(unique(cov[[k]])), times = np), 
-                  Z[[k]], col = rainbow(np + 1)[1:np])
-                legend(x = "right", pch = 19, cex = 1, col = rev(rainbow(np + 
-                  1)[1:np]), legend = rev(pp), bg = "white", 
-                  bty = "n")
+                matplot(cov[[k]], Z[[k]], col = rainbow(np.plot + 
+                  1)[1:np.plot], xlab = names(cov)[k], ylab = attr(yy, 
+                  "name"), pch = 15)
+                legend(x = "right", pch = 19, cex = 1, col = rev(rainbow(np.plot + 
+                  1)[1:np.plot]), legend = rev(pp[pp.plot]), 
+                  bg = "white", bty = "n")
             }
             else {
                 plot(seq(0, 1.1 * max(cov[[k]]), length = 10), 
                   seq(0, max(coefficients[[k]] + intercept), 
-                    length = 10), type = "n", xlab = "Group", 
+                    length = 10), type = "n", xlab = names(cov)[k], 
                   ylab = "coefficients")
                 points(rep(sort(unique(cov[[k]])), times = np.plot), 
                   (coefficients[[k]] + intercept)[, pp.plot], 
@@ -257,7 +258,7 @@ function (x, ...)
         else if (types[[k]] == "ridge") {
             plot(seq(0, 1.1 * dim(cov[[k]])[2], length = 10), 
                 seq(0, max(coefficients[[k]] + intercept), length = 10), 
-                type = "n", xlab = "X variables", ylab = "coefficients")
+                type = "n", xlab = names(cov)[k], ylab = "coefficients")
             points(rep(1:dim(cov[[k]])[2], times = np.plot), 
                 (coefficients[[k]] + intercept)[, pp.plot], col = rainbow(np.plot + 
                   1)[1:np.plot])
@@ -268,8 +269,8 @@ function (x, ...)
         else if (types[[k]] == "parametric") {
             if (inherits(x, "sheets") || inherits(x, "boost")) {
                 plot(cov[[k]], yy, cex = 0.5, pch = 20, col = "grey42", 
-                  xlab = "x", ylab = "y", ylim = range(cbind(yy, 
-                    Z[[k]])))
+                  xlab = names(cov)[k], ylab = attr(yy, "name"), 
+                  ylim = range(cbind(yy, Z[[k]])))
                 matlines(sort(cov[[k]]), Z[[k]][order(cov[[k]]), 
                   pp.plot], col = rainbow(np.plot + 1)[1:np.plot], 
                   lty = 1)
@@ -278,9 +279,18 @@ function (x, ...)
                   legend = rev(pp[pp.plot]), bg = "white", bty = "n")
             }
             else {
-                matplot(1:nrow(coefficients[[k]]), coefficients[[k]][, 
+                if (nrow(coefficients[[k]]) == 1) {
+                  plot(cov[[k]], yy, cex = 0.5, pch = 20, col = "grey42", 
+                    xlab = names(cov)[k], ylab = attr(yy, "name"), 
+                    ylim = range(cbind(yy, Z[[k]])))
+                  matlines(sort(cov[[k]]), Z[[k]][order(cov[[k]]), 
+                    pp.plot], col = rainbow(np.plot + 1)[1:np.plot], 
+                    lty = 1)
+                }
+                else matplot(1:nrow(coefficients[[k]]), coefficients[[k]][, 
                   pp.plot], col = rainbow(np.plot + 1)[1:np.plot], 
-                  pch = 15)
+                  pch = 15, xlab = names(cov)[k], ylab = attr(yy, 
+                    "name"))
                 legend(x = "bottomright", pch = 19, cex = 1, 
                   col = rev(rainbow(np.plot + 1)[1:np.plot]), 
                   legend = rev(pp[pp.plot]), bg = "white", bty = "n")
@@ -288,8 +298,8 @@ function (x, ...)
         }
         else if (types[[k]] == "special") {
             plot(cov[[k]], yy, cex = 0.5, pch = 20, col = "grey42", 
-                xlab = "x", ylab = "y", ylim = range(cbind(yy, 
-                  Z[[k]])))
+                xlab = names(cov)[k], ylab = attr(yy, "name"), 
+                ylim = range(cbind(yy, Z[[k]])))
             matlines(sort(cov[[k]]), Z[[k]][order(cov[[k]]), 
                 pp.plot], col = rainbow(np.plot + 1)[1:np.plot], 
                 lty = 1)

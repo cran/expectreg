@@ -35,7 +35,7 @@ A histogram of \code{random} as well as the estimated density is also produced.
 \references{
 Schnabel SK and Eilers PHC (2010)
 \emph{ A location scale model for non-crossing expectile curves }
-Under review at Statistics and Computing
+(working paper)
 }
 \examples{
 data(dutchboys)

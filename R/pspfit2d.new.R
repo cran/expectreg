@@ -1,13 +1,12 @@
 pspfit2d.new <-
 function (B, P, ps, yy, w, lambdax, lambdap, center, by) 
 {
-    require(splines)
-    x0 <- -5.501
-    x1 <- 5.501
+    vv <- log(ps/(1 - ps))
+    x0 <- min(vv, -5) - 0.501
+    x1 <- max(vv, 5) + 0.501
     B.size = 10
     B.deg = 2
     dx = (x1 - x0)/(B.size - 1)
-    vv <- log(ps/(1 - ps))
     By = splineDesign(knots = seq(x0 - dx * B.deg, x1 + dx * 
         B.deg, by = dx), x = vv, ord = B.deg + 1)
     basisX = NULL

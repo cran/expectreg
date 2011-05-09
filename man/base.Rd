@@ -94,7 +94,8 @@ List consisting of:
               otherwise 'NA'. }
   \item{center}{ The boolean value of the argument \code{center}.
          }
-
+  \item{by}{ The variable included in the \code{by} argument if available. }
+  \item{xname}{ Name of the variable \code{x} given to the function. }
 }
 \references{
     Fahrmeir L and Kneib T and Lang S (2009)

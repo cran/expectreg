@@ -269,7 +269,7 @@ exp.boost <- expectile.boost(hgt ~ bbs(age,df=5,degree=2),dutchboys,mstop=rep(50
 \bibitem[{{\sc Sobotka} and {\sc
   Kneib}(2010)}]{Sobotka:2010}
 {\sc Sobotka, F.}, and {\sc T. Kneib}, 2010 Geoadditive Expectile Regression.
-\newblock Computational Statistics and Data Analysis (to appear).
+\newblock Computational Statistics and Data Analysis, doi: 10.1016/j.csda.2010.11.015.
 
 \end{thebibliography}
 
