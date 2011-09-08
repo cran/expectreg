@@ -1,5 +1,5 @@
 echisq <-
-function (e, df, log.p = FALSE) 
+function (asy, df) 
 {
-    egamma(e, shape = df/2, rate = 0.5, log.p = log.p)
+    egamma(asy, shape = df/2, rate = 0.5)
 }

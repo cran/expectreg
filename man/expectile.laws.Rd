@@ -92,8 +92,9 @@ An object of class 'expectreg', which is basically a list consisting of:
     \item{helper}{ List of additional parameters like neighbourhood structure for spatial effects or 'phi' for kriging. }
     \item{design}{ Complete design matrix. }
     \item{fitted}{ Fitted values \eqn{ \hat{y} }. }
-\code{\link[=plot.expectreg]{plot}}, \code{\link[=predict.expectreg]{predict}}, \code{\link[=resid.expectreg]{resid}}, \code{\link[=fitted.expectreg]{fitted}} and \code{\link[=effects.expectreg]{effects}}
-methods are available for class 'expectreg'.
+\code{\link[=plot.expectreg]{plot}}, \code{\link[=predict.expectreg]{predict}}, \code{\link[=resid.expectreg]{resid}},
+\code{\link[=fitted.expectreg]{fitted}}, \code{\link[=effects.expectreg]{effects}}
+and further convenient methods are available for class 'expectreg'.
 }
 \references{
 Schnabel S and Eilers P (2009)
@@ -122,7 +123,7 @@ Paul Eilers \cr
 Erasmus Medical Center Rotterdam \cr
 \url{http://www.erasmusmc.nl}
 
-Linda Schulze Waltrup \cr
+Linda Schulze Waltrup, Goeran Kauermann \cr
 University Bielefeld \cr
 \url{http://www.uni-bielefeld.de} \cr
 }
@@ -133,10 +134,23 @@ University Bielefeld \cr
 \code{\link{base}}, \code{\link{expectile.boost}}, \code{\link{expectile.restricted}}
 }
 \examples{
-data(dutchboys)
+ex = expectile.laws(dist ~ base(speed),data=cars,smooth="a",lambda=5)
+ex = expectile.sheets(dist ~ base(speed),data=cars,smooth="f",lambda=5)
+plot(ex)
 
-expreg <- expectile.laws(dutchboys[,3] ~ base(dutchboys[,2],"pspline"),smooth="schall",expectiles=c(0.05,0.2,0.8,0.95))
-plot(expreg)
+
+data("lidar", package = "SemiPar")
+
+explaws <- expectile.laws(logratio~base(range,"pspline"),data=lidar,smooth="acv",expectiles=c(0.05,0.25,0.5,0.75,0.95))
+print(explaws)
+plot(explaws)
+
+###expectile regression using a fixed penalty
+plot(expectile.laws(logratio~base(range,"pspline"),data=lidar,smooth="fixed",lambda=1,expectiles=c(0.05,0.25,0.5,0.75,0.95)))
+plot(expectile.laws(logratio~base(range,"pspline"),data=lidar,smooth="fixed",lambda=0.0000001,expectiles=c(0.05,0.25,0.5,0.75,0.95)))
+    #As can be seen in the plot, a too small penalty causes overfitting of the data.
+plot(expectile.laws(logratio~base(range,"pspline"),data=lidar,smooth="fixed",lambda=50,expectiles=c(0.05,0.25,0.5,0.75,0.95)))
+    #If the penalty parameter is chosen too large, the expectile curves are smooth but don't represent the data anymore.
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

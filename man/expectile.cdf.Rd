@@ -42,7 +42,7 @@ A list consisting of
 }
 \references{
 Schulze Waltrup L, Sobotka F, Kauermann G and Kneib T (2011)
-\emph{ Quantiles vs. Expectiles }
+\emph{ Comparing Expectiles and Quantiles Regarding Efficiency }
 Working Paper.
 }
 \author{

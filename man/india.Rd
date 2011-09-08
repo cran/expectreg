@@ -34,8 +34,8 @@ Technical Report 052, University of Munich
 }
 \examples{
 data(india)
-data(india.bnd)
 
-expreg <- expectile.restricted(india[,1] ~ base(india[,6],"markov",bnd=india.bnd),smooth="fixed",lambda=1)
+expreg <- expectile.restricted(india[,1] ~ base(india[,2]),smooth="fixed",lambda=1)
+plot(expreg)
 }
 \keyword{datasets}

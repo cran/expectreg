@@ -79,17 +79,6 @@ Fabian Sobotka, Thomas Kneib \cr
 University Oldenburg \cr
 \url{http://www.uni-oldenburg.de} \cr
 
-Sabine Schnabel \cr
-Wageningen University and Research Centre \cr
-\url{http://www.wur.nl}
-
-Paul Eilers \cr
-Erasmus Medical Center Rotterdam \cr
-\url{http://www.erasmusmc.nl}
-
-Linda Schulze Waltrup \cr
-University Bielefeld \cr
-\url{http://www.uni-bielefeld.de} \cr
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~

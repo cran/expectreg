@@ -8,6 +8,14 @@
 \alias{elnorm}
 \alias{echisq}
 \alias{eexp}
+\alias{penorm}
+\alias{pebeta}
+\alias{peunif}
+\alias{pet}
+\alias{pegamma}
+\alias{pelnorm}
+\alias{pechisq}
+\alias{peexp}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Expectiles of distributions
@@ -16,29 +24,42 @@ Expectiles of distributions
 Much like the 0.5 quantile of a distribution is the median,
 the 0.5 expectile is the mean / expected value.
 These functions add the possibility of calculating expectiles
-of known distributions.
+of known distributions. The functions starting with 'e' calculate
+an expectile value for given asymmetry values, the functions 
+starting with 'pe' calculate vice versa.
 }
 \usage{
-enorm(e, m = 0, sd = 1, log.p = FALSE)
+enorm(asy, m = 0, sd = 1)
+penorm(e, m = 0, sd = 1)
 
-ebeta(e, a = 1, b = 1, log.p = FALSE)
+ebeta(asy, a = 1, b = 1)
+pebeta(e, a = 1, b = 1)
 
-eunif(e, min = 0, max = 1)
+eunif(asy, min = 0, max = 1)
+peunif(e, min = 0, max = 1)
 
-et(e, df, log.p = FALSE)
+et(asy, df)
+pet(e, df)
 
-elnorm(e, meanlog = 0, sdlog = 1, log.p = FALSE)
+elnorm(asy, meanlog = 0, sdlog = 1)
+pelnorm(e, meanlog = 0, sdlog = 1)
 
-egamma(e, shape, rate = 1, scale = 1/rate, log.p = FALSE)
+egamma(asy, shape, rate = 1, scale = 1/rate)
+pegamma(e, shape, rate = 1, scale = 1/rate)
 
-eexp(e, rate = 1, log.p = FALSE)
+eexp(asy, rate = 1)
+peexp(e, rate = 1)
 
-echisq(e, df, log.p = FALSE)
+echisq(asy, df)
+pechisq(e, df)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
+  \item{asy}{
+vector of asymmetries with values between 0 and 1.
+}
   \item{e}{
-vector of asymmetries.
+vector of expectiles from the respective distribution.
 }
   \item{m, sd}{
 mean and standard deviation of the Normal distribution.
@@ -59,9 +80,6 @@ parameters of the lognormal distribution.
 parameters of the gamma distribution (with 2 different parametrizations)
 and parameter of the exponential distribution which is a special case of the gamma
 with shape=1.  
-}
- \item{log.p}{
-logical; if TRUE, probabilities e are given as log(e). 
 }
 }
 \details{
@@ -93,10 +111,12 @@ University Oldenburg \cr
 \code{\link{eemq}}
 }
 \examples{
-x <- seq(0,1,0.2)
+x <- seq(0.02,0.98,0.2)
 
 qnorm(x)
-enorm(x)
+e = enorm(x)
+
+penorm(e)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

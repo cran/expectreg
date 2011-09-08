@@ -1,5 +1,5 @@
 eexp <-
-function (e, rate = 1, log.p = FALSE) 
+function (asy, rate = 1) 
 {
-    egamma(e, shape = 1, rate = rate, log.p = log.p)
+    egamma(asy, shape = 1, rate = rate)
 }

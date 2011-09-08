@@ -22,8 +22,10 @@ function (formula, data = NULL, mstop = NA, expectiles = NA,
         mstop = rep(4000, np)
     else if (length(mstop) == 1) 
         mstop = rep(mstop, np)
-    else if (length(mstop) < np) 
+    else if (length(mstop) < np) {
         mstop = c(mstop, rep(max(mstop), times = np - length(mstop)))
+        warning("mstop doesn't match number of expectiles")
+    }
     blsstr <- labels(terms(formula))
     types = list()
     bls <- list()

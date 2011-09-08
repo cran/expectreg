@@ -20,6 +20,7 @@ export(expectile.laws,
        demq,
        eemq,
        remq,
+       peemq,
        ebeta,
        enorm,
        eunif,
@@ -27,7 +28,17 @@ export(expectile.laws,
        egamma,
        echisq,
        eexp,
-       elnorm)
+       elnorm,
+       eeplot,
+       eenorm,
+       pebeta,
+       penorm,
+       peunif,
+       pet,
+       pegamma,
+       pechisq,
+       peexp,
+       pelnorm)
 
 S3method(plot, expectreg)
 S3method(print, expectreg)

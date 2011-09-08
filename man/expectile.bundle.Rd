@@ -138,12 +138,10 @@ Erasmus Medical Center Rotterdam \cr
 \code{\link{base}}, \code{\link{expectile.boost}}
 }
 \examples{
-data(dutchboys)
-
-exprest <- expectile.restricted(dutchboys[,3] ~ base(dutchboys[,2],"pspline"),smooth="acv")
+exprest = expectile.restricted(dist ~ base(speed),data=cars,smooth="s",lambda=5)
 plot(exprest)
 
-expbund <- expectile.bundle(dutchboys[,3] ~ base(dutchboys[,2],"pspline"),smooth="fixed")
+expbund <- expectile.bundle(dist ~ base(speed),data=cars,smooth="a",lambda=5)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

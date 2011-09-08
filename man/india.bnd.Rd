@@ -30,8 +30,9 @@ University of Goettingen
 %%  ~~ possibly secondary sources and usages ~~
 }
 \examples{
+data(india)
 data(india.bnd)
 
-drawmap(map=india.bnd)
+drawmap(data=india,map=india.bnd,regionvar=6,plotvar=1)
 }
 \keyword{datasets}

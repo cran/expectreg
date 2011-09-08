@@ -46,5 +46,6 @@ Computatational Statistics and Data Analysis, 53: 4168-4177
 data(dutchboys)
 
 expreg <- expectile.restricted(dutchboys[,3] ~ base(dutchboys[,2],"pspline"),smooth="schall")
+plot(expreg)
 }
 \keyword{datasets}

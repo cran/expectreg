@@ -1,10 +1,11 @@
 enorm <-
-function (e, m = 0, sd = 1, log.p = FALSE) 
+function (asy, m = 0, sd = 1) 
 {
-    mapply(function(y) optimize(function(z) abs((m * pnorm((z - 
-        m)/sd, log.p = log.p) - sd * dnorm((z - m)/sd, log = log.p) - 
-        z * pnorm(z, m = m, sd = sd, log.p = log.p))/(2 * (m * 
-        pnorm((z - m)/sd, log.p = log.p) - sd * dnorm((z - m)/sd, 
-        log = log.p) - z * pnorm(z, m = m, sd = sd, log.p = log.p)) + 
-        z - m) - y), c(-10, 10) * sd + m)$minimum, e)
+    zz = 0 * asy
+    for (k in 1:length(asy)) {
+        root = function(z) penorm(z) - asy[k]
+        z = uniroot(root, interval = c(-10, 10), tol = 1e-06)
+        zz[k] = z$root * sd + m
+    }
+    return(zz)
 }

@@ -7,12 +7,14 @@ function (object, newdata = NULL, ...)
     phi = object$phi
     center = object$center
     x = object$x
+    P = object$P
     if (is.null(newdata)) 
         newdata = x
     else if (length(which(names(newdata) == object$xname)) > 
         0) 
         newdata = newdata[, which(names(newdata) == object$xname)]
-    else stop("Names of newdata not consistent with original.")
+    else if (!is.vector(newdata)) 
+        stop("Names of newdata not consistent with original.")
     if (type == "pspline") {
         B.deg = 2
         B.size = 20
@@ -109,23 +111,13 @@ function (object, newdata = NULL, ...)
         }
     }
     else if (type == "markov") {
-        if (any(!is.na(bnd)) && any(is.na(P))) 
-            P = bnd2gra(bnd)
-        if (all(is.na(P))) 
-            stop("No Neighbourhood defined.")
-        if (any(diag(P) < 0) || any(P - diag(P) > 0) || is.null(dimnames(P)[[1]])) 
-            stop("Maldefined Neighbourhood.")
-        districts = dimnames(P)[[1]]
-        B = matrix(0, nrow = length(newdata), ncol = dim(P)[2])
+        P2 = bnd2gra(bnd)
+        districts = dimnames(P2)[[1]]
+        B = matrix(0, nrow = length(newdata), ncol = dim(P2)[2])
         for (i in 1:length(newdata)) B[i, which(districts == 
             newdata[i])] = 1
-        Zspathelp = diag(ncol(P))
         if (center) {
-            e <- eigen(P)
-            L <- e$vectors[, -dim(e$vectors)[2]] * sqrt(e$values[-length(e$values)])
-            Zspathelp <- L %*% solve(t(L) %*% L)
             B <- B %*% Zspathelp
-            P = diag(nrow = dim(P)[1] - 1)
         }
     }
     else if (type == "random") {

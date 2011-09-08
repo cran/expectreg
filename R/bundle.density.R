@@ -3,14 +3,11 @@ function (bundle)
 {
     if (!inherits(bundle, "bundle") && !inherits(bundle, "restricted")) 
         stop("Function needs output from 'expectile.bundle()' or 'expectile.restricted()'.")
-    basis = NULL
-    for (i in 1:length(labels(terms(bundle$formula)))) {
-        basis = cbind(basis, eval(parse(text = labels(terms(bundle$formula))[i]))[[1]])
-    }
+    basis = bundle$design
     np = length(bundle$intercepts)
     pp <- bundle$expectiles
-    rst <- (bundle$response - (cbind(1, basis) %*% bundle$trend.coef))/(cbind(1, 
-        basis) %*% bundle$residual.coef)
+    rst <- (bundle$response - (basis %*% bundle$trend.coef))/(basis %*% 
+        bundle$residual.coef)
     u <- seq(1.2 * min(rst), 1.2 * max(rst), length = 100)
     m <- length(u)
     bundle$asymmetry = sort(bundle$asymmetry)

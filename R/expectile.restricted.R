@@ -195,13 +195,12 @@ function (formula, data = NULL, smooth = c("schall", "acv", "fixed"),
         }
         else if (types[[k]] == "markov") {
             Z[[k]] <- matrix(NA, m, np)
-            coefficients[[k]] = matrix(NA, nrow = nb[k] + 1 * 
-                center, ncol = np)
+            coefficients[[k]] = matrix(NA, nrow = nb[k], ncol = np)
             helper[[k]] = list(bnd[[k]], Zspathelp[[k]])
             for (i in 1:np) {
                 Z[[k]][, i] = design[[k]][[1]] %*% vector.a.ma.schall[partbasis, 
                   i, drop = FALSE] + intercept[i]
-                coefficients[[k]][, i] = Zspathelp[[k]] %*% vector.a.ma.schall[partbasis, 
+                coefficients[[k]][, i] = vector.a.ma.schall[partbasis, 
                   i, drop = FALSE]
             }
         }

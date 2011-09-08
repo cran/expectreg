@@ -40,11 +40,12 @@ function (x, ...)
                 100))], pp.plot]
             plot(cov[[k]], yy, cex = 0.5, pch = 20, col = "grey42", 
                 xlab = names(cov)[k], ylab = attr(yy, "name"), 
-                ylim = range(cbind(yy, Z[[k]])))
+                ylim = range(cbind(yy, Z[[k]]), na.rm = TRUE), 
+                ...)
             matlines(sort(cov[[k]])[seq(1, m, length = min(m, 
                 100))], ZZZ, col = rainbow(np.plot + 1)[1:np.plot], 
-                lty = 1)
-            legend(x = "topright", pch = 19, cex = 1, col = rev(rainbow(np.plot + 
+                lty = 1, lwd = 2)
+            legend(x = "topright", pch = 19, cex = 1.2, col = rev(rainbow(np.plot + 
                 1)[1:np.plot]), legend = rev(pp[pp.plot]), bg = "white", 
                 bty = "n")
         }

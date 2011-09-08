@@ -18,6 +18,8 @@ function (formula, data = NULL, smooth = c("acv", "fixed"), lambda = 0.1,
         col.grid = 4
     }
     else {
+        if (length(expectiles) == 1) 
+            warning("Method best applied to more than one expectile.")
         pp <- expectiles
         pp.plot <- 1:length(pp)
         row.grid = floor(sqrt(length(pp)))
@@ -92,7 +94,6 @@ function (formula, data = NULL, smooth = c("acv", "fixed"), lambda = 0.1,
     lala <- matrix(c(rep(lambda, nterms), rep(lambdap, nterms)), 
         nrow = nterms, ncol = 2, dimnames = list(1:nterms, c("curve", 
             "sheet")))
-    vector.a.ma.schall <- matrix(NA, nrow = sum(nb) + 1, ncol = np)
     med = which(pp == 0.5)
     if (smooth == "acv") {
         acv.min = nlm(acv.sheets, p = lala, yy = yy, B = B, pp = pp, 
@@ -107,8 +108,6 @@ function (formula, data = NULL, smooth = c("acv", "fixed"), lambda = 0.1,
         w <- runif(m * np)
         p2f.new <- pspfit2d.new(B, DD, ps, ynp, w, lala[, 1], 
             lala[, 2], center, varying)
-        vector.a.ma.schall <- matrix(p2f.new$coef, ncol = np, 
-            byrow = T)
     }
     else {
         ynp <- rep(yy, np)
@@ -187,7 +186,7 @@ function (formula, data = NULL, smooth = c("acv", "fixed"), lambda = 0.1,
                 nb = c(nb, ncol(B1))
                 basisX <- cbind(basisX, B1 * B2)
             }
-        fitted <- basisX %*% coefficients
+        fitted <- basisX %*% as.vector(coefficients)
         my = nrow(B[[1]])
         np = length(ps)/my
         Bg = basisX[, 1:nb[1]]

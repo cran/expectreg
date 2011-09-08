@@ -33,7 +33,7 @@ Default is 4000.
 }
   \item{expectiles}{
 In default setting, the expectiles (0.01,0.02,0.05,0.1,0.2,0.5,0.8,0.9,0.95,0.98,0.99) are calculated.
-You may specify your own set of expectiles in a vector. Is overridden by \code{density}.
+You may specify your own set of expectiles in a vector.
 }
   \item{parallel}{
 On Unix machines with the package \code{\link[multicore]{multicore}} installed the different expectiles
@@ -87,11 +87,9 @@ University Oldenburg \cr
 \code{\link{expectile.laws}}, \code{\link[mboost]{gamboost}}, \code{\link[mboost]{bbs}}, \code{\link[mboost]{cvrisk}}
 }
 \examples{
-data(dutchboys)
-
-dutch = dutchboys[sample(6848,500),] # reduce computing time for this example
-
-expreg <- expectile.boost(hgt ~ bbs(age,df=5,degree=2),dutch,mstop=rep(550,11),expectiles=c(0.05,0.2,0.5,0.8,0.95))
+data("lidar", package = "SemiPar")
+expreg <- expectile.boost(logratio ~ bbs(range),lidar, mstop=500, expectiles=c(0.05,0.25,0.5,0.75,0.95))
+plot(expreg)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

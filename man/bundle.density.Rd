@@ -37,6 +37,21 @@ Schnabel SK and Eilers PHC (2010)
 \emph{ A location scale model for non-crossing expectile curves }
 (working paper)
 }
+
+\author{
+Sabine Schnabel \cr
+Wageningen University and Research Centre \cr
+\url{http://www.wur.nl} \cr
+
+Paul Eilers \cr
+Erasmus Medical Center Rotterdam \cr
+\url{http://www.erasmusmc.nl} \cr
+
+Fabian Sobotka, Thomas Kneib \cr
+University Oldenburg \cr
+\url{http://www.uni-oldenburg.de} \cr
+}
+
 \examples{
 data(dutchboys)
 expbund <- expectile.bundle(dutchboys[,3] ~ base(dutchboys[,2],"pspline"),smooth="fixed")

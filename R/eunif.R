@@ -1,8 +1,11 @@
 eunif <-
-function (e, min = 0, max = 1) 
+function (asy, min = 0, max = 1) 
 {
-    mapply(function(y) optimize(function(z) abs(((z^2 - min^2)/2/(max - 
-        min) - z * punif(z, min = min, max = max))/(2 * ((z^2 - 
-        min^2)/2/(max - min) - z * punif(z, min = min, max = max)) + 
-        z - (min + max)/2) - y), c(min, max))$minimum, e)
+    zz = 0 * asy
+    for (k in 1:length(asy)) {
+        root = function(z) peunif(z, min, max) - asy[k]
+        z = uniroot(root, interval = c(min, max), tol = 1e-06)
+        zz[k] = z$root
+    }
+    return(zz)
 }

@@ -15,8 +15,8 @@ Expectile and quantile regression of models with nonlinear effects
 \tabular{ll}{
 Package: \tab expectreg\cr
 Type: \tab Package\cr
-Version: \tab 0.25\cr
-Date: \tab 2011-05-09\cr
+Version: \tab 0.26\cr
+Date: \tab 2011-09-08\cr
 License: \tab GPL-2\cr
 LazyLoad: \tab yes\cr
 LazyData: \tab yes\cr
@@ -98,7 +98,7 @@ doi: 10.1016/j.csda.2010.11.015.
 \examples{
 data(dutchboys)
 ## Expectile Regression using the restricted approach
-expreg <- expectile.restricted(dutchboys[,3] ~ base(dutchboys[,2],"pspline"),smooth="schall")
+ex = expectile.restricted(dist ~ base(speed),data=cars,smooth="s",lambda=5)
 ## The calculation of expectiles for given distributions
 enorm(0.1)
 ## Introducing the expectiles-meet-quantiles distribution
@@ -109,4 +109,6 @@ plot(x,demq(x),type="l")
 y = rnorm(1000)
 
 expectile(y)
+
+eenorm(y)
 }
