@@ -1,3 +1,20 @@
+2011-11-30 version 0.29
+
+new features:
+- function mono added that constructs shape constraint p-spline bases
+  (not yet available for expectreg.qp)
+
+changes:
+- renamed function base to 'rb' to avoid name conflict with base package
+- includes boosting baselearners bmono and brad
+- package structure changed:
+  - expectreg.ls now contains laws, restricted, bundle and sheets method
+  - renamed expectreg.boot (prev. expectile.boost) and expectreg.qp (expectile.noncross)
+- renamed 'bundle.density' and 'expectile.cdf' to cdf.bundle and cdf.qp (returning the same class)
+
+bugfixes:
+- building and plotting of radial / kriging bases fixed
+
 2011-09-08 version 0.26
 
 new features:

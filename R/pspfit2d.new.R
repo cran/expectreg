@@ -1,21 +1,18 @@
 pspfit2d.new <-
-function (B, P, ps, yy, w, lambdax, lambdap, center, by) 
+function (B, P, ps, yy, w, lambdax, lambdap, center) 
 {
-    vv <- log(ps/(1 - ps))
-    x0 <- min(vv, -5) - 0.501
-    x1 <- max(vv, 5) + 0.501
-    B.size = 10
-    B.deg = 2
+    x0 <- min(ps) - 0.001
+    x1 <- max(ps) + 0.001
+    B.size = length(ps)/nrow(B[[1]])
+    B.deg = 1
     dx = (x1 - x0)/(B.size - 1)
     By = splineDesign(knots = seq(x0 - dx * B.deg, x1 + dx * 
-        B.deg, by = dx), x = vv, ord = B.deg + 1)
+        B.deg, by = dx), x = ps, ord = B.deg + 1)
     basisX = NULL
     penaltyX = NULL
     Bx = NULL
     for (k in 1:(length(yy)/nrow(B[[1]]))) {
-        if (any(!is.na(by[[1]]))) 
-            Bx = rbind(Bx, B[[1]] * by[[1]])
-        else Bx = rbind(Bx, B[[1]])
+        Bx = rbind(Bx, B[[1]])
     }
     if (center) {
         Bx = cbind(1, Bx)
@@ -35,9 +32,7 @@ function (B, P, ps, yy, w, lambdax, lambdap, center, by)
         for (i in 2:length(B)) {
             Bx = NULL
             for (k in 1:(length(yy)/nrow(B[[i]]))) {
-                if (any(!is.na(by[[i]]))) 
-                  Bx = rbind(Bx, B[[i]] * by[[i]])
-                else Bx = rbind(Bx, B[[i]])
+                Bx = rbind(Bx, B[[i]])
             }
             nx <- ncol(Bx)
             ny <- ncol(By)
@@ -68,7 +63,7 @@ function (B, P, ps, yy, w, lambdax, lambdap, center, by)
             break
         cat(it, nw, "\n")
     }
-    pcoef = matrix(pcoef, nrow = B.size + 1)
+    pcoef = matrix(pcoef, nrow = B.size)
     if (center) {
         intercept = pcoef[, 1]
     }
@@ -87,9 +82,7 @@ function (B, P, ps, yy, w, lambdax, lambdap, center, by)
             if (center) {
                 Bx = NULL
                 for (k in 1:(length(yy)/nrow(B[[i]]))) {
-                  if (any(!is.na(by[[i]]))) 
-                    Bx = rbind(Bx, B[[i]] * by[[i]])
-                  else Bx = rbind(Bx, B[[i]])
+                  Bx = rbind(Bx, B[[i]])
                 }
                 Bx = cbind(1, Bx)
                 nx <- ncol(Bx)
@@ -98,7 +91,7 @@ function (B, P, ps, yy, w, lambdax, lambdap, center, by)
                 B2 <- kronecker(t(rep(1, nx)), By)
                 Bg = B1 * B2
                 ag = matrix(pcoef[(sum(nb[1:(i - 1)]) + 1):(sum(nb[1:i]))], 
-                  nrow = B.size + 1)
+                  nrow = B.size)
                 ag = cbind(intercept, ag)
                 ag = as.vector(ag)
             }
@@ -109,6 +102,6 @@ function (B, P, ps, yy, w, lambdax, lambdap, center, by)
             Z[[i]] = Bg %*% ag
             dim(Z[[i]]) = c(my, np)
         }
-    return(list(coef = pcoef, fit = pfit, hatma = model$qr, curves = Z, 
-        intercept = intercept))
+    return(list(coef = t(pcoef), fit = pfit, hatma = model$qr, 
+        curves = Z, intercept = intercept))
 }

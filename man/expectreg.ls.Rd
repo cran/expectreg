@@ -1,8 +1,7 @@
-\name{expectile.laws}
+\name{expectreg.ls}
 \Rdversion{1.1}
-\alias{expectile.laws}
-\alias{expectile.sheets}
-\alias{expectile.noncross}
+\alias{expectreg.ls}
+\alias{expectreg.qp}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Expectile regression of additive models
@@ -13,22 +12,23 @@ or restricted with respect to the mean to obtain the graphs of 11 different expe
 for continuous, spatial or random effects.
 }
 \usage{
-expectile.laws(formula, data = NULL, smooth = c("schall", "acv", "fixed"), lambda = 0.1, expectiles = NA, parallel = FALSE)
+expectreg.ls(formula, data = NULL, estimate=c("laws","restricted","bundle","sheets"), smooth = c("schall", "acv", "fixed"), lambda = 1, expectiles = NA)
 
-expectile.sheets(formula, data = NULL, smooth = c("acv", "fixed"), lambda = 0.1, lambdap = 5, expectiles = NA, density = FALSE)
-
-expectile.noncross(formula, data  = NULL, smooth = c("schall", "acv", "fixed"), lambda = 0.1, expectiles = NA) 
+expectreg.qp(formula, data  = NULL, smooth = c("schall", "acv", "fixed"), lambda = 1, expectiles = NA) 
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{formula}{
 An R formula object consisting of the response variable, '~'
 and the sum of all effects that should be taken into consideration.
-Each effect has to be given through the function \code{\link{base}}.
+Each effect has to be given through the function \code{\link{rb}}.
 }
   \item{data}{
 Optional data frame containing the variables used in the model, if the data is not explicitely given in the
 formula.  
+}
+  \item{estimate}{
+Character string defining the estimation method that is used to fit the expectiles. Further detail on all available methods is given below.
 }
   \item{smooth}{
 There are different smoothing algorithms that should prevent overfitting.
@@ -40,19 +40,9 @@ or the function uses a fixed penalty.
 The fixed penalty can be adjusted. Also serves as starting value for
 the smoothing algorithms.
 }
-  \item{lambdap}{
-A penalty for smoothing across the expectiles in the sheets function. Used if no smoothing algorithm is applied.
-}
   \item{expectiles}{
 In default setting, the expectiles (0.01,0.02,0.05,0.1,0.2,0.5,0.8,0.9,0.95,0.98,0.99) are calculated.
-You may specify your own set of expectiles in a vector. Is overridden by \code{density}.
-}
-  \item{parallel}{
-On Unix machines with the package \code{\link[multicore]{multicore}} installed the different expectiles
-can be calculated simultaneously, if the computer has multiple CPU cores. 
-}
-  \item{density}{
-If \code{TRUE}, 99 expectiles from 1\% to 99\% are fitted to allow for a density estimation afterwards.
+You may specify your own set of expectiles in a vector.
 }
 }
 \details{
@@ -65,12 +55,23 @@ with
 
 \eqn{ w_i(p) = p 1_{(y_i > \mu_i(p))} + (1-p) 1_{(y_i < \mu_i(p))} }.
 
+The restricted version fits the 0.5 expectile at first and then the residuals.
+Afterwards the other expectiles are fitted as deviation by a factor of the residuals from the mean expectile.
+This algorithm is based on He(1997). The advantage is that expectile crossing cannot occur,
+the disadvantage is a suboptimal fit in certain heteroscedastic settings.
+Also, since the number of fits is significantly decreased, the restricted version is much faster.
+
+The expectile bundle has a resemblence to the restricted regression. At first, a trend curve is fitted
+and then an iteration is performed between fitting the residuals and calculating the deviation factors
+for all the expectiles until the results are stable. Therefore this function shares the (dis)advantages
+of the restricted.
+
 The expectile sheets construct a p-spline basis for the expectiles and perform a continuous fit over all expectiles
 by fitting the tensor product of the expectile spline basis and the basis of the covariates.
 In consequence there will be most likely no crossing of expectiles but also a good fit in heteroscedastic scenarios.
 "schall" smoothing does not yet work for sheets.
 
-The noncross function also fits a sheet over all expectiles, but it uses quadratic programming with constraints,
+The function \code{expectreg.qp} also fits a sheet over all expectiles, but it uses quadratic programming with constraints,
 so crossing of expectiles will definitely not happen. So far the function is implemented for one nonlinear or spatial covariate
 and further parametric covariates. It works with all smoothing methods.
 }
@@ -131,25 +132,25 @@ University Bielefeld \cr
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-\code{\link{base}}, \code{\link{expectile.boost}}, \code{\link{expectile.restricted}}
+\code{\link{rb}}, \code{\link{expectreg.boost}}
 }
 \examples{
-ex = expectile.laws(dist ~ base(speed),data=cars,smooth="a",lambda=5)
-ex = expectile.sheets(dist ~ base(speed),data=cars,smooth="f",lambda=5)
+ex = expectreg.ls(dist ~ rb(speed),data=cars,smooth="a",lambda=5)
+ex = expectreg.ls(dist ~ rb(speed),data=cars,smooth="f",lambda=5,estimate="sheets")
 plot(ex)
 
 
 data("lidar", package = "SemiPar")
 
-explaws <- expectile.laws(logratio~base(range,"pspline"),data=lidar,smooth="acv",expectiles=c(0.05,0.25,0.5,0.75,0.95))
+explaws <- expectreg.ls(logratio~rb(range,"pspline"),data=lidar,smooth="acv",expectiles=c(0.05,0.25,0.5,0.75,0.95))
 print(explaws)
 plot(explaws)
 
 ###expectile regression using a fixed penalty
-plot(expectile.laws(logratio~base(range,"pspline"),data=lidar,smooth="fixed",lambda=1,expectiles=c(0.05,0.25,0.5,0.75,0.95)))
-plot(expectile.laws(logratio~base(range,"pspline"),data=lidar,smooth="fixed",lambda=0.0000001,expectiles=c(0.05,0.25,0.5,0.75,0.95)))
+plot(expectreg.ls(logratio~rb(range,"pspline"),data=lidar,smooth="fixed",lambda=1,expectiles=c(0.05,0.25,0.5,0.75,0.95)))
+plot(expectreg.ls(logratio~rb(range,"pspline"),data=lidar,smooth="fixed",lambda=0.0000001,expectiles=c(0.05,0.25,0.5,0.75,0.95)))
     #As can be seen in the plot, a too small penalty causes overfitting of the data.
-plot(expectile.laws(logratio~base(range,"pspline"),data=lidar,smooth="fixed",lambda=50,expectiles=c(0.05,0.25,0.5,0.75,0.95)))
+plot(expectreg.ls(logratio~rb(range,"pspline"),data=lidar,smooth="fixed",lambda=50,expectiles=c(0.05,0.25,0.5,0.75,0.95)))
     #If the penalty parameter is chosen too large, the expectile curves are smooth but don't represent the data anymore.
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

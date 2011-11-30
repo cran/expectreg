@@ -3,15 +3,13 @@ import(stats)
 
 importFrom(splines, splineDesign)
 
-export(expectile.laws,
-       expectile.restricted,
-       expectile.bundle,
-       expectile.boost,
-       expectile.sheets,
-       expectile.noncross,
-       bundle.density,
-       expectile.cdf,
-       base,
+export(expectreg.ls,
+       expectreg.boost,
+       expectreg.qp,
+       cdf.bundle,
+       cdf.qp,
+       rb,
+       mono,
        quant.boost,
        quant.bundle,
        expectile,

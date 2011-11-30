@@ -38,10 +38,10 @@ Methods for objects returned by expectile regression functions.
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{x}{
-An object of class \code{expectreg} as returned e.g. by the function \code{\link{expectile.laws}}.
+An object of class \code{expectreg} as returned e.g. by the function \code{\link{expectreg.ls}}.
 }
   \item{object}{
-An object of class \code{expectreg} as returned e.g. by the function \code{\link{expectile.laws}}.
+An object of class \code{expectreg} as returned e.g. by the function \code{\link{expectreg.ls}}.
 }
   \item{newdata}{ 
 Optionally, a data frame in which to look for variables with which to predict.
@@ -61,7 +61,7 @@ separately for each covariate.
 for each covariate in a list.
 
 The function \code{coef} extracts the regression coefficients for each covariate listed separately.
-For the functions \code{\link{expectile.boost}} and \code{\link{expectile.sheets}} this is not possible.
+For the function \code{\link{expectreg.boost}} this is not possible.
 }
 \references{
 Schnabel S and Eilers P (2009)
@@ -84,12 +84,12 @@ University Oldenburg \cr
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-\code{\link{expectile.laws}}, \code{\link{expectile.boost}}, \code{\link{expectile.restricted}}
+\code{\link{expectreg.ls}}, \code{\link{expectreg.boost}}, \code{\link{expectreg.qp}}
 }
 \examples{
 data(dutchboys)
 
-expreg <- expectile.laws(hgt ~ base(age,"pspline"),data=dutchboys,smooth="schall",expectiles=c(0.05,0.2,0.8,0.95))
+expreg <- expectreg.ls(hgt ~ rb(age,"pspline"),data=dutchboys,smooth="schall",expectiles=c(0.05,0.2,0.8,0.95))
 plot(expreg)
 
 print(expreg)

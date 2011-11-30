@@ -15,8 +15,8 @@ Expectile and quantile regression of models with nonlinear effects
 \tabular{ll}{
 Package: \tab expectreg\cr
 Type: \tab Package\cr
-Version: \tab 0.26\cr
-Date: \tab 2011-09-08\cr
+Version: \tab 0.29\cr
+Date: \tab 2011-11-30\cr
 License: \tab GPL-2\cr
 LazyLoad: \tab yes\cr
 LazyData: \tab yes\cr
@@ -37,8 +37,8 @@ Wageningen University and Research Centre \cr
 \url{http://www.wur.nl}
 
 Linda Schulze Waltrup \cr
-University Bielefeld \cr
-\url{http://www.uni-bielefeld.de} \cr
+Ludwig Maximilian University Munich \cr
+\url{http://www.lmu.de} \cr
 
 with contributions from
 
@@ -47,12 +47,12 @@ Erasmus Medical Center Rotterdam \cr
 \url{http://www.erasmusmc.nl}
 
 Thomas Kneib \cr
-University Oldenburg \cr
-\url{http://www.uni-oldenburg.de} \cr
+University Goettingen \cr
+\url{http://www.uni-goettingen.de} \cr
 
 Goeran Kauermann \cr
-University Bielefeld \cr
-\url{http://www.uni-bielefeld.de} \cr
+Ludwig Maximilian University Munich \cr
+\url{http://www.lmu.de} \cr
 
 Maintainer: Fabian Sobotka <fabian.sobotka@uni-oldenburg.de>
 
@@ -98,7 +98,7 @@ doi: 10.1016/j.csda.2010.11.015.
 \examples{
 data(dutchboys)
 ## Expectile Regression using the restricted approach
-ex = expectile.restricted(dist ~ base(speed),data=cars,smooth="s",lambda=5)
+ex = expectreg.ls(dist ~ rb(speed),data=cars,smooth="s",lambda=5,estimate="restricted")
 ## The calculation of expectiles for given distributions
 enorm(0.1)
 ## Introducing the expectiles-meet-quantiles distribution

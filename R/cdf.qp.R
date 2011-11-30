@@ -1,4 +1,4 @@
-expectile.cdf <-
+cdf.qp <-
 function (expectreg, x = NA, qout = NA, extrap = FALSE) 
 {
     penalty.term = 0.001
@@ -56,5 +56,8 @@ function (expectreg, x = NA, qout = NA, extrap = FALSE)
     if (extrap) 
         quant <- as.vector(my.approx(F, e, xout = qout, rule = 3)$y)
     else quant <- as.vector(my.approx(F, e, xout = qout, rule = 2)$y)
-    return(list(x = e, cdf = F, quantiles = quant, qout = qout))
+    result = list(x = e, density = delta, cdf = F, quantiles = quant, 
+        qout = qout)
+    class(result) = "expectilecdf"
+    return(result)
 }

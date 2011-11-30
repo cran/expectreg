@@ -12,13 +12,13 @@ testfunction <- function(m1,m2) {
 
 #univariate linear model
 dat <- data.frame(regressand = 3*ma[,1],covariate=ma)
-m1 <- expectile.laws(regressand~ covariate.1,data=dat,smooth="f",expectiles=c(0.5))
+m1 <- expectreg.ls(regressand~ covariate.1,data=dat,smooth="f",expectiles=c(0.5))
 #m2 <- expectile.sheets(regressand~covariate.1,data=dat,smooth="f",expectiles=c(0.5))
 
-m3 <- expectile.bundle(regressand~ covariate.1,data=dat,smooth="f",expectiles=c(0.5))
-m4 <- expectile.restricted(regressand~ covariate.1,data=dat,smooth="f",expectiles=c(0.5))
+m3 <- expectreg.ls(regressand~ covariate.1,data=dat,smooth="f",expectiles=c(0.5),estimate="restricted")
+m4 <- expectreg.ls(regressand~ covariate.1,data=dat,smooth="f",expectiles=c(0.5),estimate="bundle")
 
-m5 <- expectile.boost(regressand~ covariate.1,data=dat,expectiles=c(0.5),mstop=4000)
+m5 <- expectreg.boost(regressand~ covariate.1,data=dat,expectiles=c(0.5),mstop=4000)
 
 mcomp <- lm(regressand~covariate.1,data=dat)
 
@@ -31,14 +31,14 @@ testfunction(m5,mcomp)
 # univariate model involving sin transformation
 
 dat <- data.frame(regressand = sin(ma[,1]),covariate=ma)
-m1 <- expectile.laws(regressand~base( covariate.1,"pspline"),data=dat,smooth="schall",expectiles=c(0.5))
+m1 <- expectreg.ls(regressand~rb( covariate.1,"pspline"),data=dat,smooth="schall",expectiles=c(0.5))
 
-#m2 <- expectile.sheets(regressand~base( covariate.1,"pspline"),data=dat,smooth="acv",expectiles=c(0.5))
+#m2 <- expectile.sheets(regressand~rb( covariate.1,"pspline"),data=dat,smooth="acv",expectiles=c(0.5))
 
-m3 <- expectile.bundle(regressand~base( covariate.1,"pspline"),data=dat,smooth="schall",expectiles=c(0.5))
-m4 <- expectile.restricted(regressand~base( covariate.1,"pspline"),data=dat,smooth="schall",expectiles=c(0.5))
+m3 <- expectreg.ls(regressand~rb( covariate.1,"pspline"),data=dat,smooth="schall",expectiles=c(0.5),estimate="restricted")
+m4 <- expectreg.ls(regressand~rb( covariate.1,"pspline"),data=dat,smooth="schall",expectiles=c(0.5),estimate="bundle")
 
-m5 <- expectile.boost(regressand~bbs( covariate.1),data=dat,expectiles=c(0.5),mstop=1000)
+m5 <- expectreg.boost(regressand~bbs( covariate.1),data=dat,expectiles=c(0.5),mstop=1000)
 
 
 mcomp <- lm(regressand~sin(covariate.1),data=dat)
@@ -53,13 +53,13 @@ testfunction(m5,mcomp)
 # bivariate model: linear and sin
 dat <- data.frame(regressand = sin(ma[,1])+3*ma[,2],covariate=ma)
 
-m1 <- expectile.laws(regressand~base( covariate.1,"pspline")+base( covariate.2,"pspline"),data=dat,smooth="schall",expectiles=c(0.5))
-#m2 <- expectile.sheets(regressand~base( covariate.1,"pspline")+base( covariate.2,"pspline"),data=dat,smooth="acv",expectiles=c(0.5))
+m1 <- expectreg.ls(regressand~rb( covariate.1,"pspline")+rb( covariate.2,"pspline"),data=dat,smooth="schall",expectiles=c(0.5))
+#m2 <- expectile.sheets(regressand~rb( covariate.1,"pspline")+base( covariate.2,"pspline"),data=dat,smooth="acv",expectiles=c(0.5))
 
-m3 <- expectile.bundle(regressand~base( covariate.1,"pspline")+base( covariate.2,"pspline"),data=dat,smooth="schall",expectiles=c(0.5))
-m4 <- expectile.restricted(regressand~base( covariate.1,"pspline")+base( covariate.2,"pspline"),data=dat,smooth="schall",expectiles=c(0.5))
+m3 <- expectreg.ls(regressand~rb( covariate.1,"pspline")+rb( covariate.2,"pspline"),data=dat,smooth="schall",expectiles=c(0.5),estimate="restricted")
+m4 <- expectreg.ls(regressand~rb( covariate.1,"pspline")+rb( covariate.2,"pspline"),data=dat,smooth="schall",expectiles=c(0.5),estimate="bundle")
 
-m5 <- expectile.boost(regressand~bbs( covariate.1)+bbs(covariate.2),data=dat,expectiles=c(0.5),mstop=3000)
+m5 <- expectreg.boost(regressand~bbs( covariate.1)+bbs(covariate.2),data=dat,expectiles=c(0.5),mstop=3000)
 
 mcomp <- lm(regressand~sin(covariate.1)+covariate.2,data=dat)
 
@@ -79,12 +79,12 @@ expect <- c(0.05,0.25,0.5,0.75,0.95)
 ###Values
 
 
-mLaws <- expectile.laws(hgt~base(age,"pspline")+base(wgt,"pspline"),data=dutchb,smooth="schall",expectiles=expect)
-mSheets <- expectile.sheets(hgt~base(age,"pspline")+base(wgt,"pspline"),data=dutchb,smooth="acv",expectiles=expect)
-mNoncross <-  expectile.noncross(hgt~base(age,"pspline"),data=dutchb,smooth="acv",expectiles=expect)
-mBundle <- expectile.bundle(hgt~base(age,"pspline")+base(wgt,"pspline"),data=dutchb,smooth="schall",expectiles=expect)
-mRestricted <- expectile.restricted(hgt~base(age,"pspline")+base(wgt,"pspline"),data=dutchb,smooth="schall",expectiles=expect)
-mBoost <- expectile.boost(hgt~bbs(age)+bbs(wgt),data=dutchb,expectiles=expect,mstop=400)
+mLaws <- expectreg.ls(hgt~rb(age,"pspline")+rb(wgt,"pspline"),data=dutchb,smooth="schall",expectiles=expect)
+mSheets <- expectreg.ls(hgt~rb(age,"pspline")+rb(wgt,"pspline"),data=dutchb,smooth="acv",expectiles=expect,estimate="sheets")
+mNoncross <-  expectreg.qp(hgt~rb(age,"pspline"),data=dutchb,smooth="acv",expectiles=expect)
+mBundle <- expectreg.ls(hgt~rb(age,"pspline")+rb(wgt,"pspline"),data=dutchb,smooth="schall",expectiles=expect,estimate="bundle")
+mRestricted <- expectreg.ls(hgt~rb(age,"pspline")+rb(wgt,"pspline"),data=dutchb,smooth="schall",expectiles=expect,estimate="restricted")
+mBoost <- expectreg.boost(hgt~bbs(age)+bbs(wgt),data=dutchb,expectiles=expect,mstop=400)
 
 ###INTERCEPTS
 stopifnot(length(mLaws$intercepts) == length(mLaws$expectiles))

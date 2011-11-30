@@ -1,5 +1,6 @@
-\name{expectile.cdf}
-\alias{expectile.cdf}
+\name{cdf.qp}
+\alias{cdf.qp}
+\alias{cdf.bundle}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Calculation of the conditional CDF based on expectile curves
@@ -9,12 +10,14 @@ Estimating the CDF of the response for a given value of covariate. Additionally 
 from the distribution function which allows for the calculation of regression quantiles.
 }
 \usage{
-expectile.cdf(expectreg, x = NA, qout = NA, extrap = FALSE)
+cdf.qp(expectreg, x = NA, qout = NA, extrap = FALSE)
+
+cdf.bundle(bundle, qout = NA, extrap = FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{expectreg}{
-An object of class expectreg. The number of expectiles should be high enough to ensure accurate estimation. 
+  \item{expectreg, bundle}{
+An object of class expectreg or subclass bundle respectively. The number of expectiles should be high enough to ensure accurate estimation. 
 One approach would be to take as many expectiles as data points.
 }
   \item{x}{
@@ -28,8 +31,15 @@ If TRUE, extreme quantiles will be extrapolated linearly, otherwise the maximum 
 }
 }
 \details{
-For a given fixed covariate value, the conditional CDF of the response is estimated from the
-calculated expectiles. The theoretical values of a quantile regression at this covariate value
+Expectile curves can describe very well the spread and location of a scatterplot. With
+a set of curves they give good impression about the nature of the data. This information
+can be used to estimate the conditional density from the expectile curves.
+The results of the bundle model are especially suited in this case
+as only one density will be estimated which can then be modulated to
+over the independent variable x. The 
+density estimation can be formulated as penalized least squares problem that results in a smooth non-negative
+density.
+The theoretical values of a quantile regression at this covariate value
 are also returned for adjustable probabilities \code{qout}.
 }
 \value{
@@ -41,18 +51,30 @@ A list consisting of
 %% ... return(list( x = e, cdf = F, quantiles = quant, qout = qout))
 }
 \references{
+Schnabel SK and Eilers PHC (2010)
+\emph{ A location scale model for non-crossing expectile curves }
+(working paper)
+
 Schulze Waltrup L, Sobotka F, Kauermann G and Kneib T (2011)
 \emph{ Comparing Expectiles and Quantiles Regarding Efficiency }
 Working Paper.
 }
 \author{
 Goeran Kauermann, Linda Schulze Waltrup \cr
-University Bielefeld \cr
-\url{http://www.uni-bielefeld.de} \cr
+Ludwig Maximilian University Munich \cr
+\url{http://www.lmu.de} \cr
 
 Fabian Sobotka \cr
 University Oldenburg \cr
 \url{http://www.uni-oldenburg.de} \cr
+
+Sabine Schnabel \cr
+Wageningen University and Research Centre \cr
+\url{http://www.wur.nl} \cr
+
+Paul Eilers \cr
+Erasmus Medical Center Rotterdam \cr
+\url{http://www.erasmusmc.nl} \cr
 }
 \note{
 %%  ~~further notes~~
@@ -61,12 +83,12 @@ University Oldenburg \cr
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-\code{\link{bundle.density}}
+\code{\link{expectreg.ls}}, \code{\link{expectreg.qp}}
 }
 \examples{
 data(dutchboys)
-d <- expectile.restricted(dutchboys[,3] ~ base(dutchboys[,2]))
-e = expectile.cdf(d,15,extrap=TRUE)
+d <- expectreg.ls(dutchboys[,3] ~ rb(dutchboys[,2]),estimate="restricted")
+e = cdf.qp(d,15,extrap=TRUE)
 e 
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

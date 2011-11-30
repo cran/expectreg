@@ -78,7 +78,7 @@ University Oldenburg \cr
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-\code{\link{expectile.laws}}, \code{\link[stats]{quantile}}
+\code{\link{expectreg.ls}}, \code{\link[stats]{quantile}}
 }
 \examples{
 data(dutchboys)

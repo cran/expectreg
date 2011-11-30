@@ -1,7 +1,5 @@
-\name{expectile.bundle}
+\name{quant.bundle}
 \Rdversion{1.1}
-\alias{expectile.restricted}
-\alias{expectile.bundle}
 \alias{quant.bundle}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
@@ -13,18 +11,14 @@ to obtain the graphs of different expectiles or quantiles
 for continuous, spatial or random effects.
 }
 \usage{
-expectile.restricted(formula, data = NULL, smooth = c("schall", "acv", "fixed"), lambda = 0.1, expectiles = NA, density = FALSE)
-
-expectile.bundle(formula, data = NULL, smooth = c("schall", "acv", "fixed"), lambda = 0.1, expectiles = NA, density = FALSE)
-
-quant.bundle(formula, data = NULL, smooth = c("schall", "acv", "fixed"), lambda = 0.1, expectiles = NA, simple = TRUE)
+quant.bundle(formula, data = NULL, smooth = c("schall", "acv", "fixed"), lambda = 0.1, quantiles = NA, simple = TRUE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{formula}{
 An R formula object consisting of the response variable, '~'
 and the sum of all effects that should be taken into consideration.
-Each effect has to be given through the function \code{\link{base}}.
+Each effect has to be given through the function \code{\link{rb}}.
 }
   \item{data}{
 Optional data frame containing the variables used in the model, if the data is not explicitely given in the
@@ -40,12 +34,9 @@ or the function uses a fixed penalty.
 The fixed penalty can be adjusted. Also serves as starting value for
 the smoothing algorithms.
 }
-  \item{expectiles}{
-In default setting, the expectiles (0.01,0.02,0.05,0.1,0.2,0.5,0.8,0.9,0.95,0.98,0.99) are calculated.
-You may specify your own set of expectiles in a vector. Is overridden by \code{density}.
-}
-  \item{density}{
-If \code{TRUE}, 99 expectiles from 1\% to 99\% are fitted to allow for a density estimation afterwards.
+  \item{quantiles}{
+In default setting, the quantiles (0.01,0.02,0.05,0.1,0.2,0.5,0.8,0.9,0.95,0.98,0.99) are calculated.
+You may specify your own set of expectiles in a vector. 
 }
   \item{simple}{
 A binary variable depicting if the restricted expectiles (\code{TRUE}) or the bundle is used as basis for the quantile bundle.
@@ -72,7 +63,7 @@ for all the expectiles until the results are stable. Therefore this function sha
 of the restricted.
 
 The quantile bundle uses either the restricted expectiles or the bundle to estimate a dense set of expectiles. Next 
-this set is used to estimate a density with the function \code{\link{bundle.density}}. From this density quantiles 
+this set is used to estimate a density with the function \code{\link{cdf.bundle}}. From this density quantiles 
 are determined and inserted to the calculated bundle model. This results in an estimated location-scale model for 
 quantile regression. 
 } 
@@ -135,13 +126,13 @@ Erasmus Medical Center Rotterdam \cr
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-\code{\link{base}}, \code{\link{expectile.boost}}
+\code{\link{rb}}, \code{\link{expectreg.boost}}
 }
 \examples{
-exprest = expectile.restricted(dist ~ base(speed),data=cars,smooth="s",lambda=5)
-plot(exprest)
+qb = quant.bundle(dist ~ rb(speed),data=cars,smooth="s",lambda=5)
+plot(qb)
 
-expbund <- expectile.bundle(dist ~ base(speed),data=cars,smooth="a",lambda=5)
+qbund <- quant.bundle(dist ~ rb(speed),data=cars,smooth="a",lambda=5,simple=FALSE)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

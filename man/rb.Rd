@@ -1,6 +1,7 @@
-\name{base}
+\name{rb}
 \Rdversion{1.1}
-\alias{base}
+\alias{rb}
+\alias{mono}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Creates base for a regression based on covariates
@@ -8,12 +9,15 @@ Creates base for a regression based on covariates
 \description{
 Based on given observations a matrix is created that creates a basis e.g.
 of splines or a markov random field that is evaluated for each observation.
-Additionally a penalty matrix is generated.
+Additionally a penalty matrix is generated. Shape constraint p-spline bases can
+also be specified.
 }
 \usage{
-base(x, type = c("pspline", "2dspline", "markov", "radial", "krig", 
+rb(x, type = c("pspline", "2dspline", "markov", "radial", "krig", 
                  "random", "ridge", "special", "parametric"),
                  B = NA, P = NA, bnd = NA, center = TRUE, by = NA)
+                 
+mono(x, constraint = c("increase", "decrease", "convex", "concave", "flatend"), by = NA)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -46,6 +50,10 @@ with one central intercept.
   \item{by}{
 An optional variable defining varying coefficients, either a factor or numeric variable.
 Per default treatment coding is used. Note that the main effect needs to be specified in a separate basis.
+}
+  \item{constraint}{
+Character string defining the type of shape constraint that is imposed on the spline curve. The last option
+'flatend' results in constant functions at the covariate edges.
 }
 }
 \details{
@@ -120,16 +128,16 @@ Erasmus Medical Center Rotterdam \cr
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
- \code{\link{expectile.restricted}}, \code{\link{expectile.laws}}
+ \code{\link{quant.bundle}}, \code{\link{expectreg.ls}}
 }
 \examples{
 x <- rnorm(100)
 
-bx <- base(x,"pspline")
+bx <- rb(x,"pspline")
 
 y <- sample(10,100,replace=TRUE)
 
-by <- base(y,"random")
+by <- rb(y,"random")
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

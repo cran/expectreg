@@ -35,7 +35,7 @@ Technical Report 052, University of Munich
 \examples{
 data(india)
 
-expreg <- expectile.restricted(india[,1] ~ base(india[,2]),smooth="fixed",lambda=1)
+expreg <- expectreg.ls(india[,1] ~ rb(india[,2]),smooth="fixed",lambda=1,estimate="restricted")
 plot(expreg)
 }
 \keyword{datasets}

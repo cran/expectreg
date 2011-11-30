@@ -1,10 +1,10 @@
 quant.bundle <-
 function (formula, data = NULL, smooth = c("schall", "acv", "fixed"), 
-    lambda = 0.1, expectiles = NA, simple = TRUE) 
+    lambda = 0.1, quantiles = NA, simple = TRUE) 
 {
     smooth = match.arg(smooth)
-    if (any(is.na(expectiles)) || !is.vector(expectiles) || any(expectiles > 
-        1) || any(expectiles < 0)) {
+    if (any(is.na(quantiles)) || !is.vector(quantiles) || any(quantiles > 
+        1) || any(quantiles < 0)) {
         pp <- c(0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 0.8, 0.9, 0.95, 
             0.98, 0.99)
         pp.plot <- 1:length(pp)
@@ -12,7 +12,7 @@ function (formula, data = NULL, smooth = c("schall", "acv", "fixed"),
         col.grid = 4
     }
     else {
-        pp <- expectiles
+        pp <- quantiles
         pp.plot <- 1:length(pp)
         row.grid = floor(sqrt(length(pp)))
         col.grid = ceiling(sqrt(length(pp)))
@@ -34,12 +34,12 @@ function (formula, data = NULL, smooth = c("schall", "acv", "fixed"),
     center = TRUE
     varying = list()
     if (formula[[3]] == "1") {
-        design[[1]] = base(matrix(1, nrow = m, ncol = 1), "parametric", 
+        design[[1]] = rb(matrix(1, nrow = m, ncol = 1), "parametric", 
             center = F)
         smooth = "fixed"
     }
     else if (formula[[3]] == ".") {
-        design[[1]] = base(data[, names(data) != all.vars(formula[[2]])], 
+        design[[1]] = rb(data[, names(data) != all.vars(formula[[2]])], 
             "parametric")
         smooth = "fixed"
     }
@@ -47,7 +47,7 @@ function (formula, data = NULL, smooth = c("schall", "acv", "fixed"),
         types[[i]] = strsplit(labels(terms(formula))[i], "(", 
             fixed = TRUE)[[1]][1]
         if (types[[i]] == labels(terms(formula))[i]) {
-            design[[i]] = base(matrix(eval(parse(text = labels(terms(formula))[i]), 
+            design[[i]] = rb(matrix(eval(parse(text = labels(terms(formula))[i]), 
                 envir = data, enclos = environment(formula)), 
                 nrow = m), "parametric")
             types[[i]] = "parametric"
@@ -93,13 +93,11 @@ function (formula, data = NULL, smooth = c("schall", "acv", "fixed"),
         DD = rbind(0, cbind(0, DD))
     }
     if (simple) 
-        ex = expectile.restricted(formula = formula, data = data, 
-            smooth = smooth, lambda = lambda, density = TRUE)
-    else ex = expectile.bundle(formula = formula, data = data, 
-        smooth = smooth, lambda = lambda, density = TRUE)
-    dev.off()
-    bunden = bundle.density(ex)
-    dev.off()
+        ex = expectreg.ls(formula = formula, data = data, smooth = smooth, 
+            lambda = lambda, expectiles = "density", estimate = "restricted")
+    else ex = expectreg.ls(formula = formula, data = data, smooth = smooth, 
+        lambda = lambda, expectiles = "density", estimate = "bundle")
+    bunden = cdf.bundle(ex)
     lala <- matrix(lambda, nrow = nterms, ncol = 2, dimnames = list(1:nterms, 
         c("mean", "residual")))
     vector.a.ma.schall <- matrix(NA, nrow = sum(nb) + (1 * center), 

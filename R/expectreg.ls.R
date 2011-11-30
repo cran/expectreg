@@ -1,33 +1,24 @@
-expectile.restricted <-
-function (formula, data = NULL, smooth = c("schall", "acv", "fixed"), 
-    lambda = 0.1, expectiles = NA, density = FALSE) 
+expectreg.ls <-
+function (formula, data = NULL, estimate = c("laws", "restricted", 
+    "bundle", "sheets"), smooth = c("schall", "acv", "fixed"), 
+    lambda = 1, expectiles = NA) 
 {
     smooth = match.arg(smooth)
-    if (density) {
+    estimate = match.arg(estimate)
+    if (!is.na(charmatch(expectiles[1], "density")) && charmatch(expectiles[1], 
+        "density") > 0) {
         pp <- seq(0.01, 0.99, by = 0.01)
-        pp.plot <- c(1, 2, 5, 10, 20, 50, 80, 90, 95, 98, 99)
-        row.grid = 3
-        col.grid = 4
     }
-    else if (any(is.na(expectiles)) || !is.vector(expectiles) || 
-        any(expectiles > 1) || any(expectiles < 0)) {
+    if (any(is.na(expectiles)) || !is.vector(expectiles) || any(expectiles > 
+        1) || any(expectiles < 0)) {
         pp <- c(0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 0.8, 0.9, 0.95, 
             0.98, 0.99)
-        pp.plot <- 1:length(pp)
-        row.grid = 3
-        col.grid = 4
     }
     else {
         pp <- expectiles
-        pp.plot <- 1:length(pp)
-        row.grid = floor(sqrt(length(pp)))
-        col.grid = ceiling(sqrt(length(pp)))
-        if (length(pp) > row.grid * col.grid) 
-            row.grid = row.grid + 1
     }
     np <- length(pp)
-    np.plot <- length(pp.plot)
-    yy = eval(parse(text = formula[2]), envir = data, enclos = environment(formula))
+    yy = eval(as.expression(formula[[2]]), envir = data, enclos = environment(formula))
     attr(yy, "name") = deparse(formula[[2]])
     m = length(yy)
     design = list()
@@ -39,13 +30,15 @@ function (formula, data = NULL, smooth = c("schall", "acv", "fixed"),
     krig.phi = list()
     center = TRUE
     varying = list()
+    Blist = list()
+    Plist = list()
     if (formula[[3]] == "1") {
-        design[[1]] = base(matrix(1, nrow = m, ncol = 1), "parametric", 
+        design[[1]] = rb(matrix(1, nrow = m, ncol = 1), "parametric", 
             center = F)
         smooth = "fixed"
     }
     else if (formula[[3]] == ".") {
-        design[[1]] = base(data[, names(data) != all.vars(formula[[2]])], 
+        design[[1]] = rb(data[, names(data) != all.vars(formula[[2]])], 
             "parametric")
         smooth = "fixed"
     }
@@ -53,7 +46,7 @@ function (formula, data = NULL, smooth = c("schall", "acv", "fixed"),
         types[[i]] = strsplit(labels(terms(formula))[i], "(", 
             fixed = TRUE)[[1]][1]
         if (types[[i]] == labels(terms(formula))[i]) {
-            design[[i]] = base(matrix(eval(parse(text = labels(terms(formula))[i]), 
+            design[[i]] = rb(matrix(eval(parse(text = labels(terms(formula))[i]), 
                 envir = data, enclos = environment(formula)), 
                 nrow = m), "parametric")
             types[[i]] = "parametric"
@@ -63,10 +56,16 @@ function (formula, data = NULL, smooth = c("schall", "acv", "fixed"),
     }
     nterms = length(design)
     varying[[1]] = design[[1]][[9]]
-    if (any(!is.na(varying[[1]]))) 
+    if (any(!is.na(varying[[1]]))) {
         B = design[[1]][[1]] * varying[[1]]
-    else B = design[[1]][[1]]
+        Blist[[1]] = design[[1]][[1]] * varying[[1]]
+    }
+    else {
+        B = design[[1]][[1]]
+        Blist[[1]] = design[[1]][[1]]
+    }
     DD = as.matrix(design[[1]][[2]])
+    Plist[[1]] = DD
     x[[1]] = design[[1]][[3]]
     names(x)[1] = design[[1]]$xname
     types[[1]] = design[[1]][[4]]
@@ -75,16 +74,27 @@ function (formula, data = NULL, smooth = c("schall", "acv", "fixed"),
     nb[1] = ncol(design[[1]][[1]])
     krig.phi[[1]] = design[[1]][[7]]
     center = center && design[[1]][[8]]
+    constmat = as.matrix(design[[1]]$constraint)
     if (length(design) > 1) 
         for (i in 2:length(labels(terms(formula)))) {
             varying[[i]] = design[[i]][[9]]
-            if (any(!is.na(varying[[i]]))) 
-                B = cbind(B, design[[i]][[1]] * varying[[i]])
-            else B = cbind(B, design[[i]][[1]])
+            if (any(!is.na(varying[[i]]))) {
+                B = design[[i]][[1]] * varying[[i]]
+                Blist[[i]] = design[[i]][[1]] * varying[[i]]
+            }
+            else {
+                B = cbind(B, design[[i]][[1]])
+                Blist[[i]] = design[[i]][[1]]
+            }
             design[[i]][[2]] = as.matrix(design[[i]][[2]])
+            Plist[[i]] = design[[i]][[2]]
             DD = rbind(cbind(DD, matrix(0, nrow = nrow(DD), ncol = ncol(design[[i]][[2]]))), 
                 cbind(matrix(0, nrow = nrow(design[[i]][[2]]), 
                   ncol = ncol(DD)), design[[i]][[2]]))
+            constmat = rbind(cbind(constmat, matrix(0, nrow = nrow(constmat), 
+                ncol = ncol(design[[i]]$constraint))), cbind(matrix(0, 
+                nrow = nrow(design[[i]]$constraint), ncol = ncol(constmat)), 
+                design[[i]]$constraint))
             x[[i]] = design[[i]][[3]]
             names(x)[i] = design[[i]]$xname
             types[[i]] = design[[i]][[4]]
@@ -97,76 +107,30 @@ function (formula, data = NULL, smooth = c("schall", "acv", "fixed"),
     if (center) {
         B = cbind(1, B)
         DD = rbind(0, cbind(0, DD))
+        constmat = rbind(0, cbind(0, constmat))
     }
-    lala <- matrix(lambda, nrow = nterms, ncol = 2, dimnames = list(1:nterms, 
-        c("mean", "residual")))
-    vector.a.ma.schall <- matrix(NA, nrow = sum(nb) + (1 * center), 
-        ncol = np)
-    if (smooth == "schall") {
-        dc = 1
-        dw = 1
-        w <- matrix(0.5, nrow = m, ncol = nterms)
-        it = 1
-        while (dc >= 0.01 && it < 100) {
-            aa <- asyregpen.lsfit(yy, B, 0.5, lala[, 1], DD, 
-                nb)
-            mean.coefficients <- aa$a
-            sig2 <- vector()
-            tau2 <- vector()
-            l0 <- lala[, 1]
-            for (i in 1:nterms) {
-                partbasis = (sum(nb[0:(i - 1)]) + 1):(sum(nb[0:i]))
-                if (center) {
-                  partB = B[, -1][, partbasis, drop = FALSE]
-                  partDD = DD[, -1][-1, ][, partbasis, drop = FALSE]
-                  partaa = aa$a[-1][partbasis]
-                }
-                else {
-                  partB = B[, partbasis, drop = FALSE]
-                  partDD = DD[, partbasis, drop = FALSE]
-                  partaa = aa$a[partbasis]
-                }
-                v <- partDD %*% partaa
-                z <- aa$fitted
-                H = solve(t(partB) %*% (w[, i] * partB) + lala[i, 
-                  1] * t(partDD) %*% partDD)
-                H = apply(sqrt(w[, i]) * partB, 1, function(x) {
-                  t(x) %*% H %*% x
-                })
-                sig2[i] <- sum(w[, i] * (yy - z)^2, na.rm = TRUE)/(m - 
-                  sum(aa$diag.hat.ma))
-                tau2[i] <- sum(v^2)/sum(H) + 1e-06
-                lala[i, 1] <- max(sig2[i]/tau2[i], 1e-10)
-            }
-            dc <- max(abs(log10(l0) - log10(lala[, 1])))
-            it = it + 1
-        }
-        if (it == 100) 
-            warning("Schall algorithm did not converge. Stopping after 100 iterations.")
+    if (estimate == "laws") 
+        coef.vector = laws(B, DD, yy, pp, lambda, smooth, nb, 
+            center, constmat)
+    else if (estimate == "restricted") {
+        coef.vector = restricted(B, DD, yy, pp, lambda, smooth, 
+            nb, center, constmat)
+        trend.coef = coef.vector[[3]]
+        residual.coef = coef.vector[[4]]
+        asymmetry = coef.vector[[5]]
     }
-    else if (smooth == "acv") {
-        acv.min = nlm(acv, p = lala[, 1], yy = yy, B = B, quantile = 0.5, 
-            DD = DD, nb = nb, ndigit = 8, iterlim = 50, gradtol = 1e-04)
-        aa <- asyregpen.lsfit(yy, B, 0.5, abs(acv.min$estimate), 
-            DD, nb)
-        mean.coefficients <- aa$a
-        lala[, 1] <- abs(acv.min$estimate)
+    else if (estimate == "bundle") {
+        coef.vector = bundle(B, DD, yy, pp, lambda, smooth, nb, 
+            center, constmat)
+        trend.coef = coef.vector[[3]]
+        residual.coef = coef.vector[[4]]
+        asymmetry = coef.vector[[5]]
     }
-    else {
-        aa <- asyregpen.lsfit(yy, B, 0.5, lala[, 1], DD, nb)
-        mean.coefficients <- aa$a
-    }
-    residuals = yy - B %*% mean.coefficients
-    gg = asyregpen.lsfit(abs(residuals), B, 0.5, lala[, 1], DD, 
-        nb)
-    cc = NULL
-    for (q in 1:np) {
-        ca = asyregpen.lsfit(residuals, gg$fitted, pp[q], NULL, 
-            matrix(0, nrow = 1, ncol = 1), 0)
-        cc[q] = ca$a
-        vector.a.ma.schall[, q] = mean.coefficients + ca$a * 
-            gg$a
-    }
+    else if (estimate == "sheets") 
+        coef.vector = sheets(Blist, Plist, yy, pp, lambda, smooth, 
+            nb, center)
+    vector.a.ma.schall = coef.vector[[1]]
+    lala = coef.vector[[2]]
     Z <- list()
     coefficients <- list()
     final.lambdas <- list()
@@ -284,11 +248,18 @@ function (formula, data = NULL, smooth = c("schall", "acv", "fixed"),
         names(Z)[k] = design[[k]]$xname
         names(coefficients)[k] = design[[k]]$xname
     }
+    desmat = B
+    if (center) 
+        desmat = cbind(1, B)
     result = list(lambda = final.lambdas, intercepts = intercept, 
-        coefficients = coefficients, trend.coef = mean.coefficients, 
-        residual.coef = gg$a, asymmetry = cc, values = Z, response = yy, 
+        coefficients = coefficients, values = Z, response = yy, 
         covariates = x, formula = formula, expectiles = pp, effects = types, 
-        helper = helper, design = cbind(1, B), fitted = fitted)
+        helper = helper, design = desmat, fitted = fitted)
+    if (estimate == "restricted" || estimate == "bundle") {
+        result$trend.coef = trend.coef
+        result$residual.coef = residual.coef
+        result$asymmetry = asymmetry
+    }
     result$predict <- function(newdata = NULL) {
         BB = list()
         values = list()
@@ -301,12 +272,14 @@ function (formula, data = NULL, smooth = c("schall", "acv", "fixed"),
             }))
             bmat = cbind(bmat, BB[[k]])
         }
-        if (center) 
+        if (center) {
             bmat = cbind(1, bmat)
-        fitted = bmat %*% rbind(intercept, vector.a.ma.schall)
+            vector.a.ma.schall = rbind(intercept, vector.a.ma.schall)
+        }
+        fitted = bmat %*% vector.a.ma.schall
         names(values) = names(coefficients)
         list(fitted = fitted, values = values)
     }
-    class(result) = c("expectreg", "restricted")
+    class(result) = c("expectreg", estimate)
     result
 }

@@ -1,6 +1,6 @@
-\name{expectile.boost}
+\name{expectreg.boost}
 \Rdversion{1.1}
-\alias{expectile.boost}
+\alias{expectreg.boost}
 \alias{quant.boost}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
@@ -12,7 +12,7 @@ loss functions to obtain the graphs of 11 different expectiles
 for continuous, spatial or random effects.
 }
 \usage{
-expectile.boost(formula, data = NULL, mstop = NA, expectiles = NA, parallel = FALSE, cv = TRUE)
+expectreg.boost(formula, data = NULL, mstop = NA, expectiles = NA, parallel = FALSE, cv = TRUE)
 
 quant.boost(formula, data = NULL, mstop = NA, expectiles = NA, parallel = FALSE, cv = TRUE)
 }
@@ -84,11 +84,11 @@ University Oldenburg \cr
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-\code{\link{expectile.laws}}, \code{\link[mboost]{gamboost}}, \code{\link[mboost]{bbs}}, \code{\link[mboost]{cvrisk}}
+\code{\link{expectreg.ls}}, \code{\link[mboost]{gamboost}}, \code{\link[mboost]{bbs}}, \code{\link[mboost]{cvrisk}}
 }
 \examples{
 data("lidar", package = "SemiPar")
-expreg <- expectile.boost(logratio ~ bbs(range),lidar, mstop=500, expectiles=c(0.05,0.25,0.5,0.75,0.95))
+expreg <- expectreg.boost(logratio ~ bbs(range),lidar, mstop=500, expectiles=c(0.05,0.25,0.5,0.75,0.95))
 plot(expreg)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

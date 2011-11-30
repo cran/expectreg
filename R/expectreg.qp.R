@@ -1,6 +1,6 @@
-expectile.noncross <-
+expectreg.qp <-
 function (formula, data = NULL, smooth = c("schall", "acv", "fixed"), 
-    lambda = 0.1, expectiles = NA) 
+    lambda = 1, expectiles = NA) 
 {
     smooth = match.arg(smooth)
     if (any(is.na(expectiles)) || !is.vector(expectiles) || any(expectiles > 
@@ -26,12 +26,12 @@ function (formula, data = NULL, smooth = c("schall", "acv", "fixed"),
     helper = list()
     x = list()
     if (formula[[3]] == "1") {
-        design[[1]] = base(matrix(1, nrow = n, ncol = 1), "parametric", 
+        design[[1]] = rb(matrix(1, nrow = n, ncol = 1), "parametric", 
             center = F)
         smooth = "fixed"
     }
     else if (formula[[3]] == ".") {
-        design[[1]] = base(data[, names(data) != all.vars(formula[[2]])], 
+        design[[1]] = rb(data[, names(data) != all.vars(formula[[2]])], 
             "parametric")
         smooth = "fixed"
     }
@@ -39,7 +39,7 @@ function (formula, data = NULL, smooth = c("schall", "acv", "fixed"),
         types[[i]] = strsplit(labels(terms(formula))[i], "(", 
             fixed = TRUE)[[1]][1]
         if (types[[i]] == labels(terms(formula))[i]) {
-            design[[i]] = base(matrix(eval(parse(text = labels(terms(formula))[i]), 
+            design[[i]] = rb(matrix(eval(parse(text = labels(terms(formula))[i]), 
                 envir = data, enclos = environment(formula)), 
                 nrow = n), "parametric", center = FALSE)
             types[[i]] = "parametric"
@@ -48,8 +48,8 @@ function (formula, data = NULL, smooth = c("schall", "acv", "fixed"),
         else {
             if (sub("center=TRUE", "center=FALSE", labels(terms(formula))[i]) == 
                 labels(terms(formula))[i]) {
-                basetext = paste("base(center=FALSE,", strsplit(labels(terms(formula))[i], 
-                  "base(", fixed = TRUE)[[1]][2], sep = "")
+                basetext = paste("rb(center=FALSE,", strsplit(labels(terms(formula))[i], 
+                  "rb(", fixed = TRUE)[[1]][2], sep = "")
             }
             else basetext = sub("center=TRUE", "center=FALSE", 
                 labels(terms(formula))[i])

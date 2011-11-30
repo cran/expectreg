@@ -56,7 +56,7 @@ function (x, ...)
             for (i in 1:np) {
                 z = cbind(z, coefficients[[k]][, i] + intercept[i])
             }
-            if (inherits(x, "sheets") || inherits(x, "boost")) {
+            if (inherits(x, "boost")) {
                 if (class(bnd) != "bnd") {
                   plot(seq(0, 1.1 * max(cov[[k]]), length = 10), 
                     seq(0, max(z), length = 10), type = "n", 
@@ -105,64 +105,67 @@ function (x, ...)
             }
         }
         else if (types[[k]] == "2dspline") {
-            if (inherits(x, "sheets") || inherits(x, "boost")) {
+            if (inherits(x, "boost")) {
                 par(mfrow = (c(row.grid, col.grid)))
                 for (i in 1:np) {
                   if (i %in% pp.plot) {
                     z = interp(cov[[k]][, 1], cov[[k]][, 2], 
-                      Z[[k]][, i])
+                      Z[[k]][, i], duplicate = "mean")
                     persp(z[[1]], z[[2]], z[[3]], ticktype = "detailed", 
-                      phi = 40, zlim = range(yy), col = "lightblue", 
-                      xlab = "X", ylab = "Y", zlab = attr(yy, 
-                        "name"), main = pp.plot[i]/100)
+                      phi = 40, theta = 35, zlim = range(yy), 
+                      col = "lightblue", xlab = "X", ylab = "Y", 
+                      zlab = attr(yy, "name"), main = pp[pp.plot[i]])
                   }
                 }
             }
             else {
+                gitter = 20
                 x.min = apply(cov[[k]], 2, min)
                 x.max = apply(cov[[k]], 2, max)
                 x.gitter = cbind(rep(seq(x.min[1], x.max[1], 
-                  length = 50), times = 50), rep(seq(x.min[2], 
-                  x.max[2], length = 50), each = 50))
-                B.gitter = base(x.gitter, "2dspline")[[1]]
+                  length = gitter), times = gitter), rep(seq(x.min[2], 
+                  x.max[2], length = gitter), each = gitter))
+                B.gitter = rb(x.gitter, "2dspline")[[1]]
                 par(mfrow = (c(row.grid, col.grid)))
                 for (i in 1:np) {
                   if (i %in% pp.plot) {
                     z <- B.gitter %*% coefficients[[k]][, i] + 
                       intercept[i]
-                    z = t(matrix(z, nrow = 50, ncol = 50))
-                    persp(seq(x.min[1], x.max[1], length = 50), 
-                      seq(x.min[2], x.max[2], length = 50), z, 
-                      ticktype = "detailed", phi = 40, zlim = range(yy), 
-                      col = "lightblue", xlab = "X", ylab = "Y", 
-                      zlab = attr(yy, "name"), main = pp.plot[i]/100)
+                    z = t(matrix(z, nrow = gitter, ncol = gitter))
+                    persp(seq(x.min[1], x.max[1], length = gitter), 
+                      seq(x.min[2], x.max[2], length = gitter), 
+                      z, ticktype = "detailed", phi = 40, theta = 35, 
+                      zlim = range(yy), col = "lightblue", xlab = "X", 
+                      ylab = "Y", zlab = attr(yy, "name"), main = pp[pp.plot[i]])
                   }
                 }
             }
         }
         else if (types[[k]] == "radial") {
-            if (inherits(x, "sheets") || inherits(x, "boost")) {
+            if (inherits(x, "boost")) {
                 par(mfrow = (c(row.grid, col.grid)))
                 for (i in 1:np) {
                   if (i %in% pp.plot) {
                     z = interp(cov[[k]][, 1], cov[[k]][, 2], 
-                      Z[[k]][, i])
+                      Z[[k]][, i], duplicate = "mean")
                     persp(z[[1]], z[[2]], z[[3]], ticktype = "detailed", 
-                      phi = 40, zlim = range(yy), col = "lightblue", 
-                      xlab = "X", ylab = "Y", zlab = attr(yy, 
-                        "name"), main = pp.plot[i]/100)
+                      phi = 40, theta = 35, zlim = range(yy), 
+                      col = "lightblue", xlab = "X", ylab = "Y", 
+                      zlab = attr(yy, "name"), main = pp[pp.plot[i]])
                   }
                 }
             }
             else {
+                gitter = 20
                 x.min = apply(cov[[k]], 2, min)
                 x.max = apply(cov[[k]], 2, max)
                 x.gitter = cbind(rep(seq(x.min[1], x.max[1], 
-                  length = 50), times = 50), rep(seq(x.min[2], 
-                  x.max[2], length = 50), each = 50))
+                  length = gitter), times = gitter), rep(seq(x.min[2], 
+                  x.max[2], length = gitter), each = gitter))
                 cov[[k]] = cov[[k]][order(cov[[k]][, 1]), ]
-                knots = cov[[k]][seq(1, dim(cov[[k]])[1], length = min(50, 
-                  dim(cov[[k]])[1])), ]
+                knots = unique(cov[[k]])
+                knots = knots[seq(1, nrow(knots), length = min(50, 
+                  nrow(knots))), ]
                 B.gitter = matrix(NA, nrow = dim(x.gitter)[1], 
                   ncol = dim(knots)[1])
                 for (j in 1:dim(knots)[1]) {
@@ -177,40 +180,42 @@ function (x, ...)
                   if (i %in% pp.plot) {
                     z <- B.gitter %*% coefficients[[k]][, i] + 
                       intercept[i]
-                    z = t(matrix(z, nrow = 50, ncol = 50))
-                    persp(seq(x.min[1], x.max[1], length = 50), 
-                      seq(x.min[2], x.max[2], length = 50), z, 
-                      ticktype = "detailed", phi = 40, zlim = range(yy), 
-                      col = "lightblue", xlab = "X", ylab = "Y", 
-                      zlab = attr(yy, "name"), main = pp.plot[i]/100)
+                    z = t(matrix(z, nrow = gitter, ncol = gitter))
+                    persp(seq(x.min[1], x.max[1], length = gitter), 
+                      seq(x.min[2], x.max[2], length = gitter), 
+                      z, ticktype = "detailed", phi = 40, theta = 35, 
+                      zlim = range(yy), col = "lightblue", xlab = "X", 
+                      ylab = "Y", zlab = attr(yy, "name"), main = pp[pp.plot[i]])
                   }
                 }
             }
         }
         else if (types[[k]] == "krig") {
-            if (inherits(x, "sheets") || inherits(x, "boost")) {
+            if (inherits(x, "boost")) {
                 par(mfrow = (c(row.grid, col.grid)))
                 for (i in 1:np) {
                   if (i %in% pp.plot) {
                     z = interp(cov[[k]][, 1], cov[[k]][, 2], 
-                      Z[[k]][, i])
+                      Z[[k]][, i], duplicate = "mean")
                     persp(z[[1]], z[[2]], z[[3]], ticktype = "detailed", 
-                      phi = 40, zlim = range(yy), col = "lightblue", 
-                      xlab = "X", ylab = "Y", zlab = attr(yy, 
-                        "name"), main = pp.plot[i]/100)
+                      phi = 40, theta = 35, zlim = range(yy), 
+                      col = "lightblue", xlab = "X", ylab = "Y", 
+                      zlab = attr(yy, "name"), main = pp[pp.plot[i]])
                   }
                 }
             }
             else {
+                gitter = 20
                 krig.phi = helper[[k]]
                 x.min = apply(cov[[k]], 2, min)
                 x.max = apply(cov[[k]], 2, max)
                 x.gitter = cbind(rep(seq(x.min[1], x.max[1], 
-                  length = 50), times = 50), rep(seq(x.min[2], 
-                  x.max[2], length = 50), each = 50))
+                  length = gitter), times = gitter), rep(seq(x.min[2], 
+                  x.max[2], length = gitter), each = gitter))
                 cov[[k]] = cov[[k]][order(cov[[k]][, 1]), ]
-                knots = cov[[k]][seq(1, dim(cov[[k]])[1], length = min(50, 
-                  dim(cov[[k]])[1])), ]
+                knots = unique(cov[[k]])
+                knots = knots[seq(1, nrow(knots), length = min(50, 
+                  nrow(knots))), ]
                 B.gitter = matrix(NA, nrow = dim(x.gitter)[1], 
                   ncol = dim(knots)[1])
                 for (j in 1:dim(knots)[1]) {
@@ -224,18 +229,18 @@ function (x, ...)
                   if (i %in% pp.plot) {
                     z <- B.gitter %*% coefficients[[k]][, i] + 
                       intercept[i]
-                    z = t(matrix(z, nrow = 50, ncol = 50))
-                    persp(seq(x.min[1], x.max[1], length = 50), 
-                      seq(x.min[2], x.max[2], length = 50), z, 
-                      ticktype = "detailed", phi = 40, zlim = range(yy), 
-                      col = "lightblue", xlab = "X", ylab = "Y", 
-                      zlab = attr(yy, "name"), main = pp.plot[i]/100)
+                    z = t(matrix(z, nrow = gitter, ncol = gitter))
+                    persp(seq(x.min[1], x.max[1], length = gitter), 
+                      seq(x.min[2], x.max[2], length = gitter), 
+                      z, ticktype = "detailed", phi = 40, theta = 35, 
+                      zlim = range(yy), col = "lightblue", xlab = "X", 
+                      ylab = "Y", zlab = attr(yy, "name"), main = pp[pp.plot[i]])
                   }
                 }
             }
         }
         else if (types[[k]] == "random") {
-            if (inherits(x, "sheets") || inherits(x, "boost")) {
+            if (inherits(x, "boost")) {
                 matplot(cov[[k]], Z[[k]], col = rainbow(np.plot + 
                   1)[1:np.plot], xlab = names(cov)[k], ylab = attr(yy, 
                   "name"), pch = 15)
@@ -268,7 +273,7 @@ function (x, ...)
                 bty = "n")
         }
         else if (types[[k]] == "parametric") {
-            if (inherits(x, "sheets") || inherits(x, "boost")) {
+            if (inherits(x, "boost")) {
                 plot(cov[[k]], yy, cex = 0.5, pch = 20, col = "grey42", 
                   xlab = names(cov)[k], ylab = attr(yy, "name"), 
                   ylim = range(cbind(yy, Z[[k]])))

@@ -39,20 +39,19 @@ be provided with \texttt{expectreg}. The package includes the following function
 
 \begin{table}[ht]
 \begin{tabular}{ll}
-\texttt{base}& Creates bases for a regression based on covariates\\
-\texttt{dkoenker} & Density of a special distribution developed by Roger Koenker \cite{KoenkerSolution}\\
+\texttt{rb}& Creates bases for a regression based on covariates\\
+\texttt{demq} & Density of a special distribution developed by Roger Koenker \cite{KoenkerSolution}\\
 \texttt{ebeta} & Expectiles of the beta distribution\\
-\texttt{ekoenker} & Expectiles of a special distribution developed by Roger Koenker\\
+\texttt{eemq} & Expectiles of a special distribution developed by Roger Koenker\\
 \texttt{enorm} & Expectiles of the normal distribution \\
 \texttt{eunif} & Expectiles of the uniform distribution \\
-\texttt{expectile.boost} & Expectile regression using boosting \\
-\texttt{expectile.laws} & Expectiles regression of additive models \\
-\texttt{expectile.restricted} & Algorithm proposed by \cite{He1997} for restricted regression quantiles \\
-\texttt{expectile.bundle} & Location-scale type model for non-crossing expectiles\\
-\texttt{pkoenker}& Distribution function for a special distribution developed by Roger Koenker\\
-\texttt{qkoenker}& Quantile function for a special distribution developed by Roger Koenker\\
+\texttt{expectreg.boost} & Expectile regression using boosting \\
+\texttt{expectreg.ls} & Expectiles regression of additive models \\
+\texttt{expectreg.qp} & Expectile sheets with monotonicity constraints \\
+\texttt{pemq}& Distribution function for a special distribution developed by Roger Koenker\\
+\texttt{qemq}& Quantile function for a special distribution developed by Roger Koenker\\
 \texttt{quant.boost} & Quantile regression using boosting\\
-\texttt{rkoenker}& Random variable generated from a special distribution developed by Roger Koenker\\
+\texttt{remq}& Random variable generated from a special distribution developed by Roger Koenker\\
 \end{tabular}
 \end{table}
 
@@ -154,20 +153,20 @@ analyses. Details are given in \cite{IndiaTechReport}.
 
 \subsection{Basic examples}
 
-The basic function \texttt{expectiles.laws} can be used to estimate 11 expectiles
+The basic function \texttt{expectreg.ls} can be used to estimate 11 expectiles
 curves for different levels of asymmetry parameter $p$. The results are shown in the following graph.
 
 <<eval=FALSE, results=hide>>=
 data(dutchboys)
 @     
 <<eval=FALSE, results=hide>>=
-exp.l <- expectile.laws(dutchboys[,3] ~ base(dutchboys[,2],"pspline"),smooth="acv")
+exp.l <- expectreg.ls(dutchboys[,3] ~ rb(dutchboys[,2],"pspline"),smooth="acv")
 @
 
 \begin{center}
 \begin{figure}[ht]
 \includegraphics[width=10cm]{figures/dutchbsp_laws.pdf}
-\caption{Expectile curves estimated using \texttt{expectile.laws}}
+\caption{Expectile curves estimated using \texttt{expectreg.ls}}
 \end{figure}
 \end{center}
 
@@ -176,13 +175,13 @@ Nevertheless we apply also the expectile bundle model implemented in \texttt{exp
 this example.
 
 <<eval=FALSE, results=hide>>=
-exp.b <- expectile.bundle(dutchboys[,3] ~ base(dutchboys[,2],"pspline"),smooth="none")
+exp.b <- expectreg.ls(dutchboys[,3] ~ rb(dutchboys[,2],"pspline"),smooth="none",estimate="bundle")
 @
 
 \begin{center}
 \begin{figure}[ht]
 \includegraphics[width=10cm]{figures/dutchbsp_bundle.pdf}
-\caption{Expectile curves estimated using \texttt{expectile.bundle}}
+\caption{Expectile curves estimated using \texttt{expectreg.ls} with bundle estimate}
 \end{figure}
 \end{center}
 
@@ -190,13 +189,13 @@ Additionally we analyze the data with the algorithm proposed in \cite{He1997} im
 \texttt{expectile.restricted}.
 
 <<eval=FALSE, results=hide>>=
-exp.r <- expectile.restricted(dutchboys[,3] ~ base(dutchboys[,2],"pspline"),smooth="schall")
+exp.r <- expectreg.ls(dutchboys[,3] ~ rb(dutchboys[,2],"pspline"),smooth="schall",estimate="restricted")
 @
 
 \begin{center}
 \begin{figure}[ht]
 \includegraphics[width=10cm]{figures/dutchbsp_rest.pdf}
-\caption{Expectile curves estimated using \texttt{expectile.restricted}}
+\caption{Expectile curves estimated using \texttt{expectreg.ls} with restricted estimate}
 \end{figure}
 \end{center}
 
@@ -204,13 +203,13 @@ exp.r <- expectile.restricted(dutchboys[,3] ~ base(dutchboys[,2],"pspline"),smoo
 \subsection{Applied boosting}
 
 <<eval=FALSE, results=hide>>= 
-exp.boost <- expectile.boost(hgt ~ bbs(age,df=5,degree=2),dutchboys,mstop=rep(500,11)) 
+exp.boost <- expectreg.boost(hgt ~ bbs(age,df=5,degree=2),dutchboys,mstop=rep(500,11)) 
 @ 
 
 \begin{center}
 \begin{figure}[ht]
 \includegraphics[width=10cm]{figures/dutchbsp_boost.pdf}
-\caption{Expectile curves estimated using \texttt{expectile.boost}}
+\caption{Expectile curves estimated using \texttt{expectreg.boost}}
 \end{figure}
 \end{center}
 

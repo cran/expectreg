@@ -1,4 +1,4 @@
-expectile.boost <-
+expectreg.boost <-
 function (formula, data = NULL, mstop = NA, expectiles = NA, 
     parallel = FALSE, cv = TRUE) 
 {
@@ -43,8 +43,11 @@ function (formula, data = NULL, mstop = NA, expectiles = NA,
         else {
             bls[[i]] <- eval(parse(text = blsstr[i]), envir = data, 
                 enclos = environment(formula))
-            x[[i]] <- eval(parse(text = bls[[i]]$get_names()), 
-                envir = data, enclos = environment(formula))
+            xi <- NULL
+            for (k in 1:length(bls[[i]]$get_names())) xi <- cbind(xi, 
+                eval(parse(text = bls[[i]]$get_names()[k]), envir = data, 
+                  enclos = environment(formula)))
+            x[[i]] = xi
         }
         if (types[[i]] != "bmrf") 
             bnd[[i]] = NA
@@ -62,12 +65,16 @@ function (formula, data = NULL, mstop = NA, expectiles = NA,
         values[[k]] = matrix(NA, nrow = m, ncol = np)
         fitted = matrix(NA, nrow = m, ncol = np)
         helper[[k]] = NA
-        if (types[[k]] == "bbs") {
+        if (types[[k]] == "bbs" || types[[k]] == "bmono") {
             z[[k]] = values[[k]]
             types[[k]] = "pspline"
         }
         else if (types[[k]] == "parametric") 
             z[[k]] = values[[k]]
+        else if (types[[k]] == "bols") {
+            z[[k]] = values[[k]]
+            types[[k]] = "parametric"
+        }
         else if (types[[k]] == "bmrf") {
             z[[k]] = matrix(NA, nrow = length(attr(bnd[[k]], 
                 "regions")), ncol = np)
@@ -81,6 +88,10 @@ function (formula, data = NULL, mstop = NA, expectiles = NA,
         else if (types[[k]] == "bspatial") {
             z[[k]] = list()
             types[[k]] = "2dspline"
+        }
+        else if (types[[k]] == "brad") {
+            z[[k]] = list()
+            types[[k]] = "radial"
         }
     }
     myapply <- lapply
@@ -113,7 +124,8 @@ function (formula, data = NULL, mstop = NA, expectiles = NA,
                   inb$offset
                 z[[k]] = values[[k]]
             }
-            else if (types[[k]] == "2dspline") {
+            else if (types[[k]] == "2dspline" || types[[k]] == 
+                "radial") {
                 x[[k]] = data[, bls[[k]]$get_names()]
                 x.min = apply(x[[k]], 2, min)
                 x.max = apply(x[[k]], 2, max)
@@ -186,7 +198,7 @@ function (formula, data = NULL, mstop = NA, expectiles = NA,
         fitted[, i] = coef.vector[[i]][[3]]
         for (k in 1:length(blsstr)) {
             values[[k]][, i] = coef.vector[[i]][[1]][[k]]
-            if (types[[k]] == "2dspline") 
+            if (types[[k]] == "2dspline" || types[[k]] == "radial") 
                 z[[k]][[i]] = coef.vector[[i]][[2]][[k]]
             else z[[k]][, i] = coef.vector[[i]][[2]][[k]]
         }

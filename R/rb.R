@@ -1,4 +1,4 @@
-base <-
+rb <-
 function (x, type = c("pspline", "2dspline", "markov", "radial", 
     "krig", "random", "ridge", "special", "parametric"), B = NA, 
     P = NA, bnd = NA, center = TRUE, by = NA) 
@@ -70,7 +70,8 @@ function (x, type = c("pspline", "2dspline", "markov", "radial",
     }
     else if (type == "radial") {
         x = x[order(x[, 1]), ]
-        knots = x[seq(1, dim(x)[1], length = min(50, dim(x)[1])), 
+        knots = unique(x)
+        knots = knots[seq(1, nrow(knots), length = min(50, nrow(knots))), 
             ]
         B = matrix(NA, nrow = dim(x)[1], ncol = dim(knots)[1])
         for (j in 1:dim(knots)[1]) {
@@ -91,7 +92,8 @@ function (x, type = c("pspline", "2dspline", "markov", "radial",
     else if (type == "krig") {
         cons = 9.233
         x = x[order(x[, 1]), ]
-        knots = x[seq(1, dim(x)[1], length = min(50, dim(x)[1])), 
+        knots = unique(x)
+        knots = knots[seq(1, nrow(knots), length = min(50, nrow(knots))), 
             ]
         B = matrix(NA, nrow = dim(x)[1], ncol = dim(knots)[1])
         P = matrix(0, nrow = dim(B)[2], ncol = dim(B)[2])
@@ -161,8 +163,9 @@ function (x, type = c("pspline", "2dspline", "markov", "radial",
             })
         P = matrix(0, nrow = ncol(B), ncol = ncol(B))
     }
+    constraint = matrix(0, nrow = 2, ncol = ncol(P))
     rb = list(B = B, P = P, x = x, type = type, bnd = bnd, Zspathelp = Zspathelp, 
-        phi = phi, center = center, by = by, xname = xname)
+        phi = phi, center = center, by = by, xname = xname, constraint = constraint)
     class(rb) = c("regbase")
     rb
 }

@@ -45,7 +45,7 @@ Computatational Statistics and Data Analysis, 53: 4168-4177
 \examples{
 data(dutchboys)
 
-expreg <- expectile.restricted(dutchboys[,3] ~ base(dutchboys[,2],"pspline"),smooth="schall")
+expreg <- expectreg.ls(dutchboys[,3] ~ rb(dutchboys[,2],"pspline"),smooth="schall",estimate="restricted")
 plot(expreg)
 }
 \keyword{datasets}

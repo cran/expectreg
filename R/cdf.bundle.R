@@ -1,8 +1,8 @@
-bundle.density <-
-function (bundle) 
+cdf.bundle <-
+function (bundle, qout = NA, extrap = FALSE) 
 {
     if (!inherits(bundle, "bundle") && !inherits(bundle, "restricted")) 
-        stop("Function needs output from 'expectile.bundle()' or 'expectile.restricted()'.")
+        stop("Function needs 'expectreg' estimated by bundle or restricted.")
     basis = bundle$design
     np = length(bundle$intercepts)
     pp <- bundle$expectiles
@@ -40,11 +40,15 @@ function (bundle)
         if (dz < 1e-06) 
             break
     }
-    dev.new()
-    hist(rst, breaks = seq(min(rst), max(rst), length = 30), 
-        freq = F, xlim = range(u), main = "density")
-    lines(u, g/(u[2] - u[1]), col = "red")
-    result = list(random = rst, density = g/(u[2] - u[1]), x = u)
-    class(result) = "bundledensity"
+    dens = g/(u[2] - u[1])
+    F = cumsum(dens)
+    if (any(is.na(qout))) 
+        qout = pp
+    if (extrap) 
+        quant <- as.vector(my.approx(F, u, xout = qout, rule = 3)$y)
+    else quant <- as.vector(my.approx(F, u, xout = qout, rule = 2)$y)
+    result = list(x = u, density = dens, cdf = F, quantiles = quant, 
+        qout = qout, random = rst)
+    class(result) = c("expectilecdf", "bundledensity")
     result
 }
