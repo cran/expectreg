@@ -9,8 +9,8 @@ function (formula, data = NULL, estimate = c("laws", "restricted",
         "density") > 0) {
         pp <- seq(0.01, 0.99, by = 0.01)
     }
-    if (any(is.na(expectiles)) || !is.vector(expectiles) || any(expectiles > 
-        1) || any(expectiles < 0)) {
+    else if (any(is.na(expectiles)) || !is.vector(expectiles) || 
+        any(expectiles > 1) || any(expectiles < 0)) {
         pp <- c(0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 0.8, 0.9, 0.95, 
             0.98, 0.99)
     }
@@ -182,7 +182,7 @@ function (formula, data = NULL, estimate = c("laws", "restricted",
         else if (types[[k]] == "radial") {
             Z[[k]] <- matrix(NA, m, np)
             coefficients[[k]] = matrix(NA, nrow = nb[k], ncol = np)
-            helper[[k]] = NA
+            helper[[k]] = Zspathelp[[k]]
             for (i in 1:np) {
                 Z[[k]][, i] = design[[k]][[1]] %*% vector.a.ma.schall[partbasis, 
                   i, drop = FALSE] + intercept[i]
@@ -193,7 +193,7 @@ function (formula, data = NULL, estimate = c("laws", "restricted",
         else if (types[[k]] == "krig") {
             Z[[k]] <- matrix(NA, m, np)
             coefficients[[k]] = matrix(NA, nrow = nb[k], ncol = np)
-            helper[[k]] = krig.phi[[k]]
+            helper[[k]] = list(krig.phi[[k]], Zspathelp[[k]])
             for (i in 1:np) {
                 Z[[k]][, i] = design[[k]][[1]] %*% vector.a.ma.schall[partbasis, 
                   i, drop = FALSE] + intercept[i]
@@ -253,12 +253,12 @@ function (formula, data = NULL, estimate = c("laws", "restricted",
         desmat = cbind(1, B)
     result = list(lambda = final.lambdas, intercepts = intercept, 
         coefficients = coefficients, values = Z, response = yy, 
-        covariates = x, formula = formula, expectiles = pp, effects = types, 
-        helper = helper, design = desmat, fitted = fitted)
+        covariates = x, formula = formula, asymmetries = pp, 
+        effects = types, helper = helper, design = desmat, fitted = fitted)
     if (estimate == "restricted" || estimate == "bundle") {
         result$trend.coef = trend.coef
         result$residual.coef = residual.coef
-        result$asymmetry = asymmetry
+        result$asymmetry.coef = asymmetry
     }
     result$predict <- function(newdata = NULL) {
         BB = list()

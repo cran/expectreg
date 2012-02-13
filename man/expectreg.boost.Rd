@@ -12,9 +12,9 @@ loss functions to obtain the graphs of 11 different expectiles
 for continuous, spatial or random effects.
 }
 \usage{
-expectreg.boost(formula, data = NULL, mstop = NA, expectiles = NA, parallel = FALSE, cv = TRUE)
+expectreg.boost(formula, data = NULL, mstop = NA, expectiles = NA, cv = TRUE)
 
-quant.boost(formula, data = NULL, mstop = NA, expectiles = NA, parallel = FALSE, cv = TRUE)
+quant.boost(formula, data = NULL, mstop = NA, expectiles = NA, cv = TRUE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -35,10 +35,6 @@ Default is 4000.
 In default setting, the expectiles (0.01,0.02,0.05,0.1,0.2,0.5,0.8,0.9,0.95,0.98,0.99) are calculated.
 You may specify your own set of expectiles in a vector.
 }
-  \item{parallel}{
-On Unix machines with the package \code{\link[multicore]{multicore}} installed the different expectiles
-can be calculated simultaneously, if the computer has multiple CPUs. 
-}
   \item{cv}{
 A cross-validation can determine the optimal amount of boosting iterations between 1 and \code{mstop}.
 Uses \code{\link[mboost]{cvrisk}}. If set to \code{FALSE}, the results from \code{mstop} iterations are used.
@@ -56,7 +52,7 @@ An object of class 'expectreg', which is basically a list consisting of:
                    sorted in order of ascending covariate values. }
     \item{response}{ Vector of the response variable. }
     \item{formula}{ The formula object that was given to the function. }
-    \item{expectiles}{ Vector of fitted expectile asymmetries as given by argument \code{expectiles}. }
+    \item{asymmetries}{ Vector of fitted expectile asymmetries as given by argument \code{expectiles}. }
     \item{effects}{ List of characters giving the types of covariates. }
     \item{helper}{ List of additional parameters like neighbourhood structure for spatial effects or 'phi' for kriging. }
     \item{fitted}{ Fitted values \eqn{ \hat{y} }. }
@@ -88,7 +84,7 @@ University Oldenburg \cr
 }
 \examples{
 data("lidar", package = "SemiPar")
-expreg <- expectreg.boost(logratio ~ bbs(range),lidar, mstop=500, expectiles=c(0.05,0.25,0.5,0.75,0.95))
+expreg <- expectreg.boost(logratio ~ bbs(range),lidar, mstop=300, expectiles=c(0.05,0.5,0.95))
 plot(expreg)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

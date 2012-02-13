@@ -26,9 +26,7 @@ Thomas Kneib \cr
 University Oldenburg \cr
 \url{http://www.uni-oldenburg.de} \cr
 }
-\references{
-%%  ~~ possibly secondary sources and usages ~~
-}
+
 \examples{
 data(northger.bnd)
 

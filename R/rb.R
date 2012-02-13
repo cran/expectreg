@@ -70,9 +70,10 @@ function (x, type = c("pspline", "2dspline", "markov", "radial",
     }
     else if (type == "radial") {
         x = x[order(x[, 1]), ]
+        require(fields)
         knots = unique(x)
-        knots = knots[seq(1, nrow(knots), length = min(50, nrow(knots))), 
-            ]
+        knots <- cover.design(R = knots, nd = min(50, nrow(knots)))$design
+        Zspathelp = knots
         B = matrix(NA, nrow = dim(x)[1], ncol = dim(knots)[1])
         for (j in 1:dim(knots)[1]) {
             r = sqrt(rowSums((x - matrix(unlist(knots[j, ]), 
@@ -92,9 +93,10 @@ function (x, type = c("pspline", "2dspline", "markov", "radial",
     else if (type == "krig") {
         cons = 9.233
         x = x[order(x[, 1]), ]
+        require(fields)
         knots = unique(x)
-        knots = knots[seq(1, nrow(knots), length = min(50, nrow(knots))), 
-            ]
+        knots <- cover.design(R = knots, nd = min(50, nrow(knots)))$design
+        Zspathelp = knots
         B = matrix(NA, nrow = dim(x)[1], ncol = dim(knots)[1])
         P = matrix(0, nrow = dim(B)[2], ncol = dim(B)[2])
         for (j in 1:dim(B)[2]) {

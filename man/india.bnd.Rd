@@ -26,9 +26,7 @@ Jan Priebe
 University of Goettingen
 \url{http://www.uni-goettingen.de/de/64861.html}
 }
-\references{
-%%  ~~ possibly secondary sources and usages ~~
-}
+
 \examples{
 data(india)
 data(india.bnd)

@@ -175,7 +175,7 @@ function (formula, data = NULL, smooth = c("schall", "acv", "fixed"),
     }
     ncexpect <- list(lambda = final.lambdas, intercepts = rep(0, 
         length(p)), values = Z, coefficients = coefficients, 
-        response = y, formula = formula, expectiles = p, effects = types, 
+        response = y, formula = formula, asymmetries = p, effects = types, 
         helper = helper, covariates = x, design = Bx, fitted = matrix(z, 
             ncol = length(p)))
     ncexpect$predict <- function(newdata = NULL) {

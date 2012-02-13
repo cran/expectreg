@@ -73,7 +73,7 @@ testfunction(m5,mcomp)
 data(dutchboys)
 dutchb <- dutchboys[sample(1:length(dutchboys[,1]),150),]
 
-expect <- c(0.05,0.25,0.5,0.75,0.95)
+expect <- c(0.05,0.5,0.95)
 
 
 ###Values
@@ -87,11 +87,11 @@ mRestricted <- expectreg.ls(hgt~rb(age,"pspline")+rb(wgt,"pspline"),data=dutchb,
 mBoost <- expectreg.boost(hgt~bbs(age)+bbs(wgt),data=dutchb,expectiles=expect,mstop=400)
 
 ###INTERCEPTS
-stopifnot(length(mLaws$intercepts) == length(mLaws$expectiles))
-#stopifnot(length(mSheets$intercepts) == length(mSheets$expectiles))
-stopifnot(length(mNoncross$intercepts) == length(mNoncross$expectiles))
-stopifnot(length(mBundle$intercepts) == length(mBundle$expectiles))
-stopifnot(length(mRestricted$intercepts) == length(mRestricted$expectiles))
+stopifnot(length(mLaws$intercepts) == length(mLaws$asymmetries))
+#stopifnot(length(mSheets$intercepts) == length(mSheets$asymmetries))
+stopifnot(length(mNoncross$intercepts) == length(mNoncross$asymmetries))
+stopifnot(length(mBundle$intercepts) == length(mBundle$asymmetries))
+stopifnot(length(mRestricted$intercepts) == length(mRestricted$asymmetries))
 
 ###COEFFICIENTS A matrix of all the coefficients, for each base element a row and for each expectile a column. 
 stopifnot(length(mLaws$coefficients)==2)
@@ -102,23 +102,23 @@ stopifnot(length(mRestricted$coefficients)==2)
 
 for(i in 1:2) {
     stopifnot(nrow(mLaws$coefficients[[i]])== 20)
-    stopifnot(ncol(mLaws$coefficients[[i]])== length(mLaws$expectiles))
+    stopifnot(ncol(mLaws$coefficients[[i]])== length(mLaws$asymmetries))
 }
 #for(i in 1:2) {
-#   stopifnot(ncol(mSheets$coefficients[[i]])==length(mSheets$expectiles))
+#   stopifnot(ncol(mSheets$coefficients[[i]])==length(mSheets$asymmetries))
 #}
 
 
-stopifnot(ncol(mNoncross$coefficients[[1]])== length(mNoncross$expectiles))
+stopifnot(ncol(mNoncross$coefficients[[1]])== length(mNoncross$asymmetries))
 
 
 for(i in 1:2) {
     stopifnot(nrow(mBundle$coefficients[[i]])== 20)
-    stopifnot(ncol(mBundle$coefficients[[i]])== length(mBundle$expectiles))
+    stopifnot(ncol(mBundle$coefficients[[i]])== length(mBundle$asymmetries))
 }
 for(i in 1:2) {
     stopifnot(nrow(mRestricted$coefficients[i])== 20)
-    stopifnot(ncol(mRestricted$coefficients[i])== length(mRestricted$expectiles))
+    stopifnot(ncol(mRestricted$coefficients[i])== length(mRestricted$asymmetries))
 }
 
 ###VALUES
@@ -139,12 +139,12 @@ stopifnot(dutchb$age==mBundle$covariates$age && dutchb$wgt==mBundle$covariates$w
 stopifnot(dutchb$age==mRestricted$covariates$age && dutchb$wgt==mRestricted$covariates$wgt)
 
 ###EXPECTILES
-stopifnot(mLaws$expectiles==expect)
-stopifnot(mSheets$expectiles==expect)
-stopifnot(mNoncross$expectiles==expect)
-stopifnot(mBundle$expectiles==expect)
-stopifnot(mRestricted$expectiles==expect)
-stopifnot(mBoost$expectiles==expect)
+stopifnot(mLaws$asymmetries==expect)
+stopifnot(mSheets$asymmetries==expect)
+stopifnot(mNoncross$asymmetries==expect)
+stopifnot(mBundle$asymmetries==expect)
+stopifnot(mRestricted$asymmetries==expect)
+stopifnot(mBoost$asymmetries==expect)
 
 ###EFFECTS
 stopifnot(length(mLaws$covariates)==length(mLaws$effects))

@@ -37,6 +37,8 @@ export(expectreg.ls,
        pechisq,
        peexp,
        pelnorm)
+       
+exportClasses("expectreg")
 
 S3method(plot, expectreg)
 S3method(print, expectreg)
@@ -50,3 +52,4 @@ S3method(coefficients, expectreg)
 S3method(plot, bundledensity)
 S3method(predict, regbase)
 S3method(predict, expectreg)
+S3method("[", expectreg)

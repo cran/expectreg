@@ -11,7 +11,7 @@ function (x, ...)
     print(dat)
     cat("\n")
     cat("\nFitted Expectiles:\n", sep = "")
-    print(x$expectiles)
+    print(x$asymmetries)
     cat("\n")
     if (!inherits(x, "boost")) {
         cat("\nSmoothing Parameters:\n", sep = "")

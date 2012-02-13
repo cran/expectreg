@@ -10,6 +10,7 @@
 \alias{fitted.expectreg}
 \alias{fitted.values.expectreg}
 \alias{effects.expectreg}
+\alias{[.expectreg}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Methods for expectile regression objects
@@ -18,11 +19,13 @@ Methods for expectile regression objects
 Methods for objects returned by expectile regression functions.
 }
 \usage{
-\method{plot}{expectreg}(x, ...)
+\method{plot}{expectreg}(x,xlab = NULL, ylab = NULL, ylim = NULL, legend = TRUE, ...)
 
 \method{print}{expectreg}(x, ...)
 
 \method{predict}{expectreg}(object, newdata = NULL, ...)
+
+\method{[}{expectreg}(x, i)
 
 \method{residuals}{expectreg}(object, ...)
 \method{resid}{expectreg}(object, ...)
@@ -43,8 +46,13 @@ An object of class \code{expectreg} as returned e.g. by the function \code{\link
   \item{object}{
 An object of class \code{expectreg} as returned e.g. by the function \code{\link{expectreg.ls}}.
 }
+  \item{xlab,ylab,ylim}{ Graphic parameters. \code{xlab} should match the number of covariates. }
+  \item{legend}{ Boolean. Decides whether a legend is added to the plots. }
   \item{newdata}{ 
 Optionally, a data frame in which to look for variables with which to predict.
+}
+ \item{i}{
+Covariate numbers to be kept in subset.
 }
   \item{\dots}{ additional arguments passed over. }
 }
@@ -54,6 +62,8 @@ These functions can be used to extract details from fitted models.
 
 The \code{plot} function gives a visual representation of the fitted expectiles
 separately for each covariate.
+
+\code{[} can be used to define a new object with a subset of covariates from the original fit.
 
 \code{resid} returns the residuals in order of the response.
 
@@ -75,7 +85,7 @@ doi: 10.1016/j.csda.2010.11.015.
 
 }
 \author{
-Fabian Sobotka, Thomas Kneib \cr
+Fabian Sobotka \cr
 University Oldenburg \cr
 \url{http://www.uni-oldenburg.de} \cr
 
@@ -89,7 +99,7 @@ University Oldenburg \cr
 \examples{
 data(dutchboys)
 
-expreg <- expectreg.ls(hgt ~ rb(age,"pspline"),data=dutchboys,smooth="schall",expectiles=c(0.05,0.2,0.8,0.95))
+expreg <- expectreg.ls(hgt ~ rb(age,"pspline"),data=dutchboys,smooth="f",expectiles=c(0.05,0.2,0.8,0.95))
 plot(expreg)
 
 print(expreg)

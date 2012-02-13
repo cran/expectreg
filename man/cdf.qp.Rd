@@ -76,9 +76,6 @@ Paul Eilers \cr
 Erasmus Medical Center Rotterdam \cr
 \url{http://www.erasmusmc.nl} \cr
 }
-\note{
-%%  ~~further notes~~
-}
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 

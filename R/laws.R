@@ -4,12 +4,6 @@ function (B, DD, yy, pp, lambda, smooth, nb, center, constmat)
     nterms = length(nb)
     m = length(yy)
     np = length(pp)
-    myapply <- lapply
-    if (.Platform$OS.type == "unix" && require("multicore")) {
-        if (!multicore:::isChild()) {
-            myapply <- mclapply
-        }
-    }
     if (length(lambda) < nterms) 
         lala = rep(lambda[1], nterms)
     else lala = lambda
@@ -75,8 +69,13 @@ function (B, DD, yy, pp, lambda, smooth, nb, center, constmat)
         }
         list(vector.a.ma.schall, lala)
     }
-    coef.vector = myapply(pp, function(pp) dummy.reg(pp, lala, 
-        smooth, yy, B, DD, nb, nterms, center))
+    if (.Platform$OS.type == "unix") 
+        coef.vector = mclapply(pp, function(pp) dummy.reg(pp, 
+            lala, smooth, yy, B, DD, nb, nterms, center), mc.cores = min(getOption("cores"), 
+            4))
+    else if (.Platform$OS.type == "windows") 
+        coef.vector = mclapply(pp, function(pp) dummy.reg(pp, 
+            lala, smooth, yy, B, DD, nb, nterms, center), mc.cores = 1)
     lala <- matrix(lambda, nrow = nterms, ncol = np)
     vector.a.ma.schall <- matrix(NA, nrow = sum(nb) + (1 * center), 
         ncol = np)

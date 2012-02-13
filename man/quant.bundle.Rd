@@ -80,7 +80,7 @@ quantile regression.
     \item{response}{ Vector of the response variable. }
     \item{covariates}{ List with the values of the covariates. }
     \item{formula}{ The formula object that was given to the function. }
-    \item{expectiles}{ Vector of fitted expectile asymmetries as given by argument \code{expectiles}. }
+    \item{asymmetries}{ Vector of fitted expectile asymmetries as given by argument \code{expectiles}. }
     \item{effects}{ List of characters giving the types of covariates. }
     \item{helper}{ List of additional parameters like neighbourhood structure for spatial effects or 'phi' for kriging. }
     \item{trend.coef}{ Coefficients of the trend function. }
@@ -129,10 +129,10 @@ Erasmus Medical Center Rotterdam \cr
 \code{\link{rb}}, \code{\link{expectreg.boost}}
 }
 \examples{
-qb = quant.bundle(dist ~ rb(speed),data=cars,smooth="s",lambda=5)
+qb = quant.bundle(dist ~ rb(speed),data=cars,smooth="f",lambda=5)
 plot(qb)
 
-qbund <- quant.bundle(dist ~ rb(speed),data=cars,smooth="a",lambda=5,simple=FALSE)
+qbund <- quant.bundle(dist ~ rb(speed),data=cars,smooth="f",lambda=5,simple=FALSE)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

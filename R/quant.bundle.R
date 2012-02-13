@@ -3,8 +3,12 @@ function (formula, data = NULL, smooth = c("schall", "acv", "fixed"),
     lambda = 0.1, quantiles = NA, simple = TRUE) 
 {
     smooth = match.arg(smooth)
-    if (any(is.na(quantiles)) || !is.vector(quantiles) || any(quantiles > 
-        1) || any(quantiles < 0)) {
+    if (!is.na(charmatch(quantiles[1], "density")) && charmatch(quantiles[1], 
+        "density") > 0) {
+        pp <- seq(0.01, 0.99, by = 0.01)
+    }
+    else if (any(is.na(quantiles)) || !is.vector(quantiles) || 
+        any(quantiles > 1) || any(quantiles < 0)) {
         pp <- c(0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 0.8, 0.9, 0.95, 
             0.98, 0.99)
         pp.plot <- 1:length(pp)
@@ -20,7 +24,6 @@ function (formula, data = NULL, smooth = c("schall", "acv", "fixed"),
             row.grid = row.grid + 1
     }
     np <- length(pp)
-    np.plot <- length(pp.plot)
     yy = eval(parse(text = formula[2]), envir = data, enclos = environment(formula))
     attr(yy, "name") = deparse(formula[[2]])
     m = length(yy)
@@ -117,6 +120,7 @@ function (formula, data = NULL, smooth = c("schall", "acv", "fixed"),
     coefficients <- list()
     final.lambdas <- list()
     helper <- list()
+    ex$fitted = B %*% vector.a.ma.schall
     if (center) {
         intercept = vector.a.ma.schall[1, ]
         B = B[, -1, drop = FALSE]
@@ -231,6 +235,7 @@ function (formula, data = NULL, smooth = c("schall", "acv", "fixed"),
     }
     ex$coefficients = coefficients
     ex$values = Z
+    ex$asymmetries = pp
     ex$predict <- function(newdata = NULL) {
         BB = list()
         values = list()

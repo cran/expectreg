@@ -1,6 +1,6 @@
 expectreg.boost <-
 function (formula, data = NULL, mstop = NA, expectiles = NA, 
-    parallel = FALSE, cv = TRUE) 
+    cv = TRUE) 
 {
     require(mboost)
     if (any(is.na(expectiles)) || !is.vector(expectiles) || any(expectiles > 
@@ -32,6 +32,7 @@ function (formula, data = NULL, mstop = NA, expectiles = NA,
     x <- list()
     bnd = list()
     yy = eval(parse(text = formula[2]), envir = data, enclos = environment(formula))
+    attr(yy, "name") = deparse(formula[[2]])
     for (i in 1:length(blsstr)) {
         types[[i]] = strsplit(blsstr[i], "(", fixed = TRUE)[[1]][1]
         if (types[[i]] == blsstr[i]) {
@@ -59,10 +60,12 @@ function (formula, data = NULL, mstop = NA, expectiles = NA,
     cv10f <- matrix(c(rep(c(rep(0, ntest), rep(1, m)), kfld - 
         1), rep(0, m * kfld - (kfld - 1) * (m + ntest))), nrow = m)
     values <- list()
+    coef <- list()
     z <- list()
     helper <- list()
     for (k in 1:length(blsstr)) {
         values[[k]] = matrix(NA, nrow = m, ncol = np)
+        coef[[k]] = NULL
         fitted = matrix(NA, nrow = m, ncol = np)
         helper[[k]] = NA
         if (types[[k]] == "bbs" || types[[k]] == "bmono") {
@@ -94,16 +97,11 @@ function (formula, data = NULL, mstop = NA, expectiles = NA,
             types[[k]] = "radial"
         }
     }
-    myapply <- lapply
-    if (parallel && .Platform$OS.type == "unix" && require("multicore")) {
-        if (!multicore:::isChild()) {
-            myapply <- mclapply
-        }
-    }
     dummy.reg <- function(p, formula, data, mstop, pp, cv10f, 
         types, x, blsstr, bnd) {
         values <- list()
         z <- list()
+        coef <- list()
         inb <- gamboost(formula = formula, data = data, control = boost_control(mstop = mstop[p], 
             nu = 0.1, risk = "inbag"), family = ExpectReg(pp[p]))
         if (cv) {
@@ -115,6 +113,7 @@ function (formula, data = NULL, mstop = NA, expectiles = NA,
         else print(paste("Expectile", pp[p], sep = " "))
         fitted = fitted(inb)
         for (k in 1:length(blsstr)) {
+            coef[[k]] = coef(inb, which = k)[[1]]
             if (types[[k]] == "pspline") {
                 independent = which(dimnames(data)[[2]] == bls[[k]]$get_names())
                 d.tmp = data
@@ -188,24 +187,36 @@ function (formula, data = NULL, mstop = NA, expectiles = NA,
             }
         }
         gc()
-        list(values, z, fitted, inb)
+        list(values, z, fitted, inb, coef)
     }
-    coef.vector = myapply(1:np, function(i) dummy.reg(i, formula, 
-        data, mstop, pp, cv10f, types, x, blsstr, bnd))
+    if (.Platform$OS.type == "unix") 
+        coef.vector = mclapply(1:np, function(i) dummy.reg(i, 
+            formula, data, mstop, pp, cv10f, types, x, blsstr, 
+            bnd), mc.cores = min(getOption("cores"), 4))
+    else if (.Platform$OS.type == "windows") 
+        coef.vector = mclapply(1:np, function(i) dummy.reg(i, 
+            formula, data, mstop, pp, cv10f, types, x, blsstr, 
+            bnd), mc.cores = 1)
     boost.object = list()
+    for (k in 1:length(blsstr)) {
+        coef[[k]] = matrix(NA, nrow = length(coef.vector[[1]][[5]][[k]]), 
+            ncol = np)
+    }
     for (i in 1:np) {
         boost.object[[i]] = coef.vector[[i]][[4]]
         fitted[, i] = coef.vector[[i]][[3]]
         for (k in 1:length(blsstr)) {
             values[[k]][, i] = coef.vector[[i]][[1]][[k]]
+            coef[[k]][, i] = coef.vector[[i]][[5]][[k]]
             if (types[[k]] == "2dspline" || types[[k]] == "radial") 
                 z[[k]][[i]] = coef.vector[[i]][[2]][[k]]
             else z[[k]][, i] = coef.vector[[i]][[2]][[k]]
         }
     }
     result = list(values = values, response = yy, covariates = x, 
-        formula = formula, expectiles = pp, effects = types, 
-        helper = helper, fitted = fitted)
+        formula = formula, asymmetries = pp, effects = types, 
+        helper = helper, fitted = fitted, coefficients = coef, 
+        mboost = boost.object)
     result$predict <- function(newdata = NULL) {
         values = list()
         fitted = matrix(NA, nrow = nrow(newdata), ncol = np)

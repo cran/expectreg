@@ -5,7 +5,7 @@ function (expectreg, x = NA, qout = NA, extrap = FALSE)
     epsilon = 1e-05
     max.iter = 20
     step.halfing = 0.5
-    p = expectreg$expectiles
+    p = expectreg$asymmetries
     if (is.na(x)) 
         e <- expectreg$fitted[1, ]
     else if (length(which(expectreg$covariates[[1]] == x)) > 

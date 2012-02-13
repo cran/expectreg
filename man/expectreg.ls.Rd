@@ -7,9 +7,9 @@
 Expectile regression of additive models
 }
 \description{
-Generalized additive models are fitted with least asymmetrically weighted squares
-or restricted with respect to the mean to obtain the graphs of 11 different expectiles
-for continuous, spatial or random effects.
+Additive models are fitted with least asymmetrically weighted squares
+or quadratic programming to obtain expectiles
+for parametric, continuous, spatial and random effects.
 }
 \usage{
 expectreg.ls(formula, data = NULL, estimate=c("laws","restricted","bundle","sheets"), smooth = c("schall", "acv", "fixed"), lambda = 1, expectiles = NA)
@@ -42,7 +42,8 @@ the smoothing algorithms.
 }
   \item{expectiles}{
 In default setting, the expectiles (0.01,0.02,0.05,0.1,0.2,0.5,0.8,0.9,0.95,0.98,0.99) are calculated.
-You may specify your own set of expectiles in a vector.
+You may specify your own set of expectiles in a vector. The option may be set to 'density' for the calculation
+of a dense set of expectiles that enhances the use of \code{\link{cdf.qp}} and \code{\link{cdf.bundle}} afterwards.
 }
 }
 \details{
@@ -88,7 +89,7 @@ An object of class 'expectreg', which is basically a list consisting of:
     \item{response}{ Vector of the response variable. }
     \item{covariates}{ List with the values of the covariates. }
     \item{formula}{ The formula object that was given to the function. }
-    \item{expectiles}{ Vector of fitted expectile asymmetries as given by argument \code{expectiles}. }
+    \item{asymmetries}{ Vector of fitted expectile asymmetries as given by argument \code{expectiles}. }
     \item{effects}{ List of characters giving the types of covariates. }
     \item{helper}{ List of additional parameters like neighbourhood structure for spatial effects or 'phi' for kriging. }
     \item{design}{ Complete design matrix. }
@@ -135,22 +136,22 @@ University Bielefeld \cr
 \code{\link{rb}}, \code{\link{expectreg.boost}}
 }
 \examples{
-ex = expectreg.ls(dist ~ rb(speed),data=cars,smooth="a",lambda=5)
-ex = expectreg.ls(dist ~ rb(speed),data=cars,smooth="f",lambda=5,estimate="sheets")
+ex = expectreg.ls(dist ~ rb(speed),data=cars,smooth="a",lambda=5,expectiles=c(0.01,0.2,0.8,0.99))
+ex = expectreg.ls(dist ~ rb(speed),data=cars,smooth="f",lambda=5,estimate="restricted")
 plot(ex)
 
 
 data("lidar", package = "SemiPar")
 
-explaws <- expectreg.ls(logratio~rb(range,"pspline"),data=lidar,smooth="acv",expectiles=c(0.05,0.25,0.5,0.75,0.95))
+explaws <- expectreg.ls(logratio~rb(range,"pspline"),data=lidar,smooth="acv",expectiles=c(0.05,0.5,0.95))
 print(explaws)
 plot(explaws)
 
 ###expectile regression using a fixed penalty
-plot(expectreg.ls(logratio~rb(range,"pspline"),data=lidar,smooth="fixed",lambda=1,expectiles=c(0.05,0.25,0.5,0.75,0.95)))
-plot(expectreg.ls(logratio~rb(range,"pspline"),data=lidar,smooth="fixed",lambda=0.0000001,expectiles=c(0.05,0.25,0.5,0.75,0.95)))
+plot(expectreg.ls(logratio~rb(range,"pspline"),data=lidar,smooth="fixed",lambda=1,expectiles=c(0.05,0.25,0.75,0.95)))
+plot(expectreg.ls(logratio~rb(range,"pspline"),data=lidar,smooth="fixed",lambda=0.0000001,expectiles=c(0.05,0.25,0.75,0.95)))
     #As can be seen in the plot, a too small penalty causes overfitting of the data.
-plot(expectreg.ls(logratio~rb(range,"pspline"),data=lidar,smooth="fixed",lambda=50,expectiles=c(0.05,0.25,0.5,0.75,0.95)))
+plot(expectreg.ls(logratio~rb(range,"pspline"),data=lidar,smooth="fixed",lambda=50,expectiles=c(0.05,0.25,0.75,0.95)))
     #If the penalty parameter is chosen too large, the expectile curves are smooth but don't represent the data anymore.
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

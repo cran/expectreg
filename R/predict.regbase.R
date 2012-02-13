@@ -81,8 +81,7 @@ function (object, newdata = NULL, ...)
     }
     else if (type == "radial") {
         x = x[order(x[, 1]), ]
-        knots = x[seq(1, dim(x)[1], length = min(50, dim(x)[1])), 
-            ]
+        knots = Zspathelp
         B = matrix(NA, nrow = dim(newdata)[1], ncol = dim(knots)[1])
         for (j in 1:dim(knots)[1]) {
             r = sqrt(rowSums((newdata - matrix(unlist(knots[j, 
@@ -95,8 +94,7 @@ function (object, newdata = NULL, ...)
     else if (type == "krig") {
         c = 9.233
         x = x[order(x[, 1]), ]
-        knots = x[seq(1, dim(x)[1], length = min(50, dim(x)[1])), 
-            ]
+        knots = Zspathelp
         B = matrix(NA, nrow = dim(newdata)[1], ncol = dim(knots)[1])
         P = matrix(0, nrow = dim(B)[2], ncol = dim(B)[2])
         for (i in 1:dim(B)[2]) for (j in 1:dim(B)[2]) {

@@ -5,18 +5,18 @@ function (bundle, qout = NA, extrap = FALSE)
         stop("Function needs 'expectreg' estimated by bundle or restricted.")
     basis = bundle$design
     np = length(bundle$intercepts)
-    pp <- bundle$expectiles
+    pp <- bundle$asymmetries
     rst <- (bundle$response - (basis %*% bundle$trend.coef))/(basis %*% 
         bundle$residual.coef)
     u <- seq(1.2 * min(rst), 1.2 * max(rst), length = 100)
     m <- length(u)
-    bundle$asymmetry = sort(bundle$asymmetry)
+    bundle$asymmetry.coef = sort(bundle$asymmetry.coef)
     A <- matrix(0, np + 1, m)
     A[np + 1, ] <- 1
     for (k in 1:np) {
-        a1 <- (1 - pp[k]) * (u - bundle$asymmetry[k]) * (u <= 
-            bundle$asymmetry[k])
-        a2 <- pp[k] * (u - bundle$asymmetry[k]) * (u > bundle$asymmetry[k])
+        a1 <- (1 - pp[k]) * (u - bundle$asymmetry.coef[k]) * 
+            (u <= bundle$asymmetry.coef[k])
+        a2 <- pp[k] * (u - bundle$asymmetry.coef[k]) * (u > bundle$asymmetry.coef[k])
         A[k, ] <- a1 + a2
     }
     D <- diff(diag(m), diff = 2)
