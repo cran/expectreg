@@ -1,6 +1,6 @@
 quant.bundle <-
 function (formula, data = NULL, smooth = c("schall", "acv", "fixed"), 
-    lambda = 0.1, quantiles = NA, simple = TRUE) 
+    lambda = 1, quantiles = NA, simple = TRUE) 
 {
     smooth = match.arg(smooth)
     if (!is.na(charmatch(quantiles[1], "density")) && charmatch(quantiles[1], 

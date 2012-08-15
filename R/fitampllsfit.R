@@ -9,7 +9,8 @@ function (y, B, b, p, cc, DD, lambda, nb)
     Bty <- 0
     w = matrix(NA, nrow = length(y), ncol = np)
     for (j in 1:np) {
-        w[, j] <- ifelse(y >= cc[j] * a, p[j], 1 - p[j])
+        w[, j] = p[j]
+        w[!(y >= cc[j] * a), j] = 1 - p[j]
         WB <- cc[j] * as.vector(w[, j]) * B
         BtB <- BtB + cc[j] * t(WB) %*% B
         Bty <- Bty + t(WB) %*% y

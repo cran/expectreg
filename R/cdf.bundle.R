@@ -42,6 +42,8 @@ function (bundle, qout = NA, extrap = FALSE)
     }
     dens = g/(u[2] - u[1])
     F = cumsum(dens)
+    dens = dens/max(F)
+    F = F/max(F)
     if (any(is.na(qout))) 
         qout = pp
     if (extrap) 

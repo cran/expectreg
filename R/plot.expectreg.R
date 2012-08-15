@@ -1,7 +1,13 @@
 plot.expectreg <-
-function (x, xlab = NULL, ylab = NULL, ylim = NULL, legend = TRUE, 
-    ...) 
+function (x, rug = TRUE, xlab = NULL, ylab = NULL, ylim = NULL, 
+    legend = TRUE, ...) 
 {
+    ask = prod(par("mfcol")) <= sum(unlist(x$effects) != "parametric") && 
+        dev.interactive()
+    if (ask) {
+        oask <- devAskNewPage(TRUE)
+        on.exit(devAskNewPage(oask))
+    }
     yy = x$response
     cov = x$covariates
     Z = x$values
@@ -41,19 +47,28 @@ function (x, xlab = NULL, ylab = NULL, ylim = NULL, legend = TRUE,
     else if (length(xlab) < length(types)) 
         xlab = rep(xlab[1], length(types))
     for (k in 1:length(types)) {
-        dev.new()
         if (types[[k]] == "pspline") {
             ZZZ = Z[[k]][order(cov[[k]])[seq(1, m, length = min(m, 
                 100))], pp.plot]
             if (is.null(ylim)) 
                 ylim = range(cbind(yy, Z[[k]]), na.rm = TRUE)
-            plot(cov[[k]], yy, cex = 0.5, pch = 20, col = "grey42", 
-                xlab = xlab[k], ylab = ylab, ylim = ylim, ...)
-            matlines(sort(cov[[k]])[seq(1, m, length = min(m, 
-                100))], ZZZ, col = rainbow(np.plot + 1)[1:np.plot], 
-                lty = 1, lwd = 2)
+            if (rug) {
+                matplot(cov[[k]], Z[[k]] - mean(ZZZ), type = "n", 
+                  xlab = xlab[k], ylab = ylab, ...)
+                rug(cov[[k]])
+                matlines(sort(cov[[k]])[seq(1, m, length = min(m, 
+                  100))], ZZZ - mean(ZZZ), col = rainbow(np.plot + 
+                  1)[1:np.plot], lty = 1, lwd = 2)
+            }
+            else {
+                plot(cov[[k]], yy, cex = 0.5, pch = 20, col = "grey42", 
+                  xlab = xlab[k], ylab = ylab, ylim = ylim, ...)
+                matlines(sort(cov[[k]])[seq(1, m, length = min(m, 
+                  100))], ZZZ, col = rainbow(np.plot + 1)[1:np.plot], 
+                  lty = 1, lwd = 2)
+            }
             if (legend) 
-                legend(x = "topright", pch = 19, cex = 1.2, col = rev(rainbow(np.plot + 
+                legend(x = "topright", pch = 19, cex = 0.8, col = rev(rainbow(np.plot + 
                   1)[1:np.plot]), legend = rev(pp[pp.plot]), 
                   bg = "white", bty = "n")
         }
@@ -77,7 +92,6 @@ function (x, xlab = NULL, ylab = NULL, ylim = NULL, legend = TRUE,
                       bg = "white", bty = "n")
                 }
                 else {
-                  par(mfrow = (c(row.grid, col.grid)))
                   plot.limits = range(z[[k]])
                   n = as.numeric(attr(bnd, "regions"))
                   for (i in 1:np.plot) {
@@ -103,7 +117,6 @@ function (x, xlab = NULL, ylab = NULL, ylim = NULL, legend = TRUE,
                       bg = "white", bty = "n")
                 }
                 else {
-                  par(mfrow = (c(row.grid, col.grid)))
                   plot.limits = range(z)
                   for (i in 1:np.plot) {
                     re = data.frame(cbind(as.numeric(attr(bnd, 
@@ -117,7 +130,6 @@ function (x, xlab = NULL, ylab = NULL, ylim = NULL, legend = TRUE,
         }
         else if (types[[k]] == "2dspline") {
             if (inherits(x, "boost")) {
-                par(mfrow = (c(row.grid, col.grid)))
                 for (i in 1:np) {
                   if (i %in% pp.plot) {
                     z = interp(cov[[k]][, 1], cov[[k]][, 2], 
@@ -132,20 +144,18 @@ function (x, xlab = NULL, ylab = NULL, ylim = NULL, legend = TRUE,
             }
             else {
                 gitter = 20
-                x.min = apply(cov[[k]], 2, min)
-                x.max = apply(cov[[k]], 2, max)
+                x.min = apply(cov[[k]], 2, min, na.rm = TRUE)
+                x.max = apply(cov[[k]], 2, max, na.rm = TRUE)
                 x.gitter = cbind(rep(seq(x.min[1], x.max[1], 
                   length = gitter), times = gitter), rep(seq(x.min[2], 
                   x.max[2], length = gitter), each = gitter))
                 B.gitter = rb(x.gitter, "2dspline")[[1]]
-                par(mfrow = (c(row.grid, col.grid)))
                 for (i in 1:np) {
                   if (i %in% pp.plot) {
-                    z <- B.gitter %*% coefficients[[k]][, i] + 
-                      intercept[i]
+                    z <- B.gitter %*% coefficients[[k]][, i]
                     z = t(matrix(z, nrow = gitter, ncol = gitter))
                     if (is.null(ylim)) 
-                      ylim = range(cbind(yy, z), na.rm = TRUE)
+                      ylim = range(z, na.rm = TRUE)
                     persp(seq(x.min[1], x.max[1], length = gitter), 
                       seq(x.min[2], x.max[2], length = gitter), 
                       z, ticktype = "detailed", phi = 40, theta = 35, 
@@ -157,7 +167,6 @@ function (x, xlab = NULL, ylab = NULL, ylim = NULL, legend = TRUE,
         }
         else if (types[[k]] == "radial") {
             if (inherits(x, "boost")) {
-                par(mfrow = (c(row.grid, col.grid)))
                 for (i in 1:np) {
                   if (i %in% pp.plot) {
                     z = interp(cov[[k]][, 1], cov[[k]][, 2], 
@@ -207,7 +216,6 @@ function (x, xlab = NULL, ylab = NULL, ylim = NULL, legend = TRUE,
         }
         else if (types[[k]] == "krig") {
             if (inherits(x, "boost")) {
-                par(mfrow = (c(row.grid, col.grid)))
                 for (i in 1:np) {
                   if (i %in% pp.plot) {
                     z = interp(cov[[k]][, 1], cov[[k]][, 2], 
@@ -238,7 +246,6 @@ function (x, xlab = NULL, ylab = NULL, ylim = NULL, legend = TRUE,
                     byrow = T))^2))/krig.phi
                   B.gitter[, j] = exp(-r) * (1 + r)
                 }
-                par(mfrow = (c(row.grid, col.grid)))
                 for (i in 1:np) {
                   if (i %in% pp.plot) {
                     z <- B.gitter %*% coefficients[[k]][, i] + 
@@ -266,12 +273,12 @@ function (x, xlab = NULL, ylab = NULL, ylim = NULL, legend = TRUE,
             }
             else {
                 plot(seq(0, 1.1 * max(cov[[k]]), length = 10), 
-                  seq(0, max(coefficients[[k]] + intercept), 
-                    length = 10), type = "n", xlab = xlab[k], 
-                  ylab = "coefficients")
+                  seq(0, max(coefficients[[k]] + intercept - 
+                    intercept[1]), length = 10), type = "n", 
+                  xlab = xlab[k], ylab = "coefficients")
                 points(rep(sort(unique(cov[[k]])), times = np.plot), 
-                  (coefficients[[k]] + intercept)[, pp.plot], 
-                  col = rainbow(np.plot + 1)[1:np.plot])
+                  (coefficients[[k]] + intercept - intercept[1])[, 
+                    pp.plot], col = rainbow(np.plot + 1)[1:np.plot])
                 if (legend) 
                   legend(x = "right", pch = 19, cex = 1, col = rev(rainbow(np.plot + 
                     1)[1:np.plot]), legend = rev(pp[pp.plot]), 
@@ -280,11 +287,11 @@ function (x, xlab = NULL, ylab = NULL, ylim = NULL, legend = TRUE,
         }
         else if (types[[k]] == "ridge") {
             plot(seq(0, 1.1 * dim(cov[[k]])[2], length = 10), 
-                seq(0, max(coefficients[[k]] + intercept), length = 10), 
-                type = "n", xlab = xlab[k], ylab = "coefficients")
+                seq(0, max(coefficients[[k]] + intercept - intercept[1]), 
+                  length = 10), type = "n", xlab = xlab[k], ylab = "coefficients")
             points(rep(1:dim(cov[[k]])[2], times = np.plot), 
-                (coefficients[[k]] + intercept)[, pp.plot], col = rainbow(np.plot + 
-                  1)[1:np.plot])
+                (coefficients[[k]] + intercept - intercept[1])[, 
+                  pp.plot], col = rainbow(np.plot + 1)[1:np.plot])
             if (legend) 
                 legend(x = "right", pch = 19, cex = 1, col = rev(rainbow(np.plot + 
                   1)[1:np.plot]), legend = rev(pp[pp.plot]), 

@@ -71,8 +71,8 @@ doi: 10.1016/j.csda.2010.11.015.
 }
 \author{
 Fabian Sobotka \cr
-University Oldenburg \cr
-\url{http://www.uni-oldenburg.de} \cr
+Georg August University Goettingen \cr
+\url{http://www.uni-goettingen.de} \cr
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~

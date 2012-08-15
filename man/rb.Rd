@@ -112,8 +112,8 @@ List consisting of:
 }
 \author{
 Fabian Sobotka, Thomas Kneib \cr
-University Oldenburg \cr
-\url{http://www.uni-oldenburg.de}
+Georg August University Goettingen \cr
+\url{http://www.uni-goettingen.de} \cr
 
 Sabine Schnabel \cr
 Wageningen University and Research Centre \cr

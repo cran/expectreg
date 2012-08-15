@@ -14,6 +14,7 @@ function (expectreg, x = NA, qout = NA, extrap = FALSE)
             x)[1], ]
     else e <- expectreg$fitted[which.min(abs(expectreg$covariates[[1]] - 
         x))[1], ]
+    e = sort(e)
     K <- length(e)
     if (is.null(p) == TRUE) {
         p <- seq(0 + 1/(K + 1), 1 - 1/(K + 1), length = K)

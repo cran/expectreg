@@ -65,8 +65,8 @@ Ludwig Maximilian University Munich \cr
 \url{http://www.lmu.de} \cr
 
 Fabian Sobotka \cr
-University Oldenburg \cr
-\url{http://www.uni-oldenburg.de} \cr
+Georg August University Goettingen \cr
+\url{http://www.uni-goettingen.de} \cr
 
 Sabine Schnabel \cr
 Wageningen University and Research Centre \cr
@@ -83,8 +83,7 @@ Erasmus Medical Center Rotterdam \cr
 \code{\link{expectreg.ls}}, \code{\link{expectreg.qp}}
 }
 \examples{
-data(dutchboys)
-d <- expectreg.ls(dutchboys[,3] ~ rb(dutchboys[,2]),estimate="restricted")
+d = expectreg.ls(dist ~ rb(speed),data=cars,smooth="f",lambda=5,estimate="restricted")
 e = cdf.qp(d,15,extrap=TRUE)
 e 
 }

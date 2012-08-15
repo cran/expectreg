@@ -19,7 +19,8 @@ function (y, B, p, lambda, DD, nb, constmat)
             a1 <- model$coefficients
             z1 <- B %*% a1
             w01 <- w1
-            w1 <- as.vector(ifelse(y > z1, p, 1 - p))
+            w1[] = p
+            w1[!(y > z1)] = 1 - p
             dw1 <- sum(w1 != w01, na.rm = TRUE)
             it = it + 1
         }

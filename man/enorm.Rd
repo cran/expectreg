@@ -100,8 +100,8 @@ Econometrica, 55:819-847
 }
 \author{
 Fabian Sobotka, Thomas Kneib \cr
-University Oldenburg \cr
-\url{http://www.uni-oldenburg.de} \cr
+Georg August University Goettingen \cr
+\url{http://www.uni-goettingen.de} \cr
 }
 
 

@@ -102,6 +102,6 @@ function (B, P, ps, yy, w, lambdax, lambdap, center)
             Z[[i]] = Bg %*% ag
             dim(Z[[i]]) = c(my, np)
         }
-    return(list(coef = t(pcoef), fit = pfit, hatma = model$qr, 
+    return(list(coef = t(pcoef), fit = pfit, hatma = hat(model$qr), 
         curves = Z, intercept = intercept))
 }

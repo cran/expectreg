@@ -17,14 +17,17 @@ function (B, DD, yy, pp, lambda, smooth, nb, center, constmat)
             aa <- asyregpen.lsfit(yy, B, 0.5, lala[, 1], DD, 
                 nb, constmat)
             mean.coefficients <- aa$a
+            diag.hat = aa$diag.hat.ma
             sig2 <- vector()
             tau2 <- vector()
             l0 <- lala[, 1]
             for (i in 1:nterms) {
                 partbasis = (sum(nb[0:(i - 1)]) + 1):(sum(nb[0:i]))
                 if (center) {
-                  partB = B[, -1][, partbasis, drop = FALSE]
-                  partDD = DD[, -1][-1, ][, partbasis, drop = FALSE]
+                  partB = B[, -1, drop = FALSE][, partbasis, 
+                    drop = FALSE]
+                  partDD = DD[, -1, drop = FALSE][-1, , drop = FALSE][, 
+                    partbasis, drop = FALSE]
                   partaa = aa$a[-1][partbasis]
                 }
                 else {
@@ -40,11 +43,12 @@ function (B, DD, yy, pp, lambda, smooth, nb, center, constmat)
                   t(x) %*% H %*% x
                 })
                 sig2[i] <- sum(w[, i] * (yy - z)^2, na.rm = TRUE)/(m - 
-                  sum(aa$diag.hat.ma))
-                tau2[i] <- sum(v^2)/sum(H) + 1e-06
-                lala[i, 1] <- max(sig2[i]/tau2[i], 1e-10)
+                  sum(aa$diag.hat.ma, na.rm = TRUE))
+                tau2[i] <- sum(v^2, na.rm = TRUE)/sum(H) + 1e-06
+                lala[i, 1] <- max(sig2[i]/tau2[i], 1e-10, na.rm = TRUE)
             }
-            dc <- max(abs(log10(l0) - log10(lala[, 1])))
+            dc <- max(abs(log10(l0 + 1e-06)) - log10(lala[, 1] + 
+                1e-06))
             it = it + 1
         }
         if (it == 100) 
@@ -58,11 +62,13 @@ function (B, DD, yy, pp, lambda, smooth, nb, center, constmat)
             DD, nb, constmat)
         mean.coefficients <- aa$a
         lala[, 1] <- abs(acv.min$estimate)
+        diag.hat = aa$diag.hat.ma
     }
     else {
         aa <- asyregpen.lsfit(yy, B, 0.5, lala[, 1], DD, nb, 
             constmat)
         mean.coefficients <- aa$a
+        diag.hat = aa$diag.hat.ma
     }
     residuals = yy - B %*% mean.coefficients
     constmat[, ] = 0
@@ -77,6 +83,7 @@ function (B, DD, yy, pp, lambda, smooth, nb, center, constmat)
         vector.a.ma.schall[, q] = mean.coefficients + ca$a * 
             gg$a
     }
-    return(list(vector.a.ma.schall, lala, mean.coefficients, 
+    diag.hat = matrix(diag.hat, nrow = length(diag.hat), ncol = np)
+    return(list(vector.a.ma.schall, lala, diag.hat, mean.coefficients, 
         gg$a, cc))
 }

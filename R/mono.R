@@ -7,11 +7,13 @@ function (x, constraint = c("increase", "decrease", "convex",
     B.deg = 2
     B.size = 20
     diff.size = 2
-    x0 <- min(x) - 0.001
-    x1 <- max(x) + 0.001
+    x0 <- min(x, na.rm = TRUE) - 0.001
+    x1 <- max(x, na.rm = TRUE) + 0.001
     dx = (x1 - x0)/(B.size - 1)
-    B = splineDesign(knots = seq(x0 - dx * B.deg, x1 + dx * B.deg, 
-        by = dx), x = x, ord = B.deg + 1)
+    B = matrix(0, nrow = length(x), ncol = B.size + 1)
+    notnas = which(!is.na(x))
+    B[notnas, ] = splineDesign(knots = seq(x0 - dx * B.deg, x1 + 
+        dx * B.deg, by = dx), x = x[notnas], ord = B.deg + 1)
     P <- diag(dim(B)[2])
     P <- diff(P, diff = diff.size)
     if (constraint == "increase") {

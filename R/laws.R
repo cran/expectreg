@@ -19,13 +19,16 @@ function (B, DD, yy, pp, lambda, smooth, nb, center, constmat)
                 aa <- asyregpen.lsfit(yy, B, pp, lala, DD, nb, 
                   constmat)
                 vector.a.ma.schall <- aa$a
+                diag.hat = aa$diag.hat.ma
                 w0 <- w
                 l0 <- lala
                 for (i in 1:nterms) {
                   partbasis = (sum(nb[0:(i - 1)]) + 1):(sum(nb[0:i]))
                   if (center) {
-                    partB = B[, -1][, partbasis, drop = FALSE]
-                    partDD = DD[, -1][-1, ][, partbasis, drop = FALSE]
+                    partB = B[, -1, drop = FALSE][, partbasis, 
+                      drop = FALSE]
+                    partDD = DD[, -1, drop = FALSE][-1, , drop = FALSE][, 
+                      partbasis, drop = FALSE]
                     partaa = aa$a[-1][partbasis]
                   }
                   else {
@@ -43,12 +46,14 @@ function (B, DD, yy, pp, lambda, smooth, nb, center, constmat)
                       t(x) %*% H %*% x
                     })
                     sig2 <- sum(w * (yy - z)^2, na.rm = TRUE)/(m - 
-                      sum(aa$diag.hat.ma))
-                    tau2 <- sum(v^2)/sum(diag(H)) + 1e-06
-                    lala[i] = max(sig2/tau2, 1e-10)
+                      sum(aa$diag.hat.ma, na.rm = TRUE))
+                    tau2 <- sum(v^2, na.rm = TRUE)/sum(H, na.rm = TRUE) + 
+                      1e-06
+                    lala[i] = max(sig2/tau2, 1e-10, na.rm = TRUE)
                   }
                 }
-                dc <- max(abs(log10(l0) - log10(lala)))
+                dc <- max(abs(log10(l0 + 1e-06) - log10(lala + 
+                  1e-06)))
                 dw <- sum(w != w0, na.rm = TRUE)
                 it = it + 1
             }
@@ -62,26 +67,30 @@ function (B, DD, yy, pp, lambda, smooth, nb, center, constmat)
                 DD, nb, constmat)
             vector.a.ma.schall <- aa$a
             lala <- abs(acv.min$estimate)
+            diag.hat = aa$diag.hat.ma
         }
         else {
             aa <- asyregpen.lsfit(yy, B, pp, lala, DD, nb, constmat)
             vector.a.ma.schall <- aa$a
+            diag.hat = aa$diag.hat.ma
         }
-        list(vector.a.ma.schall, lala)
+        list(vector.a.ma.schall, lala, diag.hat)
     }
     if (.Platform$OS.type == "unix") 
         coef.vector = mclapply(pp, function(pp) dummy.reg(pp, 
-            lala, smooth, yy, B, DD, nb, nterms, center), mc.cores = min(getOption("cores"), 
-            4))
+            lala, smooth, yy, B, DD, nb, nterms, center), mc.cores = max(1, 
+            min(detectCores() - 1, 4)))
     else if (.Platform$OS.type == "windows") 
         coef.vector = mclapply(pp, function(pp) dummy.reg(pp, 
             lala, smooth, yy, B, DD, nb, nterms, center), mc.cores = 1)
     lala <- matrix(lambda, nrow = nterms, ncol = np)
     vector.a.ma.schall <- matrix(NA, nrow = sum(nb) + (1 * center), 
         ncol = np)
+    diag.hat = matrix(NA, nrow = m, ncol = np)
     for (i in 1:np) {
         vector.a.ma.schall[, i] = coef.vector[[i]][[1]]
         lala[, i] = coef.vector[[i]][[2]]
+        diag.hat[, i] = coef.vector[[i]][[3]]
     }
-    return(list(vector.a.ma.schall, lala))
+    return(list(vector.a.ma.schall, lala, diag.hat))
 }

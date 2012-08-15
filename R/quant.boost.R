@@ -1,6 +1,6 @@
 quant.boost <-
 function (formula, data = NULL, mstop = NA, expectiles = NA, 
-     cv = TRUE) 
+    cv = TRUE) 
 {
     require(mboost)
     if (any(is.na(expectiles)) || !is.vector(expectiles) || any(expectiles > 
@@ -192,7 +192,7 @@ function (formula, data = NULL, mstop = NA, expectiles = NA,
     if (.Platform$OS.type == "unix") 
         coef.vector = mclapply(1:np, function(i) dummy.reg(i, 
             formula, data, mstop, pp, cv10f, types, x, blsstr, 
-            bnd), mc.cores = min(getOption("cores"), 4))
+            bnd), mc.cores = max(1, min(detectCores() - 1, 4)))
     else if (.Platform$OS.type == "windows") 
         coef.vector = mclapply(1:np, function(i) dummy.reg(i, 
             formula, data, mstop, pp, cv10f, types, x, blsstr, 

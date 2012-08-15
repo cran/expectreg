@@ -30,6 +30,7 @@ function (B, DD, yy, pp, lambda, smooth, nb, center)
     }
     curves = p2f.new$curves
     coefficients <- p2f.new$coef
-    result = list(coefficients, lala)
+    diag.hat = matrix(p2f.new$hatma, ncol = np)
+    result = list(coefficients, lala, diag.hat)
     result
 }

@@ -15,8 +15,8 @@ Expectile and quantile regression of models with nonlinear effects
 \tabular{ll}{
 Package: \tab expectreg\cr
 Type: \tab Package\cr
-Version: \tab 0.30\cr
-Date: \tab 2012-02-13\cr
+Version: \tab 0.35\cr
+Date: \tab 2012-08-15\cr
 License: \tab GPL-2\cr
 LazyLoad: \tab yes\cr
 LazyData: \tab yes\cr
@@ -29,8 +29,8 @@ LazyData: \tab yes\cr
 }
 \author{
 Fabian Sobotka \cr
-University Oldenburg \cr
-\url{http://www.uni-oldenburg.de} \cr
+Georg August University Goettingen \cr
+\url{http://www.uni-goettingen.de} \cr
 
 Sabine Schnabel \cr
 Wageningen University and Research Centre \cr
@@ -47,14 +47,14 @@ Erasmus Medical Center Rotterdam \cr
 \url{http://www.erasmusmc.nl}
 
 Thomas Kneib \cr
-University Goettingen \cr
+Georg August University Goettingen \cr
 \url{http://www.uni-goettingen.de} \cr
 
 Goeran Kauermann \cr
 Ludwig Maximilian University Munich \cr
 \url{http://www.lmu.de} \cr
 
-Maintainer: Fabian Sobotka <fabian.sobotka@uni-oldenburg.de>
+Maintainer: Fabian Sobotka <fabian.sobotka@wiwi.uni-goettingen.de>
 
 }
 \references{

@@ -1,7 +1,7 @@
 expectreg.ls <-
 function (formula, data = NULL, estimate = c("laws", "restricted", 
     "bundle", "sheets"), smooth = c("schall", "acv", "fixed"), 
-    lambda = 1, expectiles = NA) 
+    lambda = 1, expectiles = NA, ci = FALSE) 
 {
     smooth = match.arg(smooth)
     estimate = match.arg(estimate)
@@ -67,7 +67,7 @@ function (formula, data = NULL, estimate = c("laws", "restricted",
     DD = as.matrix(design[[1]][[2]])
     Plist[[1]] = DD
     x[[1]] = design[[1]][[3]]
-    names(x)[1] = design[[1]]$xname
+    names(x)[1] = design[[1]]$xname[1]
     types[[1]] = design[[1]][[4]]
     bnd[[1]] = design[[1]][[5]]
     Zspathelp[[1]] = design[[1]][[6]]
@@ -79,7 +79,7 @@ function (formula, data = NULL, estimate = c("laws", "restricted",
         for (i in 2:length(labels(terms(formula)))) {
             varying[[i]] = design[[i]][[9]]
             if (any(!is.na(varying[[i]]))) {
-                B = design[[i]][[1]] * varying[[i]]
+                B = cbind(B, design[[i]][[1]] * varying[[i]])
                 Blist[[i]] = design[[i]][[1]] * varying[[i]]
             }
             else {
@@ -96,7 +96,7 @@ function (formula, data = NULL, estimate = c("laws", "restricted",
                 nrow = nrow(design[[i]]$constraint), ncol = ncol(constmat)), 
                 design[[i]]$constraint))
             x[[i]] = design[[i]][[3]]
-            names(x)[i] = design[[i]]$xname
+            names(x)[i] = design[[i]]$xname[1]
             types[[i]] = design[[i]][[4]]
             bnd[[i]] = design[[i]][[5]]
             Zspathelp[[i]] = design[[i]][[6]]
@@ -115,22 +115,48 @@ function (formula, data = NULL, estimate = c("laws", "restricted",
     else if (estimate == "restricted") {
         coef.vector = restricted(B, DD, yy, pp, lambda, smooth, 
             nb, center, constmat)
-        trend.coef = coef.vector[[3]]
-        residual.coef = coef.vector[[4]]
-        asymmetry = coef.vector[[5]]
+        trend.coef = coef.vector[[4]]
+        residual.coef = coef.vector[[5]]
+        asymmetry = coef.vector[[6]]
     }
     else if (estimate == "bundle") {
         coef.vector = bundle(B, DD, yy, pp, lambda, smooth, nb, 
             center, constmat)
-        trend.coef = coef.vector[[3]]
-        residual.coef = coef.vector[[4]]
-        asymmetry = coef.vector[[5]]
+        trend.coef = coef.vector[[4]]
+        residual.coef = coef.vector[[5]]
+        asymmetry = coef.vector[[6]]
     }
     else if (estimate == "sheets") 
         coef.vector = sheets(Blist, Plist, yy, pp, lambda, smooth, 
             nb, center)
     vector.a.ma.schall = coef.vector[[1]]
     lala = coef.vector[[2]]
+    diag.hat = coef.vector[[3]]
+    covariance = NULL
+    if (ci) {
+        W = list()
+        covariance = list()
+        for (i in 1:np) {
+            W = as.vector(ifelse(yy > B %*% vector.a.ma.schall[, 
+                i], pp[i], 1 - pp[i]))
+            square.dev = (yy - B %*% vector.a.ma.schall[, i])^2
+            correct = 1/(1 - diag.hat[, i])
+            if (any(is.na(W))) {
+                correct[!is.na(W)] = correct[1:(length(correct) - 
+                  length(which(is.na(W))))]
+                correct[is.na(W)] = 1
+                W[which(is.na(W))] = 1
+                square.dev[which(is.na(square.dev))] = 0
+            }
+            lahmda = rep(lala[, i], times = nb)
+            if (center) 
+                lahmda = c(0, lahmda)
+            K = lahmda * t(DD) %*% DD
+            helpmat = solve(t(W * B) %*% B + K)
+            covariance[[i]] = helpmat %*% (t(B * (W^2 * (correct^2 * 
+                square.dev)[, 1])) %*% B) %*% helpmat
+        }
+    }
     Z <- list()
     coefficients <- list()
     final.lambdas <- list()
@@ -245,8 +271,8 @@ function (formula, data = NULL, estimate = c("laws", "restricted",
                   i, drop = FALSE]
             }
         }
-        names(Z)[k] = design[[k]]$xname
-        names(coefficients)[k] = design[[k]]$xname
+        names(Z)[k] = design[[k]]$xname[1]
+        names(coefficients)[k] = design[[k]]$xname[1]
     }
     desmat = B
     if (center) 
@@ -254,7 +280,8 @@ function (formula, data = NULL, estimate = c("laws", "restricted",
     result = list(lambda = final.lambdas, intercepts = intercept, 
         coefficients = coefficients, values = Z, response = yy, 
         covariates = x, formula = formula, asymmetries = pp, 
-        effects = types, helper = helper, design = desmat, fitted = fitted)
+        effects = types, helper = helper, design = desmat, fitted = fitted, 
+        covmat = covariance)
     if (estimate == "restricted" || estimate == "bundle") {
         result$trend.coef = trend.coef
         result$residual.coef = residual.coef

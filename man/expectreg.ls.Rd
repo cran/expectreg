@@ -12,7 +12,7 @@ or quadratic programming to obtain expectiles
 for parametric, continuous, spatial and random effects.
 }
 \usage{
-expectreg.ls(formula, data = NULL, estimate=c("laws","restricted","bundle","sheets"), smooth = c("schall", "acv", "fixed"), lambda = 1, expectiles = NA)
+expectreg.ls(formula, data = NULL, estimate=c("laws","restricted","bundle","sheets"), smooth = c("schall", "acv", "fixed"), lambda = 1, expectiles = NA, ci = FALSE)
 
 expectreg.qp(formula, data  = NULL, smooth = c("schall", "acv", "fixed"), lambda = 1, expectiles = NA) 
 }
@@ -44,6 +44,9 @@ the smoothing algorithms.
 In default setting, the expectiles (0.01,0.02,0.05,0.1,0.2,0.5,0.8,0.9,0.95,0.98,0.99) are calculated.
 You may specify your own set of expectiles in a vector. The option may be set to 'density' for the calculation
 of a dense set of expectiles that enhances the use of \code{\link{cdf.qp}} and \code{\link{cdf.bundle}} afterwards.
+}
+  \item{ci}{
+Whether a covariance matrix for confidence intervals and a \code{\link[=summary.expectreg]{summary}} is calculated.
 }
 }
 \details{
@@ -114,8 +117,8 @@ Schnabel S and Eilers P (2011)
 }
 \author{
 Fabian Sobotka, Thomas Kneib \cr
-University Oldenburg \cr
-\url{http://www.uni-oldenburg.de} \cr
+Georg August University Goettingen \cr
+\url{http://www.uni-goettingen.de} \cr
 
 Sabine Schnabel \cr
 Wageningen University and Research Centre \cr
@@ -126,8 +129,8 @@ Erasmus Medical Center Rotterdam \cr
 \url{http://www.erasmusmc.nl}
 
 Linda Schulze Waltrup, Goeran Kauermann \cr
-University Bielefeld \cr
-\url{http://www.uni-bielefeld.de} \cr
+Ludwig Maximilians University Muenchen \cr
+\url{http://www.uni-muenchen.de} \cr
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~

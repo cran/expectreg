@@ -11,6 +11,8 @@
 \alias{fitted.values.expectreg}
 \alias{effects.expectreg}
 \alias{[.expectreg}
+\alias{summary.expectreg}
+\alias{confint.expectreg}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Methods for expectile regression objects
@@ -19,9 +21,11 @@ Methods for expectile regression objects
 Methods for objects returned by expectile regression functions.
 }
 \usage{
-\method{plot}{expectreg}(x,xlab = NULL, ylab = NULL, ylim = NULL, legend = TRUE, ...)
+\method{plot}{expectreg}(x,rug = TRUE, xlab = NULL, ylab = NULL, ylim = NULL, legend = TRUE, ...)
 
 \method{print}{expectreg}(x, ...)
+
+\method{summary}{expectreg}(object,...)
 
 \method{predict}{expectreg}(object, newdata = NULL, ...)
 
@@ -37,15 +41,15 @@ Methods for objects returned by expectile regression functions.
 
 \method{coef}{expectreg}(object, ...)
 \method{coefficients}{expectreg}(object, ...)
+
+\method{confint}{expectreg}(object, parm = NULL, level = 0.95, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{x}{
+  \item{x,object}{
 An object of class \code{expectreg} as returned e.g. by the function \code{\link{expectreg.ls}}.
 }
-  \item{object}{
-An object of class \code{expectreg} as returned e.g. by the function \code{\link{expectreg.ls}}.
-}
+  \item{rug}{ Boolean. Whether nonlinear effects are displayed in a rug plot. }
   \item{xlab,ylab,ylim}{ Graphic parameters. \code{xlab} should match the number of covariates. }
   \item{legend}{ Boolean. Decides whether a legend is added to the plots. }
   \item{newdata}{ 
@@ -53,6 +57,12 @@ Optionally, a data frame in which to look for variables with which to predict.
 }
  \item{i}{
 Covariate numbers to be kept in subset.
+}
+  \item{level}{
+Coverage probability of the generated confidence intervals.
+}
+  \item{parm}{
+Optionally the confidence intervals may be restricted to certain covariates, to be named in a vector. Otherwise the confidence intervals for the fit are returned.  
 }
   \item{\dots}{ additional arguments passed over. }
 }
@@ -86,8 +96,8 @@ doi: 10.1016/j.csda.2010.11.015.
 }
 \author{
 Fabian Sobotka \cr
-University Oldenburg \cr
-\url{http://www.uni-oldenburg.de} \cr
+Georg August University Goettingen \cr
+\url{http://www.uni-goettingen.de} \cr
 
 }
 

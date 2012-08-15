@@ -10,17 +10,16 @@ function (object, newdata = NULL, ...)
     P = object$P
     if (is.null(newdata)) 
         newdata = x
-    else if (length(which(names(newdata) == object$xname)) > 
-        0) 
-        newdata = newdata[, which(names(newdata) == object$xname)]
+    else if (all(object$xname %in% names(newdata))) 
+        newdata = newdata[, names(newdata) %in% object$xname]
     else if (!is.vector(newdata)) 
         stop("Names of newdata not consistent with original.")
     if (type == "pspline") {
         B.deg = 2
         B.size = 20
         diff.size = 2
-        x0 <- min(x) - 0.001
-        x1 <- max(x) + 0.001
+        x0 <- min(x, na.rm = TRUE) - 0.001
+        x1 <- max(x, na.rm = TRUE) + 0.001
         dx = (x1 - x0)/(B.size - 1)
         B = splineDesign(knots = seq(x0 - dx * B.deg, x1 + dx * 
             B.deg, by = dx), x = newdata, ord = B.deg + 1, outer.ok = TRUE)
@@ -41,14 +40,14 @@ function (object, newdata = NULL, ...)
         B.deg = 2
         B.size = 20
         diff.size = 2
-        x0 <- min(x[, 1]) - 0.001
-        x1 <- max(x[, 1]) + 0.001
+        x0 <- min(x[, 1], na.rm = TRUE) - 0.001
+        x1 <- max(x[, 1], na.rm = TRUE) + 0.001
         dx = (x1 - x0)/(B.size - B.deg)
         Bx = splineDesign(knots = seq(x0 - dx * B.deg, x1 + dx * 
             B.deg, by = dx), x = newdata[, 1], ord = B.deg + 
             1, outer.ok = TRUE)
-        y0 <- min(x[, 2]) - 0.001
-        y1 <- max(x[, 2]) + 0.001
+        y0 <- min(x[, 2], na.rm = TRUE) - 0.001
+        y1 <- max(x[, 2], na.rm = TRUE) + 0.001
         dy = (y1 - y0)/(B.size - B.deg)
         By = splineDesign(knots = seq(y0 - dy * B.deg, y1 + dy * 
             B.deg, by = dy), x = newdata[, 2], ord = B.deg + 
@@ -141,19 +140,9 @@ function (object, newdata = NULL, ...)
         P = as.matrix(P)
     }
     else if (type == "parametric") {
-        if (is.vector(x)) {
-            x = matrix(x, ncol = 1)
-            B = matrix(newdata, ncol = 1)
-        }
-        else if (is.matrix(x)) {
-            B = newdata
-        }
-        else if (is.data.frame(x)) {
-            B = as.matrix(newdata)
-        }
-        if (center) 
-            for (i in 1:ncol(B)) B[, i] = B[, i] - sum(x[, i])/length(x[, 
-                i])
+        x = data.frame(1, x)
+        newdata = data.frame(1, newdata)
+        B = model.matrix(formula(x), newdata)[, -1, drop = FALSE]
         P = matrix(0, nrow = ncol(B), ncol = ncol(B))
     }
     if (any(!is.na(object$by))) 

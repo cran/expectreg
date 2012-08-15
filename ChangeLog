@@ -1,3 +1,19 @@
+2012-08-15 version 0.35
+
+new features:
+- introducing asymptotic results for weighted least squares estimation
+- methods summary and confint added
+
+changes:
+- expectreg.qp now works with semiparametric additive models
+- nonlinear effects can be plotted with a rug plot
+- plot function now adapts to setting of mfrow and pdf creation
+- parametric bases now accept more flexible categorical variables by implementing model.matrix
+
+bugfixes:
+- additive bases now work with varying coefficients
+- p-spline bases and schall algorithm now work better with NA in data
+
 2012-02-13 version 0.30
 
 changes:

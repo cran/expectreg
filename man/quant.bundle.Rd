@@ -11,7 +11,7 @@ to obtain the graphs of different expectiles or quantiles
 for continuous, spatial or random effects.
 }
 \usage{
-quant.bundle(formula, data = NULL, smooth = c("schall", "acv", "fixed"), lambda = 0.1, quantiles = NA, simple = TRUE)
+quant.bundle(formula, data = NULL, smooth = c("schall", "acv", "fixed"), lambda = 1, quantiles = NA, simple = TRUE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -111,8 +111,8 @@ doi: 10.1016/j.csda.2010.11.015.
 }
 \author{
 Fabian Sobotka, Thomas Kneib \cr
-University Oldenburg \cr
-\url{http://www.uni-oldenburg.de} \cr
+Georg August University Goettingen \cr
+\url{http://www.uni-goettingen.de} \cr
 
 Sabine Schnabel \cr
 Wageningen University and Research Centre \cr
@@ -132,7 +132,7 @@ Erasmus Medical Center Rotterdam \cr
 qb = quant.bundle(dist ~ rb(speed),data=cars,smooth="f",lambda=5)
 plot(qb)
 
-qbund <- quant.bundle(dist ~ rb(speed),data=cars,smooth="f",lambda=5,simple=FALSE)
+qbund <- quant.bundle(dist ~ rb(speed),data=cars,smooth="f",lambda=50000,simple=FALSE)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

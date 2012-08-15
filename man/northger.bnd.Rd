@@ -23,8 +23,8 @@ For details about the format see \code{\link[BayesX]{read.bnd}}.
 }
 \source{
 Thomas Kneib \cr
-University Oldenburg \cr
-\url{http://www.uni-oldenburg.de} \cr
+Georg August University Goettingen \cr
+\url{http://www.uni-goettingen.de} \cr
 }
 
 \examples{

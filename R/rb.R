@@ -11,11 +11,14 @@ function (x, type = c("pspline", "2dspline", "markov", "radial",
         B.deg = 2
         B.size = 20
         diff.size = 2
-        x0 <- min(x) - 0.001
-        x1 <- max(x) + 0.001
+        x0 <- min(x, na.rm = TRUE) - 0.001
+        x1 <- max(x, na.rm = TRUE) + 0.001
         dx = (x1 - x0)/(B.size - 1)
-        B = splineDesign(knots = seq(x0 - dx * B.deg, x1 + dx * 
-            B.deg, by = dx), x = x, ord = B.deg + 1)
+        B = matrix(0, nrow = length(x), ncol = B.size + 1)
+        notnas = which(!is.na(x))
+        B[notnas, ] = splineDesign(knots = seq(x0 - dx * B.deg, 
+            x1 + dx * B.deg, by = dx), x = x[notnas], ord = B.deg + 
+            1)
         P <- diag(dim(B)[2])
         P <- diff(P, diff = diff.size)
         if (center) {
@@ -33,16 +36,22 @@ function (x, type = c("pspline", "2dspline", "markov", "radial",
         B.deg = 2
         B.size = 20
         diff.size = 2
-        x0 <- min(x[, 1]) - 0.001
-        x1 <- max(x[, 1]) + 0.001
+        x0 <- min(x[, 1], na.rm = TRUE) - 0.001
+        x1 <- max(x[, 1], na.rm = TRUE) + 0.001
         dx = (x1 - x0)/(B.size - B.deg)
-        Bx = splineDesign(knots = seq(x0 - dx * B.deg, x1 + dx * 
-            B.deg, by = dx), x = x[, 1], ord = B.deg + 1)
-        y0 <- min(x[, 2]) - 0.001
-        y1 <- max(x[, 2]) + 0.001
+        Bx = matrix(0, nrow = nrow(x), ncol = B.size)
+        notnas = which(!is.na(x[, 1]))
+        Bx[notnas, ] = splineDesign(knots = seq(x0 - dx * B.deg, 
+            x1 + dx * B.deg, by = dx), x = x[notnas, 1], ord = B.deg + 
+            1)
+        y0 <- min(x[, 2], na.rm = TRUE) - 0.001
+        y1 <- max(x[, 2], na.rm = TRUE) + 0.001
         dy = (y1 - y0)/(B.size - B.deg)
-        By = splineDesign(knots = seq(y0 - dy * B.deg, y1 + dy * 
-            B.deg, by = dy), x = x[, 2], ord = B.deg + 1)
+        By = matrix(0, nrow = nrow(x), ncol = B.size)
+        notnas = which(!is.na(x[, 2]))
+        By[notnas, ] = splineDesign(knots = seq(y0 - dy * B.deg, 
+            y1 + dy * B.deg, by = dy), x = x[notnas, 2], ord = B.deg + 
+            1)
         B = matrix(NA, nrow = dim(x)[1], ncol = dim(Bx)[2] * 
             dim(By)[2])
         for (i in 1:dim(Bx)[1]) B[i, ] = as.vector(Bx[i, ] %o% 
@@ -150,19 +159,10 @@ function (x, type = c("pspline", "2dspline", "markov", "radial",
         P = as.matrix(P)
     }
     else if (type == "parametric") {
-        if (is.vector(x)) {
-            B = matrix(x, ncol = 1)
-        }
-        else if (is.matrix(x)) {
-            B = x
-        }
-        else if (is.data.frame(x)) {
-            B = as.matrix(x)
-        }
-        if (center) 
-            B = apply(B, 2, function(x) {
-                x - sum(x)/length(x)
-            })
+        x = data.frame(1, x)
+        B = model.matrix(formula(x), x)[, -1, drop = FALSE]
+        x = x[, -1, drop = FALSE]
+        xname = names(x)
         P = matrix(0, nrow = ncol(B), ncol = ncol(B))
     }
     constraint = matrix(0, nrow = 2, ncol = ncol(P))
