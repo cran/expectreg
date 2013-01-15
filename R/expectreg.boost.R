@@ -82,6 +82,7 @@ function (formula, data = NULL, mstop = NA, expectiles = NA,
             z[[k]] = matrix(NA, nrow = length(attr(bnd[[k]], 
                 "regions")), ncol = np)
             types[[k]] = "markov"
+            helper[[k]] = list(bnd[[k]], NULL)
         }
         else if (types[[k]] == "brandom") {
             z[[k]] = matrix(NA, nrow = length(unique(x[[k]])), 
@@ -216,7 +217,7 @@ function (formula, data = NULL, mstop = NA, expectiles = NA,
     result = list(values = values, response = yy, covariates = x, 
         formula = formula, asymmetries = pp, effects = types, 
         helper = helper, fitted = fitted, coefficients = coef, 
-        mboost = boost.object)
+        intercepts = rep(0, np), mboost = boost.object)
     result$predict <- function(newdata = NULL) {
         values = list()
         fitted = matrix(NA, nrow = nrow(newdata), ncol = np)

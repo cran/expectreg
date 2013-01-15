@@ -162,7 +162,6 @@ function (x, type = c("pspline", "2dspline", "markov", "radial",
         x = data.frame(1, x)
         B = model.matrix(formula(x), x)[, -1, drop = FALSE]
         x = x[, -1, drop = FALSE]
-        xname = names(x)
         P = matrix(0, nrow = ncol(B), ncol = ncol(B))
     }
     constraint = matrix(0, nrow = 2, ncol = ncol(P))

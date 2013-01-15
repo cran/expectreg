@@ -54,6 +54,7 @@ function (formula, data = NULL, smooth = c("schall", "acv", "fixed"),
                 envir = data, enclos = environment(formula)), 
                 nrow = m), "parametric")
             types[[i]] = "parametric"
+            design[[i]]$xname = labels(terms(formula))[i]
         }
         else design[[i]] = eval(parse(text = labels(terms(formula))[i]), 
             envir = data, enclos = environment(formula))

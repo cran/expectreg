@@ -136,13 +136,13 @@ function (object, newdata = NULL, ...)
             l = length(newdata)
         else if (is.matrix(newdata) || is.data.frame(newdata)) 
             l = nrow(newdata)
-        B = as.matrix(object$B)[1:l, ]
+        B = as.matrix(object$B)[1:l, , drop = FALSE]
         P = as.matrix(P)
     }
     else if (type == "parametric") {
         x = data.frame(1, x)
         newdata = data.frame(1, newdata)
-        B = model.matrix(formula(x), newdata)[, -1, drop = FALSE]
+        B = model.matrix(formula(newdata), newdata)[, -1, drop = FALSE]
         P = matrix(0, nrow = ncol(B), ncol = ncol(B))
     }
     if (any(!is.na(object$by))) 

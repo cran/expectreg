@@ -1,8 +1,8 @@
 Package: expectreg
 Type: Package
 Title: Expectile and Quantile Regression
-Version: 0.35
-Date: 2012-08-15
+Version: 0.36
+Date: 2013-01-15
 Authors@R: c(person("Fabian", "Sobotka", role = "cre", email =
         "fabian.sobotka@wiwi.uni-goettingen.de"), person("Sabine",
         "Schnabel", role = "aut", email = "sabine.schnabel@wur.nl"),
@@ -30,6 +30,6 @@ Description: Expectile and quantile regression of models with nonlinear
 License: GPL-2
 LazyLoad: yes
 LazyData: yes
-Packaged: 2012-08-14 16:16:26 UTC; fabiansobotka
+Packaged: 2013-01-15 16:30:16 UTC; fabiansobotka
 Repository: CRAN
-Date/Publication: 2012-08-14 18:04:37
+Date/Publication: 2013-01-15 18:00:19

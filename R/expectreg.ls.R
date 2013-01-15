@@ -50,6 +50,7 @@ function (formula, data = NULL, estimate = c("laws", "restricted",
                 envir = data, enclos = environment(formula)), 
                 nrow = m), "parametric")
             types[[i]] = "parametric"
+            design[[i]]$xname = labels(terms(formula))[i]
         }
         else design[[i]] = eval(parse(text = labels(terms(formula))[i]), 
             envir = data, enclos = environment(formula))
@@ -280,8 +281,8 @@ function (formula, data = NULL, estimate = c("laws", "restricted",
     result = list(lambda = final.lambdas, intercepts = intercept, 
         coefficients = coefficients, values = Z, response = yy, 
         covariates = x, formula = formula, asymmetries = pp, 
-        effects = types, helper = helper, design = desmat, fitted = fitted, 
-        covmat = covariance)
+        effects = types, helper = helper, design = desmat, bases = design, 
+        fitted = fitted, covmat = covariance)
     if (estimate == "restricted" || estimate == "bundle") {
         result$trend.coef = trend.coef
         result$residual.coef = residual.coef

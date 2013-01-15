@@ -21,7 +21,7 @@ Methods for expectile regression objects
 Methods for objects returned by expectile regression functions.
 }
 \usage{
-\method{plot}{expectreg}(x,rug = TRUE, xlab = NULL, ylab = NULL, ylim = NULL, legend = TRUE, ...)
+\method{plot}{expectreg}(x,rug = TRUE, xlab = NULL, ylab = NULL, ylim = NULL, legend = TRUE, ci = FALSE, ...)
 
 \method{print}{expectreg}(x, ...)
 
@@ -52,6 +52,7 @@ An object of class \code{expectreg} as returned e.g. by the function \code{\link
   \item{rug}{ Boolean. Whether nonlinear effects are displayed in a rug plot. }
   \item{xlab,ylab,ylim}{ Graphic parameters. \code{xlab} should match the number of covariates. }
   \item{legend}{ Boolean. Decides whether a legend is added to the plots. }
+  \item{ci}{ Boolean. Whether confidence intervals and significances should be plotted.}
   \item{newdata}{ 
 Optionally, a data frame in which to look for variables with which to predict.
 }

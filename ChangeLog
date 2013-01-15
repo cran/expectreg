@@ -1,3 +1,11 @@
+2013-01-15 version 0.36
+
+changes:
+- plots for confidence intervals are now added
+
+bugfixes:
+- fixed prediction of parametric effects
+
 2012-08-15 version 0.35
 
 new features:

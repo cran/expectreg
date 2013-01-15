@@ -1,13 +1,15 @@
 plot.expectreg <-
 function (x, rug = TRUE, xlab = NULL, ylab = NULL, ylim = NULL, 
-    legend = TRUE, ...) 
+    legend = TRUE, ci = FALSE, ...) 
 {
-    ask = prod(par("mfcol")) <= sum(unlist(x$effects) != "parametric") && 
+    ask = prod(par("mfcol")) < sum(unlist(x$effects) != "parametric") && 
         dev.interactive()
     if (ask) {
         oask <- devAskNewPage(TRUE)
         on.exit(devAskNewPage(oask))
     }
+    if (inherits(x, "boost") && ci) 
+        warning("no confidence intervals are calculated while boosting.")
     yy = x$response
     cov = x$covariates
     Z = x$values
@@ -21,6 +23,7 @@ function (x, rug = TRUE, xlab = NULL, ylab = NULL, ylim = NULL,
     np <- length(pp)
     if (is.null(ylab)) 
         ylab = attr(yy, "name")
+    ylim2 = ylim
     if (identical(pp, seq(0.01, 0.99, by = 0.01))) {
         pp.plot <- c(1, 2, 5, 10, 20, 50, 80, 90, 95, 98, 99)
         row.grid = 3
@@ -46,26 +49,79 @@ function (x, rug = TRUE, xlab = NULL, ylab = NULL, ylim = NULL,
         xlab = names(cov)
     else if (length(xlab) < length(types)) 
         xlab = rep(xlab[1], length(types))
+    nb = vector()
     for (k in 1:length(types)) {
+        if (!inherits(x, "boost")) {
+            nb[k] = ncol(x$bases[[k]]$B)
+            partbasis = (sum(nb[0:(k - 1)]) + 1):(sum(nb[0:k]))
+        }
         if (types[[k]] == "pspline") {
-            ZZZ = Z[[k]][order(cov[[k]])[seq(1, m, length = min(m, 
-                100))], pp.plot]
-            if (is.null(ylim)) 
-                ylim = range(cbind(yy, Z[[k]]), na.rm = TRUE)
-            if (rug) {
-                matplot(cov[[k]], Z[[k]] - mean(ZZZ), type = "n", 
-                  xlab = xlab[k], ylab = ylab, ...)
-                rug(cov[[k]])
-                matlines(sort(cov[[k]])[seq(1, m, length = min(m, 
-                  100))], ZZZ - mean(ZZZ), col = rainbow(np.plot + 
-                  1)[1:np.plot], lty = 1, lwd = 2)
+            if (inherits(x, "boost")) {
+                ZZZ = Z[[k]][order(cov[[k]])[seq(1, m, length = min(m, 
+                  100))], pp.plot]
             }
             else {
-                plot(cov[[k]], yy, cex = 0.5, pch = 20, col = "grey42", 
-                  xlab = xlab[k], ylab = ylab, ylim = ylim, ...)
-                matlines(sort(cov[[k]])[seq(1, m, length = min(m, 
-                  100))], ZZZ, col = rainbow(np.plot + 1)[1:np.plot], 
+                ndat = data.frame(seq(min(cov[[k]]), max(cov[[k]]), 
+                  length = 100))
+                names(ndat) = xlab[k]
+                Bpred = predict(x$bases[[k]], ndat)
+                ZZZ = Bpred %*% coefficients[[k]]
+            }
+            lower = NA
+            upper = NA
+            if (ci) {
+                lower = matrix(NA, nrow = 100, ncol = np)
+                upper = matrix(NA, nrow = 100, ncol = np)
+                for (i in 1:np) for (nn in 1:nrow(Bpred)) {
+                  deviation = qnorm(0.975) * sqrt(t(c(1, Bpred[nn, 
+                    ])) %*% x$covmat[[i]][c(1, partbasis + 1), 
+                    c(1, partbasis + 1)] %*% c(1, Bpred[nn, ]))
+                  lower[nn, i] = ZZZ[nn, i] - deviation
+                  upper[nn, i] = ZZZ[nn, i] + deviation
+                }
+            }
+            if (rug) {
+                if (is.null(ylim)) 
+                  ylim2 = range(ZZZ, lower, upper, na.rm = TRUE)
+                matplot(cov[[k]], Z[[k]], type = "n", xlab = xlab[k], 
+                  ylab = ylab, ylim = ylim2, ...)
+                rug(cov[[k]])
+                matlines(seq(min(cov[[k]]), max(cov[[k]]), length = 100), 
+                  ZZZ, col = rainbow(np.plot + 1)[1:np.plot], 
                   lty = 1, lwd = 2)
+                if (ci) {
+                  matlines(seq(min(cov[[k]]), max(cov[[k]]), 
+                    length = 100), lower, col = rainbow(np.plot + 
+                    1)[1:np.plot], lty = 2, lwd = 2)
+                  matlines(seq(min(cov[[k]]), max(cov[[k]]), 
+                    length = 100), upper, col = rainbow(np.plot + 
+                    1)[1:np.plot], lty = 2, lwd = 2)
+                }
+            }
+            else {
+                if (is.null(ylim)) 
+                  ylim2 = range(yy, Z[[k]], lower, upper, na.rm = TRUE)
+                for (i in 1:np) {
+                  ZZZ[, i] = ZZZ[, i] + intercept[i]
+                  if (ci) {
+                    lower[, i] = lower[, i] + intercept[i]
+                    upper[, i] = upper[, i] + intercept[i]
+                  }
+                }
+                plot(cov[[k]], yy, cex = 0.5, pch = 20, col = "grey42", 
+                  xlab = xlab[k], ylab = ylab, ylim = ylim2, 
+                  ...)
+                matlines(seq(min(cov[[k]]), max(cov[[k]]), length = 100), 
+                  ZZZ, col = rainbow(np.plot + 1)[1:np.plot], 
+                  lty = 1, lwd = 2)
+                if (ci) {
+                  matlines(seq(min(cov[[k]]), max(cov[[k]]), 
+                    length = 100), lower, col = rainbow(np.plot + 
+                    1)[1:np.plot], lty = 2, lwd = 2)
+                  matlines(seq(min(cov[[k]]), max(cov[[k]]), 
+                    length = 100), upper, col = rainbow(np.plot + 
+                    1)[1:np.plot], lty = 2, lwd = 2)
+                }
             }
             if (legend) 
                 legend(x = "topright", pch = 19, cex = 0.8, col = rev(rainbow(np.plot + 
@@ -76,10 +132,10 @@ function (x, rug = TRUE, xlab = NULL, ylab = NULL, ylim = NULL,
             z = NULL
             Zspathelp = helper[[k]][[2]]
             bnd = helper[[k]][[1]]
-            for (i in 1:np) {
-                z = cbind(z, coefficients[[k]][, i] + intercept[i])
-            }
             if (inherits(x, "boost")) {
+                for (i in 1:np) {
+                  z = cbind(z, coefficients[[k]][, i] + intercept[i])
+                }
                 if (class(bnd) != "bnd") {
                   plot(seq(0, 1.1 * max(cov[[k]]), length = 10), 
                     seq(0, max(z), length = 10), type = "n", 
@@ -92,7 +148,7 @@ function (x, rug = TRUE, xlab = NULL, ylab = NULL, ylim = NULL,
                       bg = "white", bty = "n")
                 }
                 else {
-                  plot.limits = range(z[[k]])
+                  plot.limits = range(Z[[k]])
                   n = as.numeric(attr(bnd, "regions"))
                   for (i in 1:np.plot) {
                     re = data.frame(cbind(cov[[k]], Z[[k]][, 
@@ -104,6 +160,23 @@ function (x, rug = TRUE, xlab = NULL, ylab = NULL, ylim = NULL,
                 }
             }
             else {
+                z = matrix(NA, nrow = nrow(Zspathelp), ncol = np)
+                if (ci) {
+                  for (i in 1:np) {
+                    z[, i] = (Zspathelp %*% (coefficients[[k]][, 
+                      i] - qnorm(0.975) * sqrt(diag(x$covmat[[i]][c(partbasis + 
+                      1), c(partbasis + 1)]))) > 0) * 1 - 1 * 
+                      (Zspathelp %*% (coefficients[[k]][, i] + 
+                        qnorm(0.975) * sqrt(diag(x$covmat[[i]][c(partbasis + 
+                          1), c(partbasis + 1)]))) < 0)
+                  }
+                }
+                else {
+                  coefficients[[k]] = Zspathelp %*% coefficients[[k]]
+                  for (i in 1:np) {
+                    z[, i] = coefficients[[k]][, i] + intercept[i]
+                  }
+                }
                 if (class(bnd) != "bnd") {
                   plot(seq(0, 1.1 * max(cov[[k]]), length = 10), 
                     seq(0, max(z[, pp.plot]), length = 10), type = "n", 
@@ -135,9 +208,9 @@ function (x, rug = TRUE, xlab = NULL, ylab = NULL, ylim = NULL,
                     z = interp(cov[[k]][, 1], cov[[k]][, 2], 
                       Z[[k]][, i], duplicate = "mean")
                     if (is.null(ylim)) 
-                      ylim = range(cbind(yy, z), na.rm = TRUE)
+                      ylim2 = range(cbind(yy, z), na.rm = TRUE)
                     persp(z[[1]], z[[2]], z[[3]], ticktype = "detailed", 
-                      phi = 40, theta = 35, zlim = ylim, col = "lightblue", 
+                      phi = 40, theta = 35, zlim = ylim2, col = "lightblue", 
                       xlab = "X", ylab = "Y", zlab = ylab, main = pp[pp.plot[i]])
                   }
                 }
@@ -149,18 +222,36 @@ function (x, rug = TRUE, xlab = NULL, ylab = NULL, ylim = NULL,
                 x.gitter = cbind(rep(seq(x.min[1], x.max[1], 
                   length = gitter), times = gitter), rep(seq(x.min[2], 
                   x.max[2], length = gitter), each = gitter))
-                B.gitter = rb(x.gitter, "2dspline")[[1]]
+                ndat = data.frame(x.gitter)
+                names(ndat) = xlab[k]
+                B.gitter = predict(x$bases[[k]], ndat)
                 for (i in 1:np) {
                   if (i %in% pp.plot) {
                     z <- B.gitter %*% coefficients[[k]][, i]
-                    z = t(matrix(z, nrow = gitter, ncol = gitter))
-                    if (is.null(ylim)) 
-                      ylim = range(z, na.rm = TRUE)
-                    persp(seq(x.min[1], x.max[1], length = gitter), 
-                      seq(x.min[2], x.max[2], length = gitter), 
-                      z, ticktype = "detailed", phi = 40, theta = 35, 
-                      zlim = ylim, col = "lightblue", xlab = "X", 
-                      ylab = "Y", zlab = ylab, main = pp[pp.plot[i]])
+                    if (ci) {
+                      for (nn in 1:nrow(B.gitter)) {
+                        deviation = qnorm(0.975) * sqrt(t(c(1, 
+                          B.gitter[nn, ])) %*% x$covmat[[i]][c(1, 
+                          partbasis + 1), c(1, partbasis + 1)] %*% 
+                          c(1, B.gitter[nn, ]))
+                        z[nn] = 1 * ((z - deviation) > 0) - 1 * 
+                          ((z + deviation) < 0)
+                      }
+                      z = t(matrix(z, nrow = gitter, ncol = gitter))
+                      image(seq(x.min[1], x.max[1], length = gitter), 
+                        seq(x.min[2], x.max[2], length = gitter), 
+                        z, zlim = range(z), main = pp[pp.plot[i]])
+                    }
+                    else {
+                      z = t(matrix(z, nrow = gitter, ncol = gitter))
+                      if (is.null(ylim)) 
+                        ylim2 = range(z, na.rm = TRUE)
+                      persp(seq(x.min[1], x.max[1], length = gitter), 
+                        seq(x.min[2], x.max[2], length = gitter), 
+                        z, ticktype = "detailed", phi = 40, theta = 35, 
+                        zlim = ylim2, col = "lightblue", xlab = "X", 
+                        ylab = "Y", zlab = ylab, main = pp[pp.plot[i]])
+                    }
                   }
                 }
             }
@@ -172,9 +263,9 @@ function (x, rug = TRUE, xlab = NULL, ylab = NULL, ylim = NULL,
                     z = interp(cov[[k]][, 1], cov[[k]][, 2], 
                       Z[[k]][, i], duplicate = "mean")
                     if (is.null(ylim)) 
-                      ylim = range(cbind(yy, z), na.rm = TRUE)
+                      ylim2 = range(cbind(yy, z), na.rm = TRUE)
                     persp(z[[1]], z[[2]], z[[3]], ticktype = "detailed", 
-                      phi = 40, theta = 35, zlim = ylim, col = "lightblue", 
+                      phi = 40, theta = 35, zlim = ylim2, col = "lightblue", 
                       xlab = "X", ylab = "Y", zlab = ylab, main = pp[pp.plot[i]])
                   }
                 }
@@ -204,11 +295,11 @@ function (x, rug = TRUE, xlab = NULL, ylab = NULL, ylim = NULL,
                       intercept[i]
                     z = t(matrix(z, nrow = gitter, ncol = gitter))
                     if (is.null(ylim)) 
-                      ylim = range(cbind(yy, z), na.rm = TRUE)
+                      ylim2 = range(cbind(yy, z), na.rm = TRUE)
                     persp(seq(x.min[1], x.max[1], length = gitter), 
                       seq(x.min[2], x.max[2], length = gitter), 
                       z, ticktype = "detailed", phi = 40, theta = 35, 
-                      zlim = ylim, col = "lightblue", xlab = "X", 
+                      zlim = ylim2, col = "lightblue", xlab = "X", 
                       ylab = "Y", zlab = ylab, main = pp[pp.plot[i]])
                   }
                 }
@@ -221,9 +312,9 @@ function (x, rug = TRUE, xlab = NULL, ylab = NULL, ylim = NULL,
                     z = interp(cov[[k]][, 1], cov[[k]][, 2], 
                       Z[[k]][, i], duplicate = "mean")
                     if (is.null(ylim)) 
-                      ylim = range(cbind(yy, z), na.rm = TRUE)
+                      ylim2 = range(cbind(yy, z), na.rm = TRUE)
                     persp(z[[1]], z[[2]], z[[3]], ticktype = "detailed", 
-                      phi = 40, theta = 35, zlim = ylim, col = "lightblue", 
+                      phi = 40, theta = 35, zlim = ylim2, col = "lightblue", 
                       xlab = "X", ylab = "Y", zlab = ylab, main = pp[pp.plot[i]])
                   }
                 }
@@ -252,11 +343,11 @@ function (x, rug = TRUE, xlab = NULL, ylab = NULL, ylim = NULL,
                       intercept[i]
                     z = t(matrix(z, nrow = gitter, ncol = gitter))
                     if (is.null(ylim)) 
-                      ylim = range(cbind(yy, z), na.rm = TRUE)
+                      ylim2 = range(cbind(yy, z), na.rm = TRUE)
                     persp(seq(x.min[1], x.max[1], length = gitter), 
                       seq(x.min[2], x.max[2], length = gitter), 
                       z, ticktype = "detailed", phi = 40, theta = 35, 
-                      zlim = ylim, col = "lightblue", xlab = "X", 
+                      zlim = ylim2, col = "lightblue", xlab = "X", 
                       ylab = "Y", zlab = ylab, main = pp[pp.plot[i]])
                   }
                 }
@@ -299,9 +390,9 @@ function (x, rug = TRUE, xlab = NULL, ylab = NULL, ylim = NULL,
         }
         else if (types[[k]] == "special") {
             if (is.null(ylim)) 
-                ylim = range(cbind(yy, Z[[k]]), na.rm = TRUE)
+                ylim2 = range(cbind(yy, Z[[k]]), na.rm = TRUE)
             plot(cov[[k]], yy, cex = 0.5, pch = 20, col = "grey42", 
-                xlab = xlab[k], ylab = ylab, ylim = ylim, ...)
+                xlab = xlab[k], ylab = ylab, ylim = ylim2, ...)
             matlines(sort(cov[[k]]), Z[[k]][order(cov[[k]]), 
                 pp.plot], col = rainbow(np.plot + 1)[1:np.plot], 
                 lty = 1)
