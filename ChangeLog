@@ -1,3 +1,13 @@
+2013-04-10 version 0.37
+
+bugfixes:
+- fixed print method for boosting
+- fixed covariate name usage for parametric effects
+- fixed intercept output of quantile bundle
+
+changes:
+- removed function "interp" from plot in order to remove dependency from akima
+
 2013-01-15 version 0.36
 
 changes:

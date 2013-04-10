@@ -159,7 +159,10 @@ function (x, type = c("pspline", "2dspline", "markov", "radial",
         P = as.matrix(P)
     }
     else if (type == "parametric") {
+        if (class(x) == "matrix") 
+            xname = colnames(x)
         x = data.frame(1, x)
+        names(x) = c("X1", xname)
         B = model.matrix(formula(x), x)[, -1, drop = FALSE]
         x = x[, -1, drop = FALSE]
         P = matrix(0, nrow = ncol(B), ncol = ncol(B))

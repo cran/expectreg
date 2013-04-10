@@ -12,9 +12,9 @@ loss functions to obtain the graphs of 11 different expectiles
 for continuous, spatial or random effects.
 }
 \usage{
-expectreg.boost(formula, data = NULL, mstop = NA, expectiles = NA, cv = TRUE)
+expectreg.boost(formula, data, mstop = NA, expectiles = NA, cv = TRUE)
 
-quant.boost(formula, data = NULL, mstop = NA, expectiles = NA, cv = TRUE)
+quant.boost(formula, data, mstop = NA, quantiles = NA, cv = TRUE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -25,13 +25,13 @@ Each effect can be linear or represented through a nonlinear or spatial base
 (see \code{\link[mboost]{bbs}}). Each variable has to be named consistently with \code{data}.
 }
   \item{data}{
-data frame or matrix.
+data frame (is required).
 }
   \item{mstop}{
 vector, number of bootstrap iterations for each of the 11 quantiles/expectiles that are fitted.
 Default is 4000.
 }
-  \item{expectiles}{
+  \item{expectiles, quantiles}{
 In default setting, the expectiles (0.01,0.02,0.05,0.1,0.2,0.5,0.8,0.9,0.95,0.98,0.99) are calculated.
 You may specify your own set of expectiles in a vector.
 }

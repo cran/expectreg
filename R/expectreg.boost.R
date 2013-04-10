@@ -1,6 +1,5 @@
 expectreg.boost <-
-function (formula, data = NULL, mstop = NA, expectiles = NA, 
-    cv = TRUE) 
+function (formula, data, mstop = NA, expectiles = NA, cv = TRUE) 
 {
     require(mboost)
     if (any(is.na(expectiles)) || !is.vector(expectiles) || any(expectiles > 
@@ -39,6 +38,7 @@ function (formula, data = NULL, mstop = NA, expectiles = NA,
             types[[i]] = "parametric"
             x[[i]] = eval(parse(text = blsstr[i]), envir = data, 
                 enclos = environment(formula))
+            names(x[[i]]) = blsstr[i]
             bls[[i]] = NULL
         }
         else {
@@ -49,6 +49,7 @@ function (formula, data = NULL, mstop = NA, expectiles = NA,
                 eval(parse(text = bls[[i]]$get_names()[k]), envir = data, 
                   enclos = environment(formula)))
             x[[i]] = xi
+            names(x[[i]]) = bls[[i]]$get_names()
         }
         if (types[[i]] != "bmrf") 
             bnd[[i]] = NA
@@ -126,19 +127,18 @@ function (formula, data = NULL, mstop = NA, expectiles = NA,
             }
             else if (types[[k]] == "2dspline" || types[[k]] == 
                 "radial") {
-                x[[k]] = data[, bls[[k]]$get_names()]
                 x.min = apply(x[[k]], 2, min)
                 x.max = apply(x[[k]], 2, max)
                 x.gitter = cbind(rep(seq(x.min[1], x.max[1], 
                   length = 20), times = 20), rep(seq(x.min[2], 
                   x.max[2], length = 20), each = 20))
+                independent = c(which(dimnames(data)[[2]] == 
+                  bls[[k]]$get_names()[1]), which(dimnames(data)[[2]] == 
+                  bls[[k]]$get_names()[2]))
                 d.tmp = matrix(0, nrow = 400, ncol = dim(data)[2])
                 for (j in (1:dim(d.tmp)[2])[-independent]) d.tmp[, 
                   j] = NA
                 d.val = data
-                independent = c(which(dimnames(data)[[2]] == 
-                  bls[[k]]$get_names()[1]), which(dimnames(data)[[2]] == 
-                  bls[[k]]$get_names()[2]))
                 d.tmp[, independent] = x.gitter
                 dimnames(d.tmp) = list(1:400, dimnames(data)[[2]])
                 for (j in 1:dim(d.val)[2][-independent]) d.val[, 
@@ -232,6 +232,9 @@ function (formula, data = NULL, mstop = NA, expectiles = NA,
             }
         }
         list(fitted = fitted, values = values)
+    }
+    result$plotpredict <- function(which = 1) {
+        return(z[[which]])
     }
     class(result) = c("expectreg", "boost")
     result

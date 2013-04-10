@@ -205,13 +205,17 @@ function (x, rug = TRUE, xlab = NULL, ylab = NULL, ylim = NULL,
             if (inherits(x, "boost")) {
                 for (i in 1:np) {
                   if (i %in% pp.plot) {
-                    z = interp(cov[[k]][, 1], cov[[k]][, 2], 
-                      Z[[k]][, i], duplicate = "mean")
+                    gitter = 20
+                    x.min = apply(cov[[k]], 2, min, na.rm = TRUE)
+                    x.max = apply(cov[[k]], 2, max, na.rm = TRUE)
+                    z = x$plotpredict(k)[[i]]
                     if (is.null(ylim)) 
-                      ylim2 = range(cbind(yy, z), na.rm = TRUE)
-                    persp(z[[1]], z[[2]], z[[3]], ticktype = "detailed", 
-                      phi = 40, theta = 35, zlim = ylim2, col = "lightblue", 
-                      xlab = "X", ylab = "Y", zlab = ylab, main = pp[pp.plot[i]])
+                      ylim2 = range(yy, z, na.rm = TRUE)
+                    persp(seq(x.min[1], x.max[1], length = gitter), 
+                      seq(x.min[2], x.max[2], length = gitter), 
+                      z, ticktype = "detailed", phi = 40, theta = 35, 
+                      zlim = ylim2, col = "lightblue", xlab = "X", 
+                      ylab = "Y", zlab = ylab, main = pp[pp.plot[i]])
                   }
                 }
             }
@@ -260,13 +264,14 @@ function (x, rug = TRUE, xlab = NULL, ylab = NULL, ylim = NULL,
             if (inherits(x, "boost")) {
                 for (i in 1:np) {
                   if (i %in% pp.plot) {
-                    z = interp(cov[[k]][, 1], cov[[k]][, 2], 
-                      Z[[k]][, i], duplicate = "mean")
+                    z = x$plotpredict(k)[[i]]
                     if (is.null(ylim)) 
                       ylim2 = range(cbind(yy, z), na.rm = TRUE)
-                    persp(z[[1]], z[[2]], z[[3]], ticktype = "detailed", 
-                      phi = 40, theta = 35, zlim = ylim2, col = "lightblue", 
-                      xlab = "X", ylab = "Y", zlab = ylab, main = pp[pp.plot[i]])
+                    persp(seq(x.min[1], x.max[1], length = gitter), 
+                      seq(x.min[2], x.max[2], length = gitter), 
+                      z, ticktype = "detailed", phi = 40, theta = 35, 
+                      zlim = ylim2, col = "lightblue", xlab = "X", 
+                      ylab = "Y", zlab = ylab, main = pp[pp.plot[i]])
                   }
                 }
             }
@@ -306,50 +311,34 @@ function (x, rug = TRUE, xlab = NULL, ylab = NULL, ylim = NULL,
             }
         }
         else if (types[[k]] == "krig") {
-            if (inherits(x, "boost")) {
-                for (i in 1:np) {
-                  if (i %in% pp.plot) {
-                    z = interp(cov[[k]][, 1], cov[[k]][, 2], 
-                      Z[[k]][, i], duplicate = "mean")
-                    if (is.null(ylim)) 
-                      ylim2 = range(cbind(yy, z), na.rm = TRUE)
-                    persp(z[[1]], z[[2]], z[[3]], ticktype = "detailed", 
-                      phi = 40, theta = 35, zlim = ylim2, col = "lightblue", 
-                      xlab = "X", ylab = "Y", zlab = ylab, main = pp[pp.plot[i]])
-                  }
-                }
+            gitter = 20
+            krig.phi = helper[[k]][[1]]
+            x.min = apply(cov[[k]], 2, min)
+            x.max = apply(cov[[k]], 2, max)
+            x.gitter = cbind(rep(seq(x.min[1], x.max[1], length = gitter), 
+                times = gitter), rep(seq(x.min[2], x.max[2], 
+                length = gitter), each = gitter))
+            cov[[k]] = cov[[k]][order(cov[[k]][, 1]), ]
+            knots = helper[[k]][[2]]
+            B.gitter = matrix(NA, nrow = dim(x.gitter)[1], ncol = dim(knots)[1])
+            for (j in 1:dim(knots)[1]) {
+                r = sqrt(rowSums((x.gitter - matrix(unlist(knots[j, 
+                  ]), nrow = nrow(x.gitter), ncol = ncol(knots), 
+                  byrow = T))^2))/krig.phi
+                B.gitter[, j] = exp(-r) * (1 + r)
             }
-            else {
-                gitter = 20
-                krig.phi = helper[[k]][[1]]
-                x.min = apply(cov[[k]], 2, min)
-                x.max = apply(cov[[k]], 2, max)
-                x.gitter = cbind(rep(seq(x.min[1], x.max[1], 
-                  length = gitter), times = gitter), rep(seq(x.min[2], 
-                  x.max[2], length = gitter), each = gitter))
-                cov[[k]] = cov[[k]][order(cov[[k]][, 1]), ]
-                knots = helper[[k]][[2]]
-                B.gitter = matrix(NA, nrow = dim(x.gitter)[1], 
-                  ncol = dim(knots)[1])
-                for (j in 1:dim(knots)[1]) {
-                  r = sqrt(rowSums((x.gitter - matrix(unlist(knots[j, 
-                    ]), nrow = nrow(x.gitter), ncol = ncol(knots), 
-                    byrow = T))^2))/krig.phi
-                  B.gitter[, j] = exp(-r) * (1 + r)
-                }
-                for (i in 1:np) {
-                  if (i %in% pp.plot) {
-                    z <- B.gitter %*% coefficients[[k]][, i] + 
-                      intercept[i]
-                    z = t(matrix(z, nrow = gitter, ncol = gitter))
-                    if (is.null(ylim)) 
-                      ylim2 = range(cbind(yy, z), na.rm = TRUE)
-                    persp(seq(x.min[1], x.max[1], length = gitter), 
-                      seq(x.min[2], x.max[2], length = gitter), 
-                      z, ticktype = "detailed", phi = 40, theta = 35, 
-                      zlim = ylim2, col = "lightblue", xlab = "X", 
-                      ylab = "Y", zlab = ylab, main = pp[pp.plot[i]])
-                  }
+            for (i in 1:np) {
+                if (i %in% pp.plot) {
+                  z <- B.gitter %*% coefficients[[k]][, i] + 
+                    intercept[i]
+                  z = t(matrix(z, nrow = gitter, ncol = gitter))
+                  if (is.null(ylim)) 
+                    ylim2 = range(cbind(yy, z), na.rm = TRUE)
+                  persp(seq(x.min[1], x.max[1], length = gitter), 
+                    seq(x.min[2], x.max[2], length = gitter), 
+                    z, ticktype = "detailed", phi = 40, theta = 35, 
+                    zlim = ylim2, col = "lightblue", xlab = "X", 
+                    ylab = "Y", zlab = ylab, main = pp[pp.plot[i]])
                 }
             }
         }

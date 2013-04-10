@@ -237,6 +237,7 @@ function (formula, data = NULL, smooth = c("schall", "acv", "fixed"),
     ex$coefficients = coefficients
     ex$values = Z
     ex$asymmetries = pp
+    ex$intercepts = intercept
     ex$predict <- function(newdata = NULL) {
         BB = list()
         values = list()
