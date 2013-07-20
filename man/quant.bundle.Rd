@@ -11,7 +11,8 @@ to obtain the graphs of different expectiles or quantiles
 for continuous, spatial or random effects.
 }
 \usage{
-quant.bundle(formula, data = NULL, smooth = c("schall", "acv", "fixed"), lambda = 1, quantiles = NA, simple = TRUE)
+quant.bundle(formula, data = NULL, smooth = c("schall", "acv", "fixed"), 
+             lambda = 1, quantiles = NA, simple = TRUE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

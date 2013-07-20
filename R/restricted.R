@@ -1,5 +1,6 @@
 restricted <-
-function (B, DD, yy, pp, lambda, smooth, nb, center, constmat) 
+function (B, DD, yy, pp, lambda, smooth, nb, center, constmat, 
+    types) 
 {
     nterms = length(nb)
     m = length(yy)
@@ -9,59 +10,52 @@ function (B, DD, yy, pp, lambda, smooth, nb, center, constmat)
     vector.a.ma.schall <- matrix(NA, nrow = sum(nb) + (1 * center), 
         ncol = np)
     if (smooth == "schall") {
-        dc = 1
-        dw = 1
-        w <- matrix(0.5, nrow = m, ncol = nterms)
-        it = 1
-        while (dc >= 0.01 && it < 100) {
-            aa <- asyregpen.lsfit(yy, B, 0.5, lala[, 1], DD, 
-                nb, constmat)
-            mean.coefficients <- aa$a
-            diag.hat = aa$diag.hat.ma
-            sig2 <- vector()
-            tau2 <- vector()
-            l0 <- lala[, 1]
-            for (i in 1:nterms) {
-                partbasis = (sum(nb[0:(i - 1)]) + 1):(sum(nb[0:i]))
-                if (center) {
-                  partB = B[, -1, drop = FALSE][, partbasis, 
-                    drop = FALSE]
-                  partDD = DD[, -1, drop = FALSE][-1, , drop = FALSE][, 
-                    partbasis, drop = FALSE]
-                  partaa = aa$a[-1][partbasis]
-                }
-                else {
-                  partB = B[, partbasis, drop = FALSE]
-                  partDD = DD[, partbasis, drop = FALSE]
-                  partaa = aa$a[partbasis]
-                }
-                v <- partDD %*% partaa
-                z <- aa$fitted
-                H = solve(t(partB) %*% (w[, i] * partB) + lala[i, 
-                  1] * t(partDD) %*% partDD)
-                H = apply(sqrt(w[, i]) * partB, 1, function(x) {
-                  t(x) %*% H %*% x
-                })
-                sig2[i] <- sum(w[, i] * (yy - z)^2, na.rm = TRUE)/(m - 
-                  sum(aa$diag.hat.ma, na.rm = TRUE))
-                tau2[i] <- sum(v^2, na.rm = TRUE)/sum(H) + 1e-06
-                lala[i, 1] <- max(sig2[i]/tau2[i], 1e-10, na.rm = TRUE)
-            }
-            dc <- max(abs(log10(l0 + 1e-06)) - log10(lala[, 1] + 
-                1e-06))
-            it = it + 1
-        }
-        if (it == 100) 
-            warning("Schall algorithm did not converge. Stopping after 100 iterations.")
+        sch = schall(yy, B, 0.5, DD, nb, lala[, 1], constmat, 
+            center, types)
+        lala[, 1] = sch[[2]]
+        mean.coefficients = sch[[1]]
+        diag.hat = sch[[3]]
     }
-    else if (smooth == "acv") {
-        acv.min = nlm(acv, p = lala[, 1], yy = yy, B = B, quantile = 0.5, 
-            DD = DD, nb = nb, constmat = constmat, ndigit = 8, 
-            iterlim = 50, gradtol = 1e-04)
-        aa <- asyregpen.lsfit(yy, B, 0.5, abs(acv.min$estimate), 
-            DD, nb, constmat)
+    else if (smooth == "gcv") {
+        acv.min = nlminb(start = lala[, 1], objective = acv, 
+            yy = yy, B = B, quantile = 0.5, DD = DD, nb = nb, 
+            constmat = constmat, lower = 0, upper = 10000)
+        aa <- asyregpen.lsfit(yy, B, 0.5, abs(acv.min$par), DD, 
+            nb, constmat)
         mean.coefficients <- aa$a
-        lala[, 1] <- abs(acv.min$estimate)
+        lala[, 1] <- abs(acv.min$par)
+        diag.hat = aa$diag.hat.ma
+    }
+    else if (smooth == "aic") {
+        acv.min = nlminb(start = lala[, 1], objective = aicfun, 
+            yy = yy, B = B, quantile = 0.5, DD = DD, nb = nb, 
+            constmat = constmat, lower = 0, upper = 10000)
+        aa <- asyregpen.lsfit(yy, B, 0.5, abs(acv.min$par), DD, 
+            nb, constmat)
+        mean.coefficients <- aa$a
+        lala[, 1] <- abs(acv.min$par)
+        diag.hat = aa$diag.hat.ma
+    }
+    else if (smooth == "bic") {
+        acv.min = nlminb(start = lala[, 1], objective = bicfun, 
+            yy = yy, B = B, quantile = 0.5, DD = DD, nb = nb, 
+            constmat = constmat, lower = 0, upper = 10000)
+        aa <- asyregpen.lsfit(yy, B, 0.5, abs(acv.min$par), DD, 
+            nb, constmat)
+        mean.coefficients <- aa$a
+        lala[, 1] <- abs(acv.min$par)
+        diag.hat = aa$diag.hat.ma
+    }
+    else if (smooth == "cvgrid") {
+        lala[, 1] = cvgrid(yy, B, 0.5, DD, nb, constmat, types)
+        aa <- asyregpen.lsfit(yy, B, 0.5, lala, DD, nb, constmat)
+        mean.coefficients <- aa$a
+        diag.hat = aa$diag.hat.ma
+    }
+    else if (smooth == "lcurve") {
+        lala[, 1] = lcurve(yy, B, 0.5, DD, nb, constmat, types)
+        aa <- asyregpen.lsfit(yy, B, 0.5, lala, DD, nb, constmat)
+        mean.coefficients <- aa$a
         diag.hat = aa$diag.hat.ma
     }
     else {

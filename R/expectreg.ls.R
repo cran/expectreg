@@ -1,7 +1,8 @@
 expectreg.ls <-
 function (formula, data = NULL, estimate = c("laws", "restricted", 
-    "bundle", "sheets"), smooth = c("schall", "acv", "fixed"), 
-    lambda = 1, expectiles = NA, ci = FALSE) 
+    "bundle", "sheets"), smooth = c("schall", "gcv", "cvgrid", 
+    "aic", "bic", "lcurve", "fixed"), lambda = 1, expectiles = NA, 
+    ci = FALSE) 
 {
     smooth = match.arg(smooth)
     estimate = match.arg(estimate)
@@ -112,24 +113,24 @@ function (formula, data = NULL, estimate = c("laws", "restricted",
     }
     if (estimate == "laws") 
         coef.vector = laws(B, DD, yy, pp, lambda, smooth, nb, 
-            center, constmat)
+            center, constmat, types)
     else if (estimate == "restricted") {
         coef.vector = restricted(B, DD, yy, pp, lambda, smooth, 
-            nb, center, constmat)
+            nb, center, constmat, types)
         trend.coef = coef.vector[[4]]
         residual.coef = coef.vector[[5]]
         asymmetry = coef.vector[[6]]
     }
     else if (estimate == "bundle") {
         coef.vector = bundle(B, DD, yy, pp, lambda, smooth, nb, 
-            center, constmat)
+            center, constmat, types)
         trend.coef = coef.vector[[4]]
         residual.coef = coef.vector[[5]]
         asymmetry = coef.vector[[6]]
     }
     else if (estimate == "sheets") 
         coef.vector = sheets(Blist, Plist, yy, pp, lambda, smooth, 
-            nb, center)
+            nb, center, types)
     vector.a.ma.schall = coef.vector[[1]]
     lala = coef.vector[[2]]
     diag.hat = coef.vector[[3]]

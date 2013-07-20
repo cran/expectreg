@@ -52,7 +52,7 @@ function (object, newdata = NULL, ...)
         By = splineDesign(knots = seq(y0 - dy * B.deg, y1 + dy * 
             B.deg, by = dy), x = newdata[, 2], ord = B.deg + 
             1, outer.ok = TRUE)
-        B = matrix(NA, nrow = dim(x)[1], ncol = dim(Bx)[2] * 
+        B = matrix(NA, nrow = dim(newdata)[1], ncol = dim(Bx)[2] * 
             dim(By)[2])
         for (i in 1:dim(Bx)[1]) B[i, ] = as.vector(Bx[i, ] %o% 
             By[i, ])
@@ -145,7 +145,5 @@ function (object, newdata = NULL, ...)
         B = model.matrix(formula(newdata), newdata)[, -1, drop = FALSE]
         P = matrix(0, nrow = ncol(B), ncol = ncol(B))
     }
-    if (any(!is.na(object$by))) 
-        B = B * object$by
     B
 }

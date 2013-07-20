@@ -58,12 +58,12 @@ function (x, rug = TRUE, xlab = NULL, ylab = NULL, ylim = NULL,
         if (types[[k]] == "pspline") {
             if (inherits(x, "boost")) {
                 ZZZ = Z[[k]][order(cov[[k]])[seq(1, m, length = min(m, 
-                  100))], pp.plot]
+                  100))], pp.plot, drop = F]
             }
             else {
                 ndat = data.frame(seq(min(cov[[k]]), max(cov[[k]]), 
                   length = 100))
-                names(ndat) = xlab[k]
+                names(ndat) = names(cov)[k]
                 Bpred = predict(x$bases[[k]], ndat)
                 ZZZ = Bpred %*% coefficients[[k]]
             }
@@ -80,34 +80,35 @@ function (x, rug = TRUE, xlab = NULL, ylab = NULL, ylim = NULL,
                   upper[nn, i] = ZZZ[nn, i] + deviation
                 }
             }
+            for (i in 1:np) {
+                ZZZ[, i] = ZZZ[, i] + intercept[i]
+                if (ci) {
+                  lower[, i] = lower[, i] + intercept[i]
+                  upper[, i] = upper[, i] + intercept[i]
+                }
+            }
             if (rug) {
                 if (is.null(ylim)) 
-                  ylim2 = range(ZZZ, lower, upper, na.rm = TRUE)
+                  ylim2 = range(ZZZ - intercept[1], lower - intercept[1], 
+                    upper - intercept[1], na.rm = TRUE)
                 matplot(cov[[k]], Z[[k]], type = "n", xlab = xlab[k], 
                   ylab = ylab, ylim = ylim2, ...)
                 rug(cov[[k]])
                 matlines(seq(min(cov[[k]]), max(cov[[k]]), length = 100), 
-                  ZZZ, col = rainbow(np.plot + 1)[1:np.plot], 
-                  lty = 1, lwd = 2)
+                  ZZZ - intercept[1], col = rainbow(np.plot + 
+                    1)[1:np.plot], lty = 1, lwd = 2)
                 if (ci) {
                   matlines(seq(min(cov[[k]]), max(cov[[k]]), 
-                    length = 100), lower, col = rainbow(np.plot + 
+                    length = 100), lower - intercept[1], col = rainbow(np.plot + 
                     1)[1:np.plot], lty = 2, lwd = 2)
                   matlines(seq(min(cov[[k]]), max(cov[[k]]), 
-                    length = 100), upper, col = rainbow(np.plot + 
+                    length = 100), upper - intercept[1], col = rainbow(np.plot + 
                     1)[1:np.plot], lty = 2, lwd = 2)
                 }
             }
             else {
                 if (is.null(ylim)) 
                   ylim2 = range(yy, Z[[k]], lower, upper, na.rm = TRUE)
-                for (i in 1:np) {
-                  ZZZ[, i] = ZZZ[, i] + intercept[i]
-                  if (ci) {
-                    lower[, i] = lower[, i] + intercept[i]
-                    upper[, i] = upper[, i] + intercept[i]
-                  }
-                }
                 plot(cov[[k]], yy, cex = 0.5, pch = 20, col = "grey42", 
                   xlab = xlab[k], ylab = ylab, ylim = ylim2, 
                   ...)
@@ -174,7 +175,7 @@ function (x, rug = TRUE, xlab = NULL, ylab = NULL, ylim = NULL,
                 else {
                   coefficients[[k]] = Zspathelp %*% coefficients[[k]]
                   for (i in 1:np) {
-                    z[, i] = coefficients[[k]][, i] + intercept[i]
+                    z[, i] = coefficients[[k]][, i]
                   }
                 }
                 if (class(bnd) != "bnd") {
@@ -196,7 +197,7 @@ function (x, rug = TRUE, xlab = NULL, ylab = NULL, ylim = NULL,
                       "regions")), z[, pp.plot[i]]))
                     drawmap(re, bnd, regionvar = 1, plotvar = 2, 
                       mar.min = NULL, limits = plot.limits, main = pp[pp.plot[i]], 
-                      legend = legend)
+                      swapcolors = T, legend = legend, cex.legend = 1)
                   }
                 }
             }
@@ -226,8 +227,8 @@ function (x, rug = TRUE, xlab = NULL, ylab = NULL, ylim = NULL,
                 x.gitter = cbind(rep(seq(x.min[1], x.max[1], 
                   length = gitter), times = gitter), rep(seq(x.min[2], 
                   x.max[2], length = gitter), each = gitter))
-                ndat = data.frame(x.gitter)
-                names(ndat) = xlab[k]
+                ndat = as.data.frame(x.gitter)
+                names(ndat) = rep(xlab[k], 2)
                 B.gitter = predict(x$bases[[k]], ndat)
                 for (i in 1:np) {
                   if (i %in% pp.plot) {

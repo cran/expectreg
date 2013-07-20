@@ -12,9 +12,12 @@ or quadratic programming to obtain expectiles
 for parametric, continuous, spatial and random effects.
 }
 \usage{
-expectreg.ls(formula, data = NULL, estimate=c("laws","restricted","bundle","sheets"), smooth = c("schall", "acv", "fixed"), lambda = 1, expectiles = NA, ci = FALSE)
+expectreg.ls(formula, data = NULL, estimate=c("laws","restricted","bundle","sheets"), 
+              smooth = c("schall", "gcv", "cvgrid", "aic", "bic", "lcurve", "fixed"), 
+              lambda = 1, expectiles = NA, ci = FALSE)
 
-expectreg.qp(formula, data  = NULL, smooth = c("schall", "acv", "fixed"), lambda = 1, expectiles = NA) 
+expectreg.qp(formula, data  = NULL, smooth = c("schall", "acv", "fixed"), 
+             lambda = 1, expectiles = NA) 
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -32,9 +35,8 @@ Character string defining the estimation method that is used to fit the expectil
 }
   \item{smooth}{
 There are different smoothing algorithms that should prevent overfitting.
-The 'schall' algorithm iterates the smoothing penalty \code{lambda} until it converges,
-the asymmetric cross-validation 'acv' minimizes a score-function using \code{\link[stats]{nlm}}
-or the function uses a fixed penalty.
+The 'schall' algorithm iterates the smoothing penalty \code{lambda} until it converges (REML),
+the generalised cross-validation 'gcv' minimizes a score-function using \code{\link[stats]{nlm}} or with a grid search by 'cvgrid' or the function uses a fixed penalty. The numerical minimisatioin is also possible with AIC or BIC as score. The L-curve is a new experimental grid search.
 }
   \item{lambda}{
 The fixed penalty can be adjusted. Also serves as starting value for
@@ -114,6 +116,10 @@ doi: 10.1016/j.csda.2010.11.015.
 Schnabel S and Eilers P (2011)
 \emph{ Expectile sheets for joint estimation of expectile curves }
 (under review at Statistical Modelling)
+
+Frasso G and Eilers P (2013)
+\emph{ Smoothing parameter selection using the L-curve}
+(under review)
 }
 \author{
 Fabian Sobotka, Thomas Kneib \cr
@@ -139,23 +145,28 @@ Ludwig Maximilians University Muenchen \cr
 \code{\link{rb}}, \code{\link{expectreg.boost}}
 }
 \examples{
-ex = expectreg.ls(dist ~ rb(speed),data=cars,smooth="a",lambda=5,expectiles=c(0.01,0.2,0.8,0.99))
+ex = expectreg.ls(dist ~ rb(speed),data=cars,smooth="b",lambda=5,expectiles=c(0.01,0.2,0.8,0.99))
 ex = expectreg.ls(dist ~ rb(speed),data=cars,smooth="f",lambda=5,estimate="restricted")
 plot(ex)
 
 
 data("lidar", package = "SemiPar")
 
-explaws <- expectreg.ls(logratio~rb(range,"pspline"),data=lidar,smooth="acv",expectiles=c(0.05,0.5,0.95))
+explaws <- expectreg.ls(logratio~rb(range,"pspline"),data=lidar,smooth="gcv",
+                        expectiles=c(0.05,0.5,0.95))
 print(explaws)
 plot(explaws)
 
 ###expectile regression using a fixed penalty
-plot(expectreg.ls(logratio~rb(range,"pspline"),data=lidar,smooth="fixed",lambda=1,expectiles=c(0.05,0.25,0.75,0.95)))
-plot(expectreg.ls(logratio~rb(range,"pspline"),data=lidar,smooth="fixed",lambda=0.0000001,expectiles=c(0.05,0.25,0.75,0.95)))
+plot(expectreg.ls(logratio~rb(range,"pspline"),data=lidar,smooth="fixed",
+     lambda=1,expectiles=c(0.05,0.25,0.75,0.95)))
+plot(expectreg.ls(logratio~rb(range,"pspline"),data=lidar,smooth="fixed",
+     lambda=0.0000001,expectiles=c(0.05,0.25,0.75,0.95)))
     #As can be seen in the plot, a too small penalty causes overfitting of the data.
-plot(expectreg.ls(logratio~rb(range,"pspline"),data=lidar,smooth="fixed",lambda=50,expectiles=c(0.05,0.25,0.75,0.95)))
-    #If the penalty parameter is chosen too large, the expectile curves are smooth but don't represent the data anymore.
+plot(expectreg.ls(logratio~rb(range,"pspline"),data=lidar,smooth="fixed",
+     lambda=50,expectiles=c(0.05,0.25,0.75,0.95)))
+    #If the penalty parameter is chosen too large, 
+    #the expectile curves are smooth but don't represent the data anymore.
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

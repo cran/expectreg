@@ -1,5 +1,5 @@
 sheets <-
-function (B, DD, yy, pp, lambda, smooth, nb, center) 
+function (B, DD, yy, pp, lambda, smooth, nb, center, types) 
 {
     nterms = length(nb)
     m = length(yy)
@@ -8,11 +8,11 @@ function (B, DD, yy, pp, lambda, smooth, nb, center)
         nrow = nterms, ncol = 2, dimnames = list(1:nterms, c("curve", 
             "sheet")))
     med = which(pp == 0.5)
-    if (smooth == "acv") {
-        acv.min = nlm(acv.sheets, p = lala, yy = yy, B = B, pp = pp, 
-            DD = DD, nb = nb, center = center, ndigit = 8, iterlim = 50, 
-            gradtol = 1e-04)
-        min.lambda = matrix(abs(acv.min$estimate), ncol = 2)
+    if (smooth == "gcv") {
+        acv.min = nlminb(start = lala, objective = acv.sheets, 
+            yy = yy, B = B, pp = pp, DD = DD, nb = nb, center = center, 
+            lower = 0, upper = 10000)
+        min.lambda = matrix(abs(acv.min$par), ncol = 2)
         lala[, 1] <- min.lambda[, 1]
         lala[, 2] <- min.lambda[, 2]
         ynp <- rep(yy, np)

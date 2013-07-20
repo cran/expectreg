@@ -45,7 +45,8 @@ Computatational Statistics and Data Analysis, 53: 4168-4177
 \examples{
 data(dutchboys)
 
-expreg <- expectreg.ls(dutchboys[,3] ~ rb(dutchboys[,2],"pspline"),smooth="f",estimate="restricted",expectiles=c(.05,.5,.95))
+expreg <- expectreg.ls(dutchboys[,3] ~ rb(dutchboys[,2],"pspline"),smooth="f",
+                       estimate="restricted",expectiles=c(.05,.5,.95))
 plot(expreg)
 }
 \keyword{datasets}

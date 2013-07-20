@@ -32,7 +32,12 @@ function (formula, data, mstop = NA, expectiles = NA, cv = TRUE)
     bnd = list()
     yy = eval(parse(text = formula[2]), envir = data, enclos = environment(formula))
     attr(yy, "name") = deparse(formula[[2]])
-    for (i in 1:length(blsstr)) {
+    if (length(blsstr) == 0) {
+        types[[1]] = "parametric"
+        x[[1]] = rep(1, length(yy))
+        blsstr = 1
+    }
+    else for (i in 1:length(blsstr)) {
         types[[i]] = strsplit(blsstr[i], "(", fixed = TRUE)[[1]][1]
         if (types[[i]] == blsstr[i]) {
             types[[i]] = "parametric"

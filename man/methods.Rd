@@ -110,7 +110,8 @@ Georg August University Goettingen \cr
 \examples{
 data(dutchboys)
 
-expreg <- expectreg.ls(hgt ~ rb(age,"pspline"),data=dutchboys,smooth="f",expectiles=c(0.05,0.2,0.8,0.95))
+expreg <- expectreg.ls(hgt ~ rb(age,"pspline"),data=dutchboys,smooth="f",
+                       expectiles=c(0.05,0.2,0.8,0.95))
 plot(expreg)
 
 print(expreg)

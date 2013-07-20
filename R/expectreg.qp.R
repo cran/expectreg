@@ -366,8 +366,8 @@ function (formula, data = NULL, smooth = c("schall", "acv", "fixed"),
     ncexpect <- list(lambda = final.lambdas, intercepts = intercepts, 
         values = Z, coefficients = coefficients, response = y, 
         formula = formula, asymmetries = p, effects = types, 
-        helper = helper, covariates = x, design = Bx, fitted = yyhat, 
-        weights = nc.bf$weights, part.resid = nc.bf$part.resid, 
+        helper = helper, covariates = x, design = Bx, bases = design, 
+        fitted = yyhat, weights = nc.bf$weights, part.resid = nc.bf$part.resid, 
         dfi = dfi, coeff.vec = coeff.vec, alpha = alpha)
     ncexpect$predict <- function(newdata = NULL) {
         BB = list()

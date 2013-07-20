@@ -1,3 +1,14 @@
+2013-07-20 version 0.38
+
+new features:
+- least squares smoothing parameter choice by GCV, AIC, BIC, L-curve, GCV grid search
+
+changes:
+- optimized Schall algorithm for extreme expectiles
+
+bugfixes:
+- fixed prediction and plotting of 2dim bases
+
 2013-04-10 version 0.37
 
 bugfixes:

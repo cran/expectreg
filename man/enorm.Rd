@@ -85,7 +85,7 @@ with shape=1.
 \details{
 An expectile of a distribution cannot be determined explicitely,
 but instead is given by an equation.
-The expectile z for a probability p is:
+The expectile z for an asymmetry p is:
 \eqn{ p = \frac{G(z) - z F(z)}{2(G(z) - z F(z)) + z - m}}
 where m is the mean, F the cdf and G the partial moment function
 \eqn{ G(z) = \int\limits_{-\infty}^{z} uf(u) \mbox{d}u }.
