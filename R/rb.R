@@ -14,7 +14,8 @@ function (x, type = c("pspline", "2dspline", "markov", "radial",
         x0 <- min(x, na.rm = TRUE) - 0.001
         x1 <- max(x, na.rm = TRUE) + 0.001
         dx = (x1 - x0)/(B.size - 1)
-        B = matrix(0, nrow = length(x), ncol = B.size + 1)
+        B = matrix(0, nrow = length(x), ncol = B.size + B.deg - 
+            1)
         notnas = which(!is.na(x))
         B[notnas, ] = splineDesign(knots = seq(x0 - dx * B.deg, 
             x1 + dx * B.deg, by = dx), x = x[notnas], ord = B.deg + 
@@ -26,6 +27,13 @@ function (x, type = c("pspline", "2dspline", "markov", "radial",
             for (i in 1:diff.size) tildeU[, i] <- (1:(dim(B)[2]))^(i - 
                 1)
             tildeZ <- t(P) %*% solve(P %*% t(P))
+            P = t(P) %*% P
+            e = eigen(P)
+            tildeU = e$vectors[, ncol(e$vectors):(ncol(e$vectors) - 
+                diff.size)]
+            tildeZ = e$vectors[, (ncol(e$vectors) - diff.size - 
+                1):1] %*% diag(1/sqrt(e$values[(ncol(e$vectors) - 
+                diff.size - 1):1]))
             U <- B %*% tildeU
             Z <- B %*% tildeZ
             B = cbind(U[, -1], Z)
@@ -134,12 +142,17 @@ function (x, type = c("pspline", "2dspline", "markov", "radial",
         for (i in 1:length(x)) B[i, which(districts == x[i])] = 1
         Zspathelp = diag(ncol(P))
         e <- eigen(P)
-        P <- t(e$vectors[, -dim(e$vectors)[2]] * sqrt(e$values[-length(e$values)]))
         if (center) {
-            Zspathelp <- t(P) %*% solve(P %*% t(P))
-            B <- B %*% Zspathelp
-            P = diag(nrow = dim(P)[2] - 1)
+            tildeU = e$vectors[, e$values < 1e-05]
+            tildeZ = e$vectors[, e$values >= 1e-05] %*% diag(1/sqrt(e$values[e$values >= 
+                1e-05]))
+            U <- B %*% tildeU
+            Z <- B %*% tildeZ
+            B = cbind(U[, -1], Z)
+            P <- diag(c(rep(0, ncol(U) - 1), rep(1, ncol(Z))))
+            Zspathelp = cbind(tildeU, tildeZ)[, -1]
         }
+        else P <- t(e$vectors[, -dim(e$vectors)[2]] * sqrt(abs(e$values[-length(e$values)])))
     }
     else if (type == "random") {
         districts = sort(unique(x))
@@ -161,10 +174,9 @@ function (x, type = c("pspline", "2dspline", "markov", "radial",
     else if (type == "parametric") {
         if (class(x) == "matrix") 
             xname = colnames(x)
-        x = data.frame(1, x)
-        names(x) = c("X1", xname)
-        B = model.matrix(formula(x), x)[, -1, drop = FALSE]
-        x = x[, -1, drop = FALSE]
+        xdata = data.frame(1, x)
+        names(xdata) = c("X1", xname)
+        B = model.matrix(formula(xdata), xdata)[, -1, drop = FALSE]
         P = matrix(0, nrow = ncol(B), ncol = ncol(B))
     }
     constraint = matrix(0, nrow = 2, ncol = ncol(P))

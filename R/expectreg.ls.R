@@ -47,9 +47,9 @@ function (formula, data = NULL, estimate = c("laws", "restricted",
         types[[i]] = strsplit(labels(terms(formula))[i], "(", 
             fixed = TRUE)[[1]][1]
         if (types[[i]] == labels(terms(formula))[i]) {
-            design[[i]] = rb(matrix(eval(parse(text = labels(terms(formula))[i]), 
+            design[[i]] = rb(eval(parse(text = labels(terms(formula))[i]), 
                 envir = data, enclos = environment(formula)), 
-                nrow = m), "parametric")
+                "parametric")
             types[[i]] = "parametric"
             design[[i]]$xname = labels(terms(formula))[i]
         }

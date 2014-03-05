@@ -10,7 +10,7 @@ function (B, DD, yy, pp, lambda, smooth, nb, center, constmat,
     else lala = lambda
     dummy.reg <- function(pp, lala, smooth, yy, B, DD, nb, nterms, 
         center) {
-        print(paste("Expectile:", pp, sep = " "))
+        cat("Expectile: ", pp, "\n")
         if (smooth == "schall") {
             sch = schall(yy, B, pp, DD, nb, lala, constmat, center, 
                 types)
@@ -70,7 +70,7 @@ function (B, DD, yy, pp, lambda, smooth, nb, center, constmat,
     if (.Platform$OS.type == "unix") 
         coef.vector = mclapply(pp, function(pp) dummy.reg(pp, 
             lala, smooth, yy, B, DD, nb, nterms, center), mc.cores = max(1, 
-            min(detectCores() - 1, 4)))
+            min(detectCores() - 1, 2)))
     else if (.Platform$OS.type == "windows") 
         coef.vector = mclapply(pp, function(pp) dummy.reg(pp, 
             lala, smooth, yy, B, DD, nb, nterms, center), mc.cores = 1)

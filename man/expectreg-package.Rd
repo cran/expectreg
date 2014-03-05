@@ -15,8 +15,8 @@ Expectile and quantile regression of models with nonlinear effects
 \tabular{ll}{
 Package: \tab expectreg\cr
 Type: \tab Package\cr
-Version: \tab 0.38\cr
-Date: \tab 2013-07-20\cr
+Version: \tab 0.39\cr
+Date: \tab 2014-03-05\cr
 License: \tab GPL-2\cr
 LazyLoad: \tab yes\cr
 LazyData: \tab yes\cr

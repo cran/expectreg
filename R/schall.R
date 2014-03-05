@@ -31,8 +31,6 @@ function (yy, B, pp, DD, nb, lala, constmat, center, types)
             if (any(partDD != 0)) {
                 v <- partDD %*% partaa
                 z <- aa$fitted
-                #if (nterms > 1) 
-                #  z = B[, -partbasis, drop = F] %*% aa$a[-partbasis]
                 w <- aa$weight
                 H = solve(t(partB) %*% (w * partB) + lala[i] * 
                   t(partDD) %*% partDD)

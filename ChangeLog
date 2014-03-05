@@ -1,3 +1,17 @@
+2014-03-05 version 0.39
+
+new features:
+- longitudinal data in quadratic programming sheets with random intercepts
+
+changes:
+- efficient algorithm to determine expectiles of distributions, e.g. enorm
+- set maximum number of used kernels to 2 according to CRAN policy
+
+bugfixes:
+- fixed handling of boundary class regions
+- fixed plotting of maps
+- fixed boosting of Markov random fields (prediction)
+
 2013-07-20 version 0.38
 
 new features:

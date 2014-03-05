@@ -1,7 +1,6 @@
 quant.boost <-
 function (formula, data, mstop = NA, quantiles = NA, cv = TRUE) 
 {
-    require(mboost)
     if (any(is.na(quantiles)) || !is.vector(quantiles) || any(quantiles > 
         1) || any(quantiles < 0)) {
         pp <- c(0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 0.8, 0.9, 0.95, 
@@ -32,7 +31,12 @@ function (formula, data, mstop = NA, quantiles = NA, cv = TRUE)
     bnd = list()
     yy = eval(parse(text = formula[2]), envir = data, enclos = environment(formula))
     attr(yy, "name") = deparse(formula[[2]])
-    for (i in 1:length(blsstr)) {
+    if (length(blsstr) == 0) {
+        types[[1]] = "parametric"
+        x[[1]] = rep(1, length(yy))
+        blsstr = 1
+    }
+    else for (i in 1:length(blsstr)) {
         types[[i]] = strsplit(blsstr[i], "(", fixed = TRUE)[[1]][1]
         if (types[[i]] == blsstr[i]) {
             types[[i]] = "parametric"
@@ -108,11 +112,11 @@ function (formula, data, mstop = NA, quantiles = NA, cv = TRUE)
             nu = 0.1, risk = "inbag"), family = QuantReg(pp[p]))
         if (cv) {
             cvr = cvrisk(inb, folds = cv10f)
-            print(paste("Quantile", pp[p], ", Boosting iterations:", 
-                mstop(cvr), sep = " "))
+            cat("Quantile ", pp[p], ", Boosting iterations: ", 
+                mstop(cvr), "\n")
             inb = inb[mstop(cvr)]
         }
-        else print(paste("Quantile", pp[p], sep = " "))
+        else cat("Quantile ", pp[p], "\n")
         fitted = fitted(inb)
         for (k in 1:length(blsstr)) {
             coef[[k]] = coef(inb, which = k)[[1]]
@@ -163,7 +167,7 @@ function (formula, data, mstop = NA, quantiles = NA, cv = TRUE)
                 z[[k]] <- predict(inb, d.tmp, which = k) + inb$offset
             }
             else if (types[[k]] == "markov") {
-                districts = as.numeric(attr(bnd[[k]], "regions"))
+                districts = attr(bnd[[k]], "regions")
                 d.tmp = data.frame(matrix(0, nrow = length(districts), 
                   ncol = dim(data)[2]))
                 dimnames(d.tmp) = list(1:length(districts), dimnames(data)[[2]])
@@ -172,7 +176,7 @@ function (formula, data, mstop = NA, quantiles = NA, cv = TRUE)
                 for (j in (1:dim(d.tmp)[2])[-independent]) d.tmp[, 
                   j] = NA
                 d.val = data
-                for (j in 1:dim(d.val)[2][-independent]) d.val[, 
+                for (j in (1:dim(d.val)[2])[-independent]) d.val[, 
                   j] = NA
                 values[[k]] = predict(inb, d.val, which = k) + 
                   inb$offset
@@ -193,7 +197,7 @@ function (formula, data, mstop = NA, quantiles = NA, cv = TRUE)
     if (.Platform$OS.type == "unix") 
         coef.vector = mclapply(1:np, function(i) dummy.reg(i, 
             formula, data, mstop, pp, cv10f, types, x, blsstr, 
-            bnd), mc.cores = max(1, min(detectCores() - 1, 4)))
+            bnd), mc.cores = max(1, min(detectCores() - 1, 2)))
     else if (.Platform$OS.type == "windows") 
         coef.vector = mclapply(1:np, function(i) dummy.reg(i, 
             formula, data, mstop, pp, cv10f, types, x, blsstr, 

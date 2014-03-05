@@ -1,11 +1,21 @@
 ebeta <-
 function (asy, a = 1, b = 1) 
 {
+    asy[asy > 1 | asy < 0] = NA
     zz = 0 * asy
-    for (k in 1:length(asy)) {
-        root = function(z) pebeta(z, a, b) - asy[k]
-        z = uniroot(root, interval = c(0, 1), tol = 1e-06)
-        zz[k] = z$root
+    lower = rep(0, length(asy))
+    upper = rep(1, length(asy))
+    diff = 1
+    index = 1
+    while (diff > 1e-10 && index < 1000) {
+        root = pebeta(zz, a, b) - asy
+        root[is.na(root)] = 0
+        lower[root < 0] = zz[root < 0]
+        upper[root > 0] = zz[root > 0]
+        zz = (upper + lower)/2
+        diff = max(abs(root), na.rm = T)
+        index = index + 1
     }
+    zz[is.na(asy)] = NA
     return(zz)
 }

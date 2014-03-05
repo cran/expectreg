@@ -1,5 +1,9 @@
 
 import(stats)
+import(BayesX)
+import(mboost)
+
+importFrom(quadprog, solve.QP)
 
 importFrom(splines, splineDesign)
 

@@ -149,14 +149,13 @@ function (x, rug = TRUE, xlab = NULL, ylab = NULL, ylim = NULL,
                       bg = "white", bty = "n")
                 }
                 else {
-                  plot.limits = range(Z[[k]])
-                  n = as.numeric(attr(bnd, "regions"))
+                  plot.limits = range(coefficients[[k]])
                   for (i in 1:np.plot) {
-                    re = data.frame(cbind(cov[[k]], Z[[k]][, 
-                      i]))
+                    re = data.frame(attr(bnd, "regions"), coefficients[[k]][, 
+                      i])
                     drawmap(re, bnd, regionvar = 1, plotvar = 2, 
-                      mar.min = NULL, limits = plot.limits, main = pp[pp.plot[i]], 
-                      cols = "grey", swapcolors = TRUE, legend = legend)
+                      limits = plot.limits, main = pp[pp.plot[i]], 
+                      swapcolors = TRUE, legend = legend)
                   }
                 }
             }
@@ -193,11 +192,11 @@ function (x, rug = TRUE, xlab = NULL, ylab = NULL, ylim = NULL,
                 else {
                   plot.limits = range(z)
                   for (i in 1:np.plot) {
-                    re = data.frame(cbind(as.numeric(attr(bnd, 
-                      "regions")), z[, pp.plot[i]]))
+                    re = data.frame(attr(bnd, "regions"), z[, 
+                      pp.plot[i]])
                     drawmap(re, bnd, regionvar = 1, plotvar = 2, 
-                      mar.min = NULL, limits = plot.limits, main = pp[pp.plot[i]], 
-                      swapcolors = T, legend = legend, cex.legend = 1)
+                      limits = plot.limits, main = pp[pp.plot[i]], 
+                      swapcolors = TRUE, legend = legend, cex.legend = 1)
                   }
                 }
             }
@@ -378,6 +377,51 @@ function (x, rug = TRUE, xlab = NULL, ylab = NULL, ylim = NULL,
                   1)[1:np.plot]), legend = rev(pp[pp.plot]), 
                   bg = "white", bty = "n")
         }
+        else if (types[[k]] == "parametric" && !is.factor(cov[[k]][, 
+            1])) {
+            if (inherits(x, "boost")) {
+                plot(cov[[k]], yy, cex = 0.5, pch = 20, col = "grey42", 
+                  xlab = names(cov)[k], ylab = attr(yy, "name"), 
+                  ylim = range(cbind(yy, Z[[k]])))
+                matlines(sort(cov[[k]]), Z[[k]][order(cov[[k]]), 
+                  pp.plot], col = rainbow(np.plot + 1)[1:np.plot], 
+                  lty = 1)
+                if (legend) 
+                  legend(x = "bottomright", pch = 19, cex = 1, 
+                    col = rev(rainbow(np.plot + 1)[1:np.plot]), 
+                    legend = rev(pp[pp.plot]), bg = "white", 
+                    bty = "n")
+            }
+            else {
+                if (is.null(ylim)) 
+                  ylim2 = range(yy, Z[[k]], na.rm = TRUE)
+                for (i in 1:ncol(cov[[k]])) {
+                  if (rug) {
+                    matplot(cov[[k]][, i], Z[[k]] - intercept[1], 
+                      type = "n", xlab = xlab[k], ylab = ylab, 
+                      ylim = range(Z[[k]] - intercept[1], na.rm = TRUE), 
+                      ...)
+                    rug(cov[[k]][, i])
+                    matlines(cov[[k]][, i], Z[[k]][, pp.plot] - 
+                      intercept[1], col = rainbow(np.plot + 1)[1:np.plot], 
+                      lty = 1, lwd = 2)
+                  }
+                  else {
+                    plot(cov[[k]][, i], yy, cex = 0.5, pch = 20, 
+                      col = "grey42", xlab = names(cov)[k], ylab = ylab, 
+                      ylim = ylim2)
+                    matlines(sort(cov[[k]][, i]), Z[[k]][order(cov[[k]][, 
+                      i]), pp.plot], col = rainbow(np.plot + 
+                      1)[1:np.plot], lty = 1, lwd = 2)
+                  }
+                  if (legend) 
+                    legend(x = "topright", pch = 19, cex = 1, 
+                      col = rev(rainbow(np.plot + 1)[1:np.plot]), 
+                      legend = rev(pp[pp.plot]), bg = "white", 
+                      bty = "n")
+                }
+            }
+        }
         else if (types[[k]] == "special") {
             if (is.null(ylim)) 
                 ylim2 = range(cbind(yy, Z[[k]]), na.rm = TRUE)
@@ -385,11 +429,11 @@ function (x, rug = TRUE, xlab = NULL, ylab = NULL, ylim = NULL,
                 xlab = xlab[k], ylab = ylab, ylim = ylim2, ...)
             matlines(sort(cov[[k]]), Z[[k]][order(cov[[k]]), 
                 pp.plot], col = rainbow(np.plot + 1)[1:np.plot], 
-                lty = 1)
+                lty = 1, lwd = 2)
             if (legend) 
-                legend(x = "bottomright", pch = 19, cex = 1, 
-                  col = rev(rainbow(np.plot + 1)[1:np.plot]), 
-                  legend = rev(pp[pp.plot]), bg = "white", bty = "n")
+                legend(x = "topright", pch = 19, cex = 1, col = rev(rainbow(np.plot + 
+                  1)[1:np.plot]), legend = rev(pp[pp.plot]), 
+                  bg = "white", bty = "n")
         }
     }
 }

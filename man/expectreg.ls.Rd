@@ -16,7 +16,7 @@ expectreg.ls(formula, data = NULL, estimate=c("laws","restricted","bundle","shee
               smooth = c("schall", "gcv", "cvgrid", "aic", "bic", "lcurve", "fixed"), 
               lambda = 1, expectiles = NA, ci = FALSE)
 
-expectreg.qp(formula, data  = NULL, smooth = c("schall", "acv", "fixed"), 
+expectreg.qp(formula, data  = NULL, id = NA, smooth = c("schall", "acv", "fixed"), 
              lambda = 1, expectiles = NA) 
 }
 %- maybe also 'usage' for other objects documented here.
@@ -30,6 +30,9 @@ Each effect has to be given through the function \code{\link{rb}}.
 Optional data frame containing the variables used in the model, if the data is not explicitely given in the
 formula.  
 }
+  \item{id}{
+Potential additional variable identifying individuals in a longitudinal data set. Allows for a random intercept estimation.
+  }
   \item{estimate}{
 Character string defining the estimation method that is used to fit the expectiles. Further detail on all available methods is given below.
 }

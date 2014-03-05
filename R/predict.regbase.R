@@ -30,6 +30,13 @@ function (object, newdata = NULL, ...)
             for (i in 1:diff.size) tildeU[, i] <- (1:(dim(B)[2]))^(i - 
                 1)
             tildeZ <- t(P) %*% solve(P %*% t(P))
+            P = t(P) %*% P
+            e = eigen(P)
+            tildeU = e$vectors[, ncol(e$vectors):(ncol(e$vectors) - 
+                diff.size)]
+            tildeZ = e$vectors[, (ncol(e$vectors) - diff.size - 
+                1):1] %*% diag(1/sqrt(e$values[(ncol(e$vectors) - 
+                diff.size - 1):1]))
             U <- B %*% tildeU
             Z <- B %*% tildeZ
             B = cbind(U[, -1], Z)
