@@ -1,6 +1,6 @@
 \documentclass[a4paper]{article}
 %\usepackage[square, sort]{natbib}
-\usepackage{fullpage}
+%\usepackage{fullpage}
 \usepackage{amsmath}
 \input{defs.tex}
 \parindent0pt

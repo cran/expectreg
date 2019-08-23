@@ -15,22 +15,26 @@ Expectile and quantile regression of models with nonlinear effects
 \tabular{ll}{
 Package: \tab expectreg\cr
 Type: \tab Package\cr
-Version: \tab 0.39\cr
-Date: \tab 2014-03-05\cr
+Version: \tab 0.50\cr
+Date: \tab 2019-08-22\cr
 License: \tab GPL-2\cr
 LazyLoad: \tab yes\cr
 LazyData: \tab yes\cr
 }
 
 \itemize{
-\item This package requires the packages \code{\link[BayesX]{BayesX}}, \code{\link[mboost]{mboost}}, \code{\link[splines]{splines}} and \code{quadprog}.
+\item This package requires the packages \code{\link[=BayesX-package]{BayesX}}, \code{\link[=mboost-package]{mboost}}, \code{\link[=splines-package]{splines}} and \code{quadprog}.
 }
 
 }
 \author{
-Fabian Sobotka \cr
-Georg August University Goettingen \cr
-\url{http://www.uni-goettingen.de} \cr
+Fabian Otto-Sobotka \cr
+Carl von Ossietzky University Oldenburg \cr
+\url{http://www.uni-Oldenburg.de} \cr
+
+Elmar Spiegel \cr
+Helmholtz Centre Munich \cr
+\url{http://www.helmholtz-muenchen.de} \cr
 
 Sabine Schnabel \cr
 Wageningen University and Research Centre \cr
@@ -54,7 +58,7 @@ Goeran Kauermann \cr
 Ludwig Maximilian University Munich \cr
 \url{http://www.lmu.de} \cr
 
-Maintainer: Fabian Sobotka <fabian.sobotka@wiwi.uni-goettingen.de>
+Maintainer: Fabian Otto-Sobotka <fabian.otto-sobotka@uni-oldenburg.de>
 
 }
 \references{
@@ -93,14 +97,19 @@ doi: 10.1016/j.csda.2010.11.015.
 \keyword{ nonlinear }
 \keyword{ models }
 \seealso{
-\code{\link[mboost]{mboost}}, \code{\link[BayesX]{BayesX}}
+\code{\link[=mboost-package]{mboost}}, \code{\link[=BayesX-package]{BayesX}}
 }
 \examples{
 data(dutchboys)
+
 ## Expectile Regression using the restricted approach
 ex = expectreg.ls(dist ~ rb(speed),data=cars,smooth="f",lambda=5,estimate="restricted")
+names(ex)
+
 ## The calculation of expectiles for given distributions
 enorm(0.1)
+enorm(0.5)
+
 ## Introducing the expectiles-meet-quantiles distribution
 x = seq(-5,5,length=100)
 plot(x,demq(x),type="l")

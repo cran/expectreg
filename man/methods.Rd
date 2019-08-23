@@ -1,6 +1,5 @@
 \name{methods}
 \Rdversion{1.1}
-\alias{plot.expectreg}
 \alias{print.expectreg}
 \alias{predict.expectreg}
 \alias{residuals.expectreg}
@@ -21,13 +20,13 @@ Methods for expectile regression objects
 Methods for objects returned by expectile regression functions.
 }
 \usage{
-\method{plot}{expectreg}(x,rug = TRUE, xlab = NULL, ylab = NULL, ylim = NULL, legend = TRUE, ci = FALSE, ...)
+%\method{plot}{expectreg}(x,rug = TRUE, xlab = NULL, ylab = NULL, ylim = NULL, legend = TRUE, ci = FALSE, ...)
 
 \method{print}{expectreg}(x, ...)
 
 \method{summary}{expectreg}(object,...)
 
-\method{predict}{expectreg}(object, newdata = NULL, ...)
+\method{predict}{expectreg}(object, newdata = NULL, with_intercept = T, ...)
 
 \method{[}{expectreg}(x, i)
 
@@ -49,12 +48,15 @@ Methods for objects returned by expectile regression functions.
   \item{x,object}{
 An object of class \code{expectreg} as returned e.g. by the function \code{\link{expectreg.ls}}.
 }
-  \item{rug}{ Boolean. Whether nonlinear effects are displayed in a rug plot. }
-  \item{xlab,ylab,ylim}{ Graphic parameters. \code{xlab} should match the number of covariates. }
-  \item{legend}{ Boolean. Decides whether a legend is added to the plots. }
-  \item{ci}{ Boolean. Whether confidence intervals and significances should be plotted.}
+%  \item{rug}{ Boolean. Whether nonlinear effects are displayed in a rug plot. }
+%  \item{xlab,ylab,ylim}{ Graphic parameters. \code{xlab} should match the number of covariates. }
+%  \item{legend}{ Boolean. Decides whether a legend is added to the plots. }
+%  \item{ci}{ Boolean. Whether confidence intervals and significances should be plotted.}
   \item{newdata}{ 
 Optionally, a data frame in which to look for variables with which to predict.
+}
+  \item{with_intercept}{
+Should the intercept be added to the prediction of splines?
 }
  \item{i}{
 Covariate numbers to be kept in subset.
@@ -71,8 +73,7 @@ Optionally the confidence intervals may be restricted to certain covariates, to 
 These functions can be used to extract details from fitted models.
   \code{print} shows a dense representation of the model fit.
 
-The \code{plot} function gives a visual representation of the fitted expectiles
-separately for each covariate.
+%The \code{plot} function gives a visual representation of the fitted expectiles separately for each covariate.
 
 \code{[} can be used to define a new object with a subset of covariates from the original fit.
 
@@ -96,8 +97,12 @@ doi: 10.1016/j.csda.2010.11.015.
 
 }
 \author{
-Fabian Sobotka \cr
-Georg August University Goettingen \cr
+Fabian Otto- Sobotka \cr
+Carl von Ossietzky University Oldenburg \cr
+\url{http://www.uni-Oldenburg.de} \cr
+
+Elmar spiegel \cr
+Georg August University Goettingen
 \url{http://www.uni-goettingen.de} \cr
 
 }
@@ -112,7 +117,6 @@ data(dutchboys)
 
 expreg <- expectreg.ls(hgt ~ rb(age,"pspline"),data=dutchboys,smooth="f",
                        expectiles=c(0.05,0.2,0.8,0.95))
-plot(expreg)
 
 print(expreg)
 

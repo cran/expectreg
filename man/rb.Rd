@@ -13,22 +13,27 @@ Additionally a penalty matrix is generated. Shape constraint p-spline bases can
 also be specified.
 }
 \usage{
-rb(x, type = c("pspline", "2dspline", "markov", "radial", "krig", 
-                 "random", "ridge", "special", "parametric"),
-                 B = NA, P = NA, bnd = NA, center = TRUE, by = NA)
-                 
-mono(x, constraint = c("increase", "decrease", "convex", "concave", "flatend"), by = NA)
+rb(x, type = c("pspline", "2dspline", "markov", "krig", "random", 
+"ridge", "special", "parametric", "penalizedpart_pspline"), B_size = 20, 
+B = NA, P = NA, bnd = NA, center = TRUE, by = NA, ...)
+
+mono(x, constraint = c("increase", "decrease", "convex", "concave", "flatend"), 
+by = NA)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{x}{
-Data vector, matrix or data frame. In case of '2dspline', 'radial' or 'krig' \code{type}
-number of variables of \code{x} has to be 2, more dimensions are allowed in 'ridge' and 'special' \code{type}.
+Data vector, matrix or data frame. In case of '2dspline', or 'krig' \code{type}
+number of variables of \code{x} has to be 2. More dimensions are allowed in 'ridge' and 'special' \code{type}.
 'markov' and 'random' \code{type} require a vector of a factor.
 }
   \item{type}{
 Character string defining the type of base that is generated for the given variable(s) \code{x}.
 Further description of the possible options is given below in \code{details}.
+
+}
+  \item{B_size}{
+Number of basis functions of psplines. Default is 20.
 }
   \item{B}{
 For the 'special' \code{type} the base \code{B} and penalization matrix \code{P}
@@ -55,36 +60,41 @@ Per default treatment coding is used. Note that the main effect needs to be spec
 Character string defining the type of shape constraint that is imposed on the spline curve. The last option
 'flatend' results in constant functions at the covariate edges.
 }
+  \item{...}{
+Currently not used.
+}
 }
 \details{
 
 Possible \code{types} of bases:
-\tabular{ll}{
-pspline \tab Penalized splines made upon 20 equidistant knots
-             and with degree 2. The penalization matrix consists 
+\describe{
+\item{pspline}{Penalized splines made upon \code{B_size} equidistant knots
+              with degree 3. The penalization matrix consists 
              of differences of the second order, 
-             see \code{\link[base]{diff}}. \cr
-2dspline \tab Tensor product of 2 p-spline bases 
-              with the same properties as above. \cr
-markov \tab Gaussian markov random field with a neighbourhood 
-            structure given by \code{P} or \code{bnd}. \cr
-radial \tab 2-dimensional base, knots are subset of observations, 
-            base is calculated as r^2*log(r) with r equalling 
-            the euclidean distance between the current observation 
-            and the knots. The base has size 50 if possible.\cr
-krig \tab 'kriging' produces basically the same base as 'radial', 
-          but the base is calculated as exp(-r/phi)*(1+r/phi)
+             see \code{\link[base]{diff}}.}
+\item{2dspline}{Tensor product of 2 p-spline bases 
+              with the same properties as above.}
+
+\item{markov}{Gaussian markov random field with a neighbourhood 
+            structure given by \code{P} or \code{bnd}. }
+%\item{radial}{2-dimensional base, knots are subset of observations, 
+%            base is calculated as r^2*log(r) with r equalling 
+%            the euclidean distance between the current observation 
+%            and the knots. The base has size 50 if possible.}
+\item{krig}{'kriging' produces a 2-dimensional base, which is calculated as exp(-r/phi)*(1+r/phi)
           where \code{phi} is the maximum euclidean distance 
-          between two knots divided by a constant. \cr
-random \tab A 'random' effect is like the 'markov' random field 
+          between two knots divided by a constant. }
+\item{random}{A 'random' effect is like the 'markov' random field 
             based on a categorial variable, 
-            and since there is no neighbourhood structure, P = I. \cr
-ridge \tab In a 'ridge' regression, the base is made 
+            and since there is no neighbourhood structure, P = I. }
+\item{ridge}{In a 'ridge' regression, the base is made 
            from the independent variables while the goal is 
            to determine significant variables from the coefficients. 
-           Therefore no penalization is used (P = I). \cr
-special \tab In the 'special' case, \code{B} and \code{P} are user defined.\cr
-parametric \tab A parametric effect. \cr
+           Therefore no penalization is used (P = I). }
+\item{special}{In the 'special' case, \code{B} and \code{P} are user defined.}
+\item{parametric}{A parametric effect. }
+\item{penalizedpart_pspline}{Penalized splines made upon \code{B_size} equidistant knots with degree 3. The penalization matrix consists of differences of the second order, 
+  see \code{\link[base]{diff}}. Generally a P-spline of degree 3 with 2 order penalty can be splited in a linear trend and the deviation of the linear trend. Here only the wiggly deviation of the linear trend is kept. It is possible to combine it with the same covariate of type \code{parametric}}
 }
 
 }
@@ -100,10 +110,16 @@ List consisting of:
                     for calculation of the fitted values. }
   \item{phi}{ Constant only needed with 'kriging' \code{type},
               otherwise 'NA'. }
-  \item{center}{ The boolean value of the argument \code{center}.
-         }
+  \item{center}{ The boolean value of the argument \code{center}.}
   \item{by}{ The variable included in the \code{by} argument if available. }
-  \item{xname}{ Name of the variable \code{x} given to the function. }
+  \item{xname}{ Name of the variable \code{x} given to the function. Modified by its type.}
+  \item{constraint}{ Part of the penalty matrix. }
+  \item{B_size}{ Same as input }
+  \item{P_orig}{ Original penalty \code{P} before restructuring. Used for model selection. }
+  \item{B_mean}{ Original mean of design matrix \code{B} before centering. }
+  \item{param_center}{ Parameters of centering the covariate. }
+  \item{nbp}{ Number of penalized parameters in this covariate. }
+  \item{nbunp}{ Number of unpenalized parameters in this covariate. }
 }
 \references{
     Fahrmeir L and Kneib T and Lang S (2009)
@@ -111,7 +127,11 @@ List consisting of:
     Springer, New York
 }
 \author{
-Fabian Sobotka, Thomas Kneib \cr
+Fabian Otto- Sobotka \cr
+Carl von Ossietzky University Oldenburg \cr
+\url{http://www.uni-Oldenburg.de} \cr
+
+Thomas Kneib, Elmar Spiegel \cr
 Georg August University Goettingen \cr
 \url{http://www.uni-goettingen.de} \cr
 
@@ -126,6 +146,7 @@ Erasmus Medical Center Rotterdam \cr
 
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
+\section{Warning }{The \code{pspline} is now centered around its mean. Thus different results compared to old versions of \code{expectreg} occure.}
 
 \seealso{
  \code{\link{quant.bundle}}, \code{\link{expectreg.ls}}

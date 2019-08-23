@@ -113,7 +113,6 @@ function (design, lambda, types, p, y, P.list, Cmat, Bx, K, i.ja,
                 bvec_partNC <- yywh[-((nrow(B) - n + 1):nrow(B))] - 
                   yywh[-(1:n)]
                 bvec[, (meq + 1):(n * (mp - 1) + meq)] <- bvec_partNC
-                print("hier!")
             }
         }
         else {

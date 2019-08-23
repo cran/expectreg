@@ -40,7 +40,7 @@ logical. Should the result be plotted?
 logical. Should data values be on the x-axis? 
 }
   \item{xlab, ylab, main}{
-plot labels. The xlab and ylab refer to the y and x axes respectively if \code{datax} = TRUE.
+plot labels. The xlab and ylab refer to the x and y axes respectively if \code{datax} = TRUE.
 }
   \item{\dots}{
 graphical parameters. 
@@ -70,9 +70,9 @@ doi: 10.1016/j.csda.2010.11.015.
 
 }
 \author{
-Fabian Sobotka \cr
-Georg August University Goettingen \cr
-\url{http://www.uni-goettingen.de} \cr
+Fabian Otto-Sobotka \cr
+Carl von Ossietzky University Oldenburg \cr
+\url{http://www.uni-oldenburg.de} \cr
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~

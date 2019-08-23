@@ -12,9 +12,11 @@ loss functions to obtain the graphs of 11 different expectiles
 for continuous, spatial or random effects.
 }
 \usage{
-expectreg.boost(formula, data, mstop = NA, expectiles = NA, cv = TRUE)
+expectreg.boost(formula, data, mstop = NA, expectiles = NA, cv = TRUE, 
+BoostmaxCores = 1, quietly = F)
 
-quant.boost(formula, data, mstop = NA, quantiles = NA, cv = TRUE)
+quant.boost(formula, data, mstop = NA, quantiles = NA, cv = TRUE, 
+BoostmaxCores = 1, quietly = F)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -38,6 +40,12 @@ You may specify your own set of expectiles in a vector.
   \item{cv}{
 A cross-validation can determine the optimal amount of boosting iterations between 1 and \code{mstop}.
 Uses \code{\link[mboost]{cvrisk}}. If set to \code{FALSE}, the results from \code{mstop} iterations are used.
+}
+  \item{BoostmaxCores}{
+Maximum number of used cores for the different asymmetry parameters
+}
+  \item{quietly}{
+If programm should run quietly.
 }
 }
 \details{
@@ -71,7 +79,11 @@ Computational Statistics and Data Analysis,
 doi: 10.1016/j.csda.2010.11.015.
 }
 \author{
-Fabian Sobotka, Thomas Kneib \cr
+Fabian Otto- Sobotka \cr
+Carl von Ossietzky University Oldenburg \cr
+\url{http://www.uni-Oldenburg.de} \cr
+
+Thomas Kneib, Elmar Spiegel \cr
 Georg August University Goettingen \cr
 \url{http://www.uni-goettingen.de} \cr
 }
@@ -84,8 +96,12 @@ Georg August University Goettingen \cr
 }
 \examples{
 data("lidar", package = "SemiPar")
-expreg <- expectreg.boost(logratio ~ bbs(range),lidar, mstop=300, expectiles=c(0.05,0.5,0.95))
-plot(expreg)
+ex <- expectreg.boost(logratio ~ bbs(range),lidar, mstop=200, 
+                      expectiles=c(0.1,0.5,0.95),quietly=TRUE)
+plot(ex)
+
+qx <- quant.boost(logratio~bbs(range),lidar,mstop=200,quantiles=c(0.1,0.5,0.95),quietly=TRUE)
+plot(qx)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

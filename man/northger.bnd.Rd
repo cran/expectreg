@@ -7,7 +7,7 @@ Regions of northern Germany - boundary format
 }
 \description{
 Map of northern Germany, represented in the boundary format (bnd)
-as defined in the package \code{\link[BayesX]{BayesX}}.
+as defined in the package \code{\link[=BayesX-package]{BayesX}}.
 }
 \usage{data(northger.bnd)}
 \format{

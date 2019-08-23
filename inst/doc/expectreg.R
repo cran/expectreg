@@ -1,4 +1,5 @@
 ### R code from vignette source 'expectreg.Rnw'
+### Encoding: UTF-8
 
 ###################################################
 ### code chunk number 1: expectreg.Rnw:30-31

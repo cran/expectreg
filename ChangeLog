@@ -1,3 +1,50 @@
+2019-06-09 version 0.50
+new features:
+- speed is increased due to translation of key parts into Rcpp
+- arguments of rb(): "penalizedpart_pspline" fitting only the penalized part of a pspline; modification of number of basis function for B-splines possible
+- new function AIC
+- update expectreg.ls results
+- expectreg.ls has now argument smooth="ocv" and LAWSmaxCores for interactivly defining the maximal number of used cores in unix systems.  
+- prediction of values without use of intercept is now possible
+- plot function contains more arguments to individualize plots and also plots results of factor and parametric covariates
+- expectreg.boost includes now arguments BoostmaxCores for number of cores and quietly to run quietly
+
+changes: 
+- names of the covariate specific output now contains the type of the covariate.
+- psplines, 2dsplines, markov, random are now centered around 0
+- radial is out of order
+- grid of cvgrid and lcurve is modified
+- aic and bic have changed formulas
+- mono has changed penalty for flatend
+- class of expectreg now includes the smoothing type
+
+
+bugfixes:
+- print of y~1 model without error
+- psplines, 2dsplines, markov and random are centered around 0
+- plot(): ask is now working
+          factor covariates are generally checked
+          plot of markov without bnd data does not throw an error anymore
+          markov fields are now grey to avoid confusion with colorshemes of the other plots
+          psplines are centered around their intercept - intercept of asymmetry 50% (if possible)
+          par() is saved and reset before each plot
+- psplines and 2dpsplines have now a bases degree of 3
+- penalty of krig is modified
+- schall algorithm uses only the penalized part of the covariates
+- quantboost has modified maximum number of cores
+          
+
+2015-05-25 version 0.40
+
+new features:
+- argument for penalty on random intercept in longitudinal qp sheets
+- added new example data set Gasoline as copied from package plm
+
+bugfixes:
+- fixed package Description for R>=2.8.0
+- fixed quantile bundle estimation for specific examples from crashing on Linux
+- fixed definition of AIC / BIC for expectiles
+
 2014-03-05 version 0.39
 
 new features:

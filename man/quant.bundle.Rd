@@ -111,7 +111,11 @@ Computational Statistics and Data Analysis,
 doi: 10.1016/j.csda.2010.11.015.
 }
 \author{
-Fabian Sobotka, Thomas Kneib \cr
+Fabian Otto- Sobotka \cr
+Carl von Ossietzky University Oldenburg \cr
+\url{http://www.uni-Oldenburg.de} \cr
+
+Thomas Kneib \cr
 Georg August University Goettingen \cr
 \url{http://www.uni-goettingen.de} \cr
 

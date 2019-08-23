@@ -1,21 +1,20 @@
-desc <- packageDescription("expectreg")
-year <- sub(".*(2[[:digit:]]{3})-.*", "\\1", desc$Date)
-vers <- paste("R package version", desc$Version)
-citEntry(entry="Manual",
-title = "expectreg: Expectile and Quantile Regression",
-author = personList(as.person("Fabian Sobotka"),
-as.person("Sabine Schnabel"),
-as.person("Linda Schulze Waltrup"),
-as.person("Paul Eilers"),
-as.person("Thomas Kneib"),
-as.person("Goeran Kauermann")),
-year = year,
-note = vers,
-textVersion =
-paste("F. Sobotka, S. Schnabel and L. Schulze Waltrup with contributions from P. Eilers, T. Kneib and G. Kauermann (",
-year,
-"). expectreg: Expectile and Quantile Regression. ",
-vers, ".", sep=""))
+year <- sub("-.*", "", meta$Date)
+vers <- sprintf("R package version %s", meta$Version)
+
+
+     bibentry(bibtype = "Manual",
+              title = "{expectreg}: Expectile and Quantile Regression",
+              author = c(person("Fabian", "Otto-Sobotka"),
+                         person("Elmar", "Spiegel"),
+                         person("Sabine", "Schnabel"),
+                         person("Linda", "Schulze Waltrup"),
+                         person("Paul","Eilers"),
+			 person("Goeran","Kauermann"),
+			 person("Thomas","Kneib")),
+              year = year,
+              note = vers,
+              url = "https://CRAN.R-project.org/package=expectreg")
+
 
     citEntry(entry="Article",
          title = "Geoadditive Expectile Regression",

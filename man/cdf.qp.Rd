@@ -10,7 +10,8 @@ Estimating the CDF of the response for a given value of covariate. Additionally 
 from the distribution function which allows for the calculation of regression quantiles.
 }
 \usage{
-cdf.qp(expectreg, x = NA, qout = NA, extrap = FALSE)
+cdf.qp(expectreg, x = NA, qout = NA, extrap = FALSE, e0 = NA, eR = NA, 
+       lambda = 0, var.dat = NA)
 
 cdf.bundle(bundle, qout = NA, extrap = FALSE)
 }
@@ -18,7 +19,7 @@ cdf.bundle(bundle, qout = NA, extrap = FALSE)
 \arguments{
   \item{expectreg, bundle}{
 An object of class expectreg or subclass bundle respectively. The number of expectiles should be high enough to ensure accurate estimation. 
-One approach would be to take as many expectiles as data points.
+One approach would be to take as many expectiles as data points. Also make sure that extreme expectiles are incuded, e.g. expectiles corresponding to very small and large asymmetrie values.
 }
   \item{x}{
 The covariate value where the CDF is estimated. By default the first covariate value.
@@ -28,6 +29,19 @@ Vector of quantiles that will be computed from the CDF.
 }
   \item{extrap}{
 If TRUE, extreme quantiles will be extrapolated linearly, otherwise the maximum of the CDF is used.
+}
+  \item{e0}{
+Scalar number which offers the possibility to specify an artificial minimal expectile (for example the minimum of the data) used for the calculation. By default e0 = e1 + (e1 - e2) where e1 is the actual minimal expectile and e2 the second smallest expectile.
+}
+  \item{eR}{
+Scalar number which offers the possibility to specify an artificial maximal expectile (for example the maximum of the data) used for the calculation. By default eR = eR-1 + (eR-1 - eR-2) where eR-1 is the actual maximal expectile and eR-2 the second largest expectile.
+}
+  \item{lambda}{
+Positive Scalar. Penalty parameter steering the smoothness of the fitted CDF. By default equal to 0 which means no penalization.
+}
+  \item{var.dat}{
+Positive Scalar for a applied penalization, i.e \code{lambda} unequal to 0.
+In default this argument can be used to let the penalty depend on the variance of the expectiles.
 }
 }
 \details{
@@ -55,18 +69,18 @@ Schnabel SK and Eilers PHC (2010)
 \emph{ A location scale model for non-crossing expectile curves }
 (working paper)
 
-Schulze Waltrup L, Sobotka F, Kauermann G and Kneib T (2011)
-\emph{ Comparing Expectiles and Quantiles Regarding Efficiency }
-Working Paper.
+Schulze Waltrup L, Sobotka F, Kneib T and Kauermann G (2014)
+\emph{ Expectile and Quantile Regression - David and Goliath? }
+Statistical Modelling.
 }
 \author{
 Goeran Kauermann, Linda Schulze Waltrup \cr
 Ludwig Maximilian University Munich \cr
 \url{http://www.lmu.de} \cr
 
-Fabian Sobotka \cr
-Georg August University Goettingen \cr
-\url{http://www.uni-goettingen.de} \cr
+Fabian Otto- Sobotka \cr
+Carl von Ossietzky University Oldenburg \cr
+\url{http://www.uni-Oldenburg.de} \cr
 
 Sabine Schnabel \cr
 Wageningen University and Research Centre \cr
@@ -75,6 +89,10 @@ Wageningen University and Research Centre \cr
 Paul Eilers \cr
 Erasmus Medical Center Rotterdam \cr
 \url{http://www.erasmusmc.nl} \cr
+
+Elmar Spiegel \cr
+Georg August University Goettingen \cr
+\url{http://www.uni-goettingen.de} \cr
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
@@ -83,9 +101,15 @@ Erasmus Medical Center Rotterdam \cr
 \code{\link{expectreg.ls}}, \code{\link{expectreg.qp}}
 }
 \examples{
-d = expectreg.ls(dist ~ rb(speed),data=cars,smooth="f",lambda=5,estimate="restricted")
+d = expectreg.ls(dist ~ rb(speed),data=cars,smooth="f",lambda=5,estimate="restricted",
+expectiles=c(0.0001,0.001,seq(0.01,0.99,0.01),0.999,0.9999))
 e = cdf.qp(d,15,extrap=TRUE)
 e 
+e2 = cdf.qp(d,15,extrap=TRUE,e0=-25)
+e2
+
+b<-cdf.bundle(d,extrap=TRUE)
+plot(b)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

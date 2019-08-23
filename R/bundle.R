@@ -25,8 +25,8 @@ function (B, DD, yy, pp, lambda, smooth, nb, center, constmat,
             cc <- pp - 0.5
             if (any(cc != 0)) 
                 for (i in 1:20) {
-                  mo <- fitampllsfit(residuals, B, b, pp, cc, 
-                    DD, lala[, 2], nb)
+                  mo <- fitampllsfit(abs(residuals), B, b, pp, 
+                    cc, DD, lala[, 2], nb)
                   b <- mo$b/((sum(mo$b^2)/length(mo$b))^(1/2))
                   c0 <- cc
                   cc <- fitasy(residuals, B, b, pp, cc)
@@ -44,14 +44,14 @@ function (B, DD, yy, pp, lambda, smooth, nb, center, constmat,
             for (i in 1:nterms) {
                 partbasis = (sum(nb[0:(i - 1)]) + 1):(sum(nb[0:i]))
                 if (center) {
-                  partB = B[, -1][, partbasis, drop = FALSE]
-                  partDD = DD[, -1][-1, ][, partbasis, drop = FALSE]
-                  partb = b[-1][partbasis]
+                  partB = B[, -1,drop=F][, partbasis, drop = FALSE]
+                  partDD = DD[, -1,drop=F][-1, ,drop=F][, partbasis, drop = FALSE]
+                  partb = b[-1,drop=F][partbasis,drop=FALSE]
                 }
                 else {
                   partB = B[, partbasis, drop = FALSE]
                   partDD = DD[, partbasis, drop = FALSE]
-                  partb = b[partbasis]
+                  partb = b[partbasis,drop=F,drop=FALSE]
                 }
                 v = partDD %*% partb
                 z = B %*% b
@@ -93,8 +93,8 @@ function (B, DD, yy, pp, lambda, smooth, nb, center, constmat,
         cc <- pp - 0.5
         if (any(cc != 0)) 
             for (i in 1:20) {
-                mo <- fitampllsfit(residuals, B, b, pp, cc, DD, 
-                  abs(acv.min$par), nb)
+                mo <- fitampllsfit(abs(residuals), B, b, pp, 
+                  cc, DD, abs(acv.min$par), nb)
                 b <- mo$b/((sum(mo$b^2)/length(mo$b))^(1/2))
                 c0 <- cc
                 cc <- fitasy(residuals, B, b, pp, cc)
@@ -119,8 +119,8 @@ function (B, DD, yy, pp, lambda, smooth, nb, center, constmat,
         cc <- pp - 0.5
         if (any(cc != 0)) 
             for (i in 1:20) {
-                mo <- fitampllsfit(residuals, B, b, pp, cc, DD, 
-                  lala[, 2], nb)
+                mo <- fitampllsfit(abs(residuals), B, b, pp, 
+                  cc, DD, lala[, 2], nb)
                 b <- mo$b/((sum(mo$b^2)/length(mo$b))^(1/2))
                 c0 <- cc
                 cc <- fitasy(residuals, B, b, pp, cc)

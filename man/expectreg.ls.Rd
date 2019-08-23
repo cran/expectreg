@@ -12,9 +12,9 @@ or quadratic programming to obtain expectiles
 for parametric, continuous, spatial and random effects.
 }
 \usage{
-expectreg.ls(formula, data = NULL, estimate=c("laws","restricted","bundle","sheets"), 
-              smooth = c("schall", "gcv", "cvgrid", "aic", "bic", "lcurve", "fixed"), 
-              lambda = 1, expectiles = NA, ci = FALSE)
+expectreg.ls(formula, data = NULL, estimate = c("laws", "restricted", "bundle", "sheets"),
+smooth = c("schall", "ocv", "gcv", "cvgrid", "aic", "bic", "lcurve", "fixed"), 
+lambda = 1, expectiles = NA, ci = FALSE, LAWSmaxCores = 1, ...)
 
 expectreg.qp(formula, data  = NULL, id = NA, smooth = c("schall", "acv", "fixed"), 
              lambda = 1, expectiles = NA) 
@@ -38,8 +38,8 @@ Character string defining the estimation method that is used to fit the expectil
 }
   \item{smooth}{
 There are different smoothing algorithms that should prevent overfitting.
-The 'schall' algorithm iterates the smoothing penalty \code{lambda} until it converges (REML),
-the generalised cross-validation 'gcv' minimizes a score-function using \code{\link[stats]{nlm}} or with a grid search by 'cvgrid' or the function uses a fixed penalty. The numerical minimisatioin is also possible with AIC or BIC as score. The L-curve is a new experimental grid search.
+The 'schall' algorithm iterates the smoothing penalty \code{lambda} until it converges (REML).
+The generalised cross-validation 'gcv',similar to the ordinary cross- validation 'ocv' minimizes a score-function using \code{\link[stats]{nlminb}} or with a grid search by 'cvgrid' or the function uses a fixed penalty. The numerical minimisatioin is also possible with AIC or BIC as score. The L-curve is a new experimental grid search by Frasso and Eilers.
 }
   \item{lambda}{
 The fixed penalty can be adjusted. Also serves as starting value for
@@ -52,6 +52,12 @@ of a dense set of expectiles that enhances the use of \code{\link{cdf.qp}} and \
 }
   \item{ci}{
 Whether a covariance matrix for confidence intervals and a \code{\link[=summary.expectreg]{summary}} is calculated.
+}
+ \item{LAWSmaxCores}{
+ How many cores should maximal be used by parallelization
+}
+ \item{...}{
+Optional value for re-weight the model with estimate weights and combine selected models to one model. 
 }
 }
 \details{
@@ -78,7 +84,6 @@ of the restricted.
 The expectile sheets construct a p-spline basis for the expectiles and perform a continuous fit over all expectiles
 by fitting the tensor product of the expectile spline basis and the basis of the covariates.
 In consequence there will be most likely no crossing of expectiles but also a good fit in heteroscedastic scenarios.
-"schall" smoothing does not yet work for sheets.
 
 The function \code{expectreg.qp} also fits a sheet over all expectiles, but it uses quadratic programming with constraints,
 so crossing of expectiles will definitely not happen. So far the function is implemented for one nonlinear or spatial covariate
@@ -101,7 +106,13 @@ An object of class 'expectreg', which is basically a list consisting of:
     \item{effects}{ List of characters giving the types of covariates. }
     \item{helper}{ List of additional parameters like neighbourhood structure for spatial effects or 'phi' for kriging. }
     \item{design}{ Complete design matrix. }
+    \item{bases}{ Bases components of each covariate. }
     \item{fitted}{ Fitted values \eqn{ \hat{y} }. }
+   \item{covmat}{ Covariance matrix, estimated when \code{ci = TRUE}. }
+   \item{diag.hatma}{ Diagonal of the hat matrix. Used for model selection criteria. }
+   \item{data}{ Original data }
+   \item{smooth_orig}{ Unchanged original type of smoothing. }
+   %\item{delta_garrote}{ Values of extra weights used for non-negative garrote }
 \code{\link[=plot.expectreg]{plot}}, \code{\link[=predict.expectreg]{predict}}, \code{\link[=resid.expectreg]{resid}},
 \code{\link[=fitted.expectreg]{fitted}}, \code{\link[=effects.expectreg]{effects}}
 and further convenient methods are available for class 'expectreg'.
@@ -125,7 +136,11 @@ Frasso G and Eilers P (2013)
 (under review)
 }
 \author{
-Fabian Sobotka, Thomas Kneib \cr
+Fabian Otto-Sobotka \cr
+Carl von Ossietzky University Oldenburg \cr
+\url{http://www.uni-Oldenburg.de} \cr
+
+Thomas Kneib \cr
 Georg August University Goettingen \cr
 \url{http://www.uni-goettingen.de} \cr
 
@@ -148,6 +163,7 @@ Ludwig Maximilians University Muenchen \cr
 \code{\link{rb}}, \code{\link{expectreg.boost}}
 }
 \examples{
+library(expectreg)
 ex = expectreg.ls(dist ~ rb(speed),data=cars,smooth="b",lambda=5,expectiles=c(0.01,0.2,0.8,0.99))
 ex = expectreg.ls(dist ~ rb(speed),data=cars,smooth="f",lambda=5,estimate="restricted")
 plot(ex)

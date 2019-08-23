@@ -91,7 +91,7 @@ where m is the mean, F the cdf and G the partial moment function
 \eqn{ G(z) = \int\limits_{-\infty}^{z} uf(u) \mbox{d}u }.
 }
 \value{
-Vector of the expectiles for the desired distribution.
+Vector of the expectiles or asymmetry values for the desired distribution.
 }
 \references{
 Newey W and Powell J (1987)
@@ -99,7 +99,11 @@ Newey W and Powell J (1987)
 Econometrica, 55:819-847
 }
 \author{
-Fabian Sobotka, Thomas Kneib \cr
+Fabian Otto- Sobotka \cr
+Carl von Ossietzky University Oldenburg \cr
+\url{http://www.uni-Oldenburg.de} \cr
+
+Thomas Kneib \cr
 Georg August University Goettingen \cr
 \url{http://www.uni-goettingen.de} \cr
 }
@@ -113,10 +117,10 @@ Georg August University Goettingen \cr
 \examples{
 x <- seq(0.02,0.98,0.2)
 
-qnorm(x)
 e = enorm(x)
-
+e
 penorm(e)
+
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

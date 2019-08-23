@@ -1,5 +1,5 @@
 predict.expectreg <-
-function (object, newdata = NULL, ...) 
+function(object,newdata=NULL,with_intercept=T,...)
 {
-    object$predict(newdata)
+  object$predict(newdata,with_intercept=with_intercept)
 }

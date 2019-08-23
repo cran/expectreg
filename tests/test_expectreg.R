@@ -6,8 +6,8 @@ set.seed(9484470)
 
 ma <- matrix(runif(200)*10,nrow=100)
 
-testfunction <- function(m1,m2) {
-    stopifnot(max(abs(fitted(m1)-fitted(m2)))<0.2)
+testfunction <- function(mod1,mod2) {
+    stopifnot(max(abs(fitted(mod1)-fitted(mod2)))<0.5)
 }
 
 #univariate linear model
@@ -31,7 +31,7 @@ testfunction(m5,mcomp)
 # univariate model involving sin transformation
 
 dat <- data.frame(regressand = sin(ma[,1]),covariate=ma)
-m1 <- expectreg.ls(regressand~rb( covariate.1,"pspline"),data=dat,smooth="schall",expectiles=c(0.5))
+m1 <- expectreg.ls(regressand~rb( covariate.1,"pspline"),data=dat,smooth="f",expectiles=c(0.5),lambda=0.000000001)
 
 #m2 <- expectile.sheets(regressand~rb( covariate.1,"pspline"),data=dat,smooth="acv",expectiles=c(0.5))
 
@@ -53,7 +53,7 @@ testfunction(m5,mcomp)
 # bivariate model: linear and sin
 dat <- data.frame(regressand = sin(ma[,1])+3*ma[,2],covariate=ma)
 
-m1 <- expectreg.ls(regressand~rb( covariate.1,"pspline")+rb( covariate.2,"pspline"),data=dat,smooth="schall",expectiles=c(0.5))
+m1 <- expectreg.ls(regressand~rb( covariate.1,"pspline")+rb( covariate.2,"pspline"),data=dat,smooth="f",expectiles=c(0.5),lambda=0.000000001)
 #m2 <- expectile.sheets(regressand~rb( covariate.1,"pspline")+base( covariate.2,"pspline"),data=dat,smooth="acv",expectiles=c(0.5))
 
 m3 <- expectreg.ls(regressand~rb( covariate.1,"pspline")+rb( covariate.2,"pspline"),data=dat,smooth="schall",expectiles=c(0.5),estimate="restricted")
@@ -101,7 +101,7 @@ stopifnot(length(mBundle$coefficients)==2)
 stopifnot(length(mRestricted$coefficients)==2)
 
 for(i in 1:2) {
-    stopifnot(nrow(mLaws$coefficients[[i]])== 20)
+    stopifnot(nrow(mLaws$coefficients[[i]])== 21)
     stopifnot(ncol(mLaws$coefficients[[i]])== length(mLaws$asymmetries))
 }
 #for(i in 1:2) {
@@ -113,11 +113,11 @@ stopifnot(ncol(mNoncross$coefficients[[1]])== length(mNoncross$asymmetries))
 
 
 for(i in 1:2) {
-    stopifnot(nrow(mBundle$coefficients[[i]])== 20)
+    stopifnot(nrow(mBundle$coefficients[[i]])== 21)
     stopifnot(ncol(mBundle$coefficients[[i]])== length(mBundle$asymmetries))
 }
 for(i in 1:2) {
-    stopifnot(nrow(mRestricted$coefficients[i])== 20)
+    stopifnot(nrow(mRestricted$coefficients[i])== 21)
     stopifnot(ncol(mRestricted$coefficients[i])== length(mRestricted$asymmetries))
 }
 

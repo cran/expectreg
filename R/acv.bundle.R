@@ -7,8 +7,8 @@ function (penalty, yy, B, pp, DD, nb)
     b <- rep(1, ncol(B))
     cc <- pp - 0.5
     for (i in 1:20) {
-        mo <- fitampllsfit(residuals, B, b, pp, cc, DD, penalty[, 
-            2], nb)
+        mo <- fitampllsfit(abs(residuals), B, b, pp, cc, DD, 
+            penalty[, 2], nb)
         b <- mo$b/((sum(mo$b^2)/length(mo$b))^(1/2))
         c0 <- cc
         cc <- fitasy(residuals, B, b, pp, cc)

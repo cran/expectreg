@@ -1,11 +1,20 @@
-
+useDynLib(expectreg)
 import(stats)
 import(BayesX)
 import(mboost)
+import(parallel)
+import(Matrix)
 
 importFrom(quadprog, solve.QP)
-
 importFrom(splines, splineDesign)
+importFrom(Rcpp, evalCpp)
+importFrom(colorspace, diverge_hcl)
+importFrom(fields, cover.design)
+
+importFrom("grDevices", "dev.interactive", "devAskNewPage", "rainbow")
+importFrom("graphics", "abline", "axis", "box", "hist", "lines", "matlines",
+         "matplot", "matpoints", "mtext", "par", "persp", "plot",
+         "points")
 
 export(expectreg.ls,
        expectreg.boost,
@@ -59,3 +68,7 @@ S3method(predict, expectreg)
 S3method("[", expectreg)
 S3method(confint, expectreg)
 S3method(summary, expectreg)
+S3method(AIC, expectreg)
+S3method(update, expectreg)
+
+

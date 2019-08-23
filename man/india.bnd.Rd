@@ -7,7 +7,7 @@ Regions of India - boundary format
 }
 \description{
 Map of the country india, represented in the boundary format (bnd)
-as defined in the package \code{\link[BayesX]{BayesX}}.
+as defined in the package \code{\link[=BayesX-package]{BayesX}}.
 }
 \usage{data(india.bnd)}
 \format{

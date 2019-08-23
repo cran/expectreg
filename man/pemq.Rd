@@ -67,7 +67,11 @@ Koenker R (2005)
 Cambridge University Press, New York
 }
 \author{
-Fabian Sobotka, Thomas Kneib \cr
+Fabian Otto- Sobotka \cr
+Carl von Ossietzky University Oldenburg \cr
+\url{http://www.uni-Oldenburg.de} \cr
+
+Thomas Kneib \cr
 Georg August University Goettingen \cr
 \url{http://www.uni-goettingen.de} \cr
 }
@@ -84,6 +88,7 @@ plot(x,demq(x))
 plot(x,pemq(x,ncp=1))
 
 z <- remq(100,s=sqrt(2))
+plot(z)
 
 y <- seq(0.02,0.98,0.2)
 qemq(y)
