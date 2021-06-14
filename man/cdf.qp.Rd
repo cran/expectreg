@@ -10,10 +10,10 @@ Estimating the CDF of the response for a given value of covariate. Additionally 
 from the distribution function which allows for the calculation of regression quantiles.
 }
 \usage{
-cdf.qp(expectreg, x = NA, qout = NA, extrap = FALSE, e0 = NA, eR = NA, 
+cdf.qp(expectreg, x = NA, qout = NA, extrap = FALSE, e0 = NA, eR = NA,
        lambda = 0, var.dat = NA)
 
-cdf.bundle(bundle, qout = NA, extrap = FALSE)
+cdf.bundle(bundle, qout = NA, extrap = FALSE, quietly = FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -40,8 +40,10 @@ Scalar number which offers the possibility to specify an artificial maximal expe
 Positive Scalar. Penalty parameter steering the smoothness of the fitted CDF. By default equal to 0 which means no penalization.
 }
   \item{var.dat}{
-Positive Scalar for a applied penalization, i.e \code{lambda} unequal to 0.
-In default this argument can be used to let the penalty depend on the variance of the expectiles.
+Positive Scalar. If a penalization is applied (i.e. \code{lambda} unequal to 0), this argument can be used to let the penalty depend on the variance of the expectiles (which is the default).
+}
+  \item{quietly}{
+If programm should run quietly.
 }
 }
 \details{
@@ -76,23 +78,19 @@ Statistical Modelling.
 \author{
 Goeran Kauermann, Linda Schulze Waltrup \cr
 Ludwig Maximilian University Munich \cr
-\url{http://www.lmu.de} \cr
+\url{https://www.lmu.de} \cr
 
-Fabian Otto- Sobotka \cr
-Carl von Ossietzky University Oldenburg \cr
-\url{http://www.uni-Oldenburg.de} \cr
+Fabian Sobotka \cr
+Georg August University Goettingen \cr
+\url{https://www.uni-goettingen.de} \cr
 
 Sabine Schnabel \cr
 Wageningen University and Research Centre \cr
-\url{http://www.wur.nl} \cr
+\url{https://www.wur.nl} \cr
 
 Paul Eilers \cr
 Erasmus Medical Center Rotterdam \cr
-\url{http://www.erasmusmc.nl} \cr
-
-Elmar Spiegel \cr
-Georg August University Goettingen \cr
-\url{http://www.uni-goettingen.de} \cr
+\url{https://www.erasmusmc.nl} \cr
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
@@ -102,14 +100,9 @@ Georg August University Goettingen \cr
 }
 \examples{
 d = expectreg.ls(dist ~ rb(speed),data=cars,smooth="f",lambda=5,estimate="restricted",
-expectiles=c(0.0001,0.001,seq(0.01,0.99,0.01),0.999,0.9999))
+                 expectiles=c(0.0001,0.001,seq(0.01,0.99,0.01),0.999,0.9999))
 e = cdf.qp(d,15,extrap=TRUE)
 e 
-e2 = cdf.qp(d,15,extrap=TRUE,e0=-25)
-e2
-
-b<-cdf.bundle(d,extrap=TRUE)
-plot(b)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

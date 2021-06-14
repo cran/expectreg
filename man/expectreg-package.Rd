@@ -15,8 +15,8 @@ Expectile and quantile regression of models with nonlinear effects
 \tabular{ll}{
 Package: \tab expectreg\cr
 Type: \tab Package\cr
-Version: \tab 0.50\cr
-Date: \tab 2019-08-22\cr
+Version: \tab 0.51\cr
+Date: \tab 2021-05-31\cr
 License: \tab GPL-2\cr
 LazyLoad: \tab yes\cr
 LazyData: \tab yes\cr
@@ -30,33 +30,33 @@ LazyData: \tab yes\cr
 \author{
 Fabian Otto-Sobotka \cr
 Carl von Ossietzky University Oldenburg \cr
-\url{http://www.uni-Oldenburg.de} \cr
+\url{https://uol.de} \cr
 
 Elmar Spiegel \cr
 Helmholtz Centre Munich \cr
-\url{http://www.helmholtz-muenchen.de} \cr
+\url{https://www.helmholtz-muenchen.de} \cr
 
 Sabine Schnabel \cr
 Wageningen University and Research Centre \cr
-\url{http://www.wur.nl}
+\url{https://www.wur.nl}
 
 Linda Schulze Waltrup \cr
 Ludwig Maximilian University Munich \cr
-\url{http://www.lmu.de} \cr
+\url{https://www.lmu.de} \cr
 
 with contributions from
 
 Paul Eilers \cr
 Erasmus Medical Center Rotterdam \cr
-\url{http://www.erasmusmc.nl}
+\url{https://www.erasmusmc.nl}
 
 Thomas Kneib \cr
 Georg August University Goettingen \cr
-\url{http://www.uni-goettingen.de} \cr
+\url{https://www.uni-goettingen.de} \cr
 
 Goeran Kauermann \cr
 Ludwig Maximilian University Munich \cr
-\url{http://www.lmu.de} \cr
+\url{https://www.lmu.de} \cr
 
 Maintainer: Fabian Otto-Sobotka <fabian.otto-sobotka@uni-oldenburg.de>
 

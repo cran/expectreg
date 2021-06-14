@@ -24,7 +24,7 @@ A panel of 18 observations from 1960 to 1978 in OECD countries.
 \source{
 Online complements to Baltagi (2001).
 
-\url{http://www.wiley.com/legacy/wileychi/baltagi/}
+\url{https://www.wiley.com/legacy/wileychi/baltagi/}
 }
 \references{
 Baltagi, Badi H. (2001) "Econometric Analysis of Panel Data", 2nd ed., John Wiley and Sons.

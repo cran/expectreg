@@ -1,5 +1,5 @@
 quant.boost <- function(formula,data,mstop = NA,quantiles = NA,cv = TRUE,
-             BoostmaxCores = 1,quietly = F)
+             BoostmaxCores = 1,quietly = FALSE)
     {
         if (any(is.na(quantiles)) ||
             !is.vector(quantiles) ||

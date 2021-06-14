@@ -171,12 +171,12 @@ function (formula, data = NULL, id = NA, smooth = c("schall",
         names(Z)[j] = design[[j]]$xname[1]
         names(coefficients)[j] = design[[j]]$xname[1]
     }
-    yyhat = matrix(nc.bf$fitted, nrow = n, ncol = length(p))
+    #yyhat = matrix(nc.bf$fitted, nrow = n, ncol = length(p))
     ncexpect <- list(lambda = final.lambdas, intercepts = intercepts, 
         values = Z, coefficients = coefficients, response = y, 
         formula = formula, asymmetries = p, effects = types, 
         helper = helper, covariates = x, design = Bx, bases = design, 
-        fitted = yyhat, weights = nc.bf$weights, part.resid = nc.bf$part.resid, 
+        fitted = nc.bf$yyhat, weights = nc.bf$weights, part.resid = nc.bf$part.resid, 
         dfi = dfi, coeff.vec = coeff.vec, alpha = alpha, tau2 = nc.bf$tau2, 
         sig2 = nc.bf$sig2)
     ncexpect$predict <- function(newdata = NULL) {

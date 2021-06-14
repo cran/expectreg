@@ -113,19 +113,19 @@ doi: 10.1016/j.csda.2010.11.015.
 \author{
 Fabian Otto- Sobotka \cr
 Carl von Ossietzky University Oldenburg \cr
-\url{http://www.uni-Oldenburg.de} \cr
+\url{https://uol.de} \cr
 
 Thomas Kneib \cr
 Georg August University Goettingen \cr
-\url{http://www.uni-goettingen.de} \cr
+\url{https://www.uni-goettingen.de} \cr
 
 Sabine Schnabel \cr
 Wageningen University and Research Centre \cr
-\url{http://www.wur.nl}
+\url{https://www.wur.nl}
 
 Paul Eilers \cr
 Erasmus Medical Center Rotterdam \cr
-\url{http://www.erasmusmc.nl}
+\url{https://www.erasmusmc.nl}
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~

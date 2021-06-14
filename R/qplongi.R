@@ -230,7 +230,6 @@ function (design, lambda, types, p, y, P.list, Cmat, Bx, K, i.ja,
                 it <- 1
                 lambda_einzel <- lambdanp[i]
                 while (dc >= 0.001 && it < 100) {
-                  print("hier")
                   mean.erg <- noncross.backfit(yy = y, Bx = Bx, 
                     Bp = c(1), pw = 0.5, bdegp = bdegp, n = n, 
                     mp = 1, lambdanp = lambdanp, P.list = P.list, 
@@ -238,24 +237,12 @@ function (design, lambda, types, p, y, P.list, Cmat, Bx, K, i.ja,
                     Cmat = Cmat, types = types)
                   tau2[i] <- (mean.erg$tau2dfi[i]/mean.erg$dfi[i]) + 
                     1e-06
-                  print(paste("i =", i))
-                  print("tau2[i]")
-                  print(tau2[i])
-                  print("mean.erg$dfi")
-                  print(mean.erg$dfi[i])
+
                   sig2df <- mean.erg$rss
                   sig2 <- as.numeric(sig2df/n)
-                  print(paste("n =", n))
-                  print("sig2")
-                  print(sig2)
+
                   lambda_neu <- sig2/tau2[i]
                   dc <- abs(log10(lambda_einzel) - log10(lambda_neu))
-                  print("dc")
-                  print(dc)
-                  print("lambda_alt")
-                  print(lambda_einzel)
-                  print("lambda_neu")
-                  print(lambda_neu)
                   it <- it + 1
                   lambda_einzel <- lambda_neu
                   lambdanp[i] <- lambda_neu

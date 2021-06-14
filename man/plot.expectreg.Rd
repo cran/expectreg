@@ -68,13 +68,9 @@ Should the intercept be added to the plots of splines?
 The \code{plot} function gives a visual representation of the fitted expectiles
 separately for each covariate.
 }
-%\value{
-%%  ~Describe the value returned
-%%  If it is a LIST, use
-%%  \item{comp1 }{Description of 'comp1'}
-%%  \item{comp2 }{Description of 'comp2'}
-%% ...
-%}
+\value{
+No return value, only graphical output.
+}
 \references{
 Schnabel S and Eilers P (2009)
 \emph{ Optimal expectile smoothing }
@@ -89,11 +85,11 @@ doi: 10.1016/j.csda.2010.11.015.
 \author{
 Fabian Otto- Sobotka \cr
 Carl von Ossietzky University Oldenburg \cr
-\url{http://www.uni-Oldenburg.de} \cr
+\url{https://uol.de} \cr
 
 Elmar Spiegel \cr
 Georg August University Goettingen \cr
-\url{http://www.uni-goettingen.de} \cr
+\url{https://www.uni-goettingen.de} \cr
 }
 %\note{
 %%  ~~further notes~~

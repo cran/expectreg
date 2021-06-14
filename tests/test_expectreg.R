@@ -70,8 +70,9 @@ testfunction(m4,mcomp)
 testfunction(m5,mcomp)
 
 
+set.seed(9484470)
 data(dutchboys)
-dutchb <- dutchboys[sample(1:length(dutchboys[,1]),150),]
+dutchb <- dutchboys[sample(nrow(dutchboys),150),]
 
 expect <- c(0.05,0.5,0.95)
 
@@ -79,9 +80,9 @@ expect <- c(0.05,0.5,0.95)
 ###Values
 
 
-mLaws <- expectreg.ls(hgt~rb(age,"pspline")+rb(wgt,"pspline"),data=dutchb,smooth="schall",expectiles=expect)
+mLaws <- expectreg.ls(hgt~rb(age,"pspline")+rb(wgt,"pspline"),data=dutchb,smooth="gcv",expectiles=expect)
 mSheets <- expectreg.ls(hgt~rb(age,"pspline")+rb(wgt,"pspline"),data=dutchb,smooth="f",lambda=1,expectiles=expect,estimate="sheets")
-mNoncross <-  expectreg.qp(hgt~rb(age,"pspline"),data=dutchb,smooth="schall",expectiles=expect)
+mNoncross <-  expectreg.qp(hgt~rb(age,"pspline"),data=dutchb,smooth="f",expectiles=expect)
 mBundle <- expectreg.ls(hgt~rb(age,"pspline")+rb(wgt,"pspline"),data=dutchb,smooth="schall",expectiles=expect,estimate="bundle")
 mRestricted <- expectreg.ls(hgt~rb(age,"pspline")+rb(wgt,"pspline"),data=dutchb,smooth="schall",expectiles=expect,estimate="restricted")
 mBoost <- expectreg.boost(hgt~bbs(age)+bbs(wgt),data=dutchb,expectiles=expect,mstop=400)

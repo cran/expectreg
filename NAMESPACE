@@ -51,7 +51,6 @@ export(expectreg.ls,
        peexp,
        pelnorm)
        
-exportClasses("expectreg")
 
 S3method(plot, expectreg)
 S3method(print, expectreg)

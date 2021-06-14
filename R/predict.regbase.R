@@ -31,7 +31,7 @@ function(object,newdata=NULL,...) {
             names(newdata) <- object$xname_orig
             predict_ind1 <- F
         }
-        #cat(paste(object$xname,length(names(newdata)), names(newdata)))
+       
         if(!all(object$xname %in% names(newdata)) && predict_ind1) {
             if(!is.vector(newdata) && !(object$xname == "(Intercept)") && !(type=="2dspline" || type=="radial" || type=="krig")) {
                 stop(paste("Names of newdata not consistent with original."))#,object$xname,length(names(newdata)),names(newdata)))

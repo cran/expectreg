@@ -2,7 +2,6 @@ acv.sheets <-
 function (penalty, yy, B, pp, DD, nb, center) 
 {
     penalty = matrix(abs(penalty), ncol = 2)
-    print(penalty)
     np = length(pp)
     m = length(yy)
     ynp <- rep(yy, np)

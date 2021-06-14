@@ -48,7 +48,7 @@ omega = rep(0, nrow(lambdas))
       deltas[i] = sqrt(sum((theta[i,]-theta[i-1,])^2) + (omega[i]-omega[i-1])^2) #+ sqrt(sum((theta[i,]-theta[i+1,])^2) + (omega[i]-omega[i+1])^2)
     }
     deltas[nrow(lambdas)] = 2*(sqrt(sum((theta[i,]-theta[i-1,])^2) + (omega[i]-omega[i-1])^2))
-    print(deltas)
+   
     deltas = sqrt(diff(omega)^2 + rowSums(diff(theta))^2)
     penalty[glatterms] = lambdas[which.min(deltas)+1,]
     penalty

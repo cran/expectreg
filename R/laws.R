@@ -36,33 +36,11 @@ function(B,DD,yy,pp,lambda,smooth,nb,nbp,nbunp,center,types,LAWSmaxCores=1)
         
         if(smooth == "schall")
         {
-            glatterms <- which(unlist(types) != "parametric" )
-            # How many parameters are used after each covariate?
-            nbc <- cumsum(c(1,nb)) # c(1,nb): Number of paramters for each covariate incl. intercept
-                                   # cumsum(...): How many parameters have been used for each parameter at it's end
-            
-            # Shift of meaning: How many parameters are used before each covariate: Intercept vanishes and last term is irrelevant
-            nbpc <- nbc + 1 + c(nbunp,0) # nbc + 1: Position of starting point for next covariate
-                                         # ... + nbunp: shift of starting point (schall) due to unpenalized parts in this covariate.
-            
-            #cat(glatterms,"\n",nb,"\n",nbunp,"\n",nbp,"\n",nbc,"\n",nbpc,"\n\n\n\n\n\n\n\n\n\n")
-            
-            sch = schallCPPfun(glatterms = glatterms, y = as.numeric(yy), B = B, 
-                               tau = as.numeric(pp), lambdashort_in = as.numeric(lala), 
-                               DD = DD, NB=as.integer(nb), NBP=as.integer(nbp), 
-                               NBPC=as.integer(nbpc), center=center)
-            
-            #cat(glatterms,"\n",nb,"\n",nbunp,"\n",nbp,"\n",nbc,"\n",nbpc,"\n\n\n\n\n\n\n\n\n\n")
-            
-            lala = sch$lambdashort
-            vector.a.ma.schall = sch$a
-            diag.hat = sch$diag.hat.ma
-            if(sch$it > 99) {
-                warning("Schall algorithm did not converge. Stopping after 100 iterations.")
-            }
-            if(sch$iter > 49) {
-                warning("IWLS weights did not converge after 50 iterations.")
-            }
+        	constmat = matrix(0,nrow=1,ncol=ncol(B))
+       sch = schall(yy,B,pp,DD,nb,lala,constmat,center,types)
+       lala = sch[[2]]
+       vector.a.ma.schall = sch[[1]]
+       diag.hat = sch[[3]]
         }
         else if(smooth == "aic"||smooth == "bic"||smooth == "ocv"||smooth == "gcv")
         {

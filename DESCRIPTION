@@ -1,6 +1,6 @@
 Package: expectreg
-Version: 0.50
-Date: 2019-08-22
+Version: 0.51
+Date: 2021-05-31
 Title: Expectile and Quantile Regression
 Authors@R: c(person("Fabian", "Otto-Sobotka", role = "cre", email = "fabian.otto-sobotka@uni-oldenburg.de"),
     person("Elmar", "Spiegel", role = "aut", email = "espiege@uni-goettingen.de"),
@@ -30,6 +30,6 @@ License: GPL-2
 LazyData: yes
 NeedsCompilation: yes
 Encoding: UTF-8
-Packaged: 2019-08-23 09:19:52 UTC; fabiansobotka
+Packaged: 2021-06-04 08:53:47 UTC; fews
 Repository: CRAN
-Date/Publication: 2019-08-23 22:30:03 UTC
+Date/Publication: 2021-06-14 13:50:25 UTC

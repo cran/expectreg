@@ -7,6 +7,7 @@ plot.expectreg <-
              range_warning = TRUE, add_intercept = TRUE, ... ) {
         
         op_save <- par(no.readonly = TRUE)
+        on.exit(par(op_save))
         
         if(is.null(ask)) {
             ask = prod(par("mfcol")) < sum(unlist(x$effects) != "parametric") && dev.interactive() # sum(1-unlist(lapply(x$cov,is.factor))) 

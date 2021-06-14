@@ -51,7 +51,7 @@ function(yy,B,quantile,DD,nb,types,lala1)
         deltas[i] = sqrt(sum((theta[i,]-theta[i-1,])^2) + (omega[i]-omega[i-1])^2) #+ sqrt(sum((theta[i,]-theta[i+1,])^2) + (omega[i]-omega[i+1])^2)
     }
     deltas[nrow(lambdas)] = 2*(sqrt(sum((theta[i,]-theta[i-1,])^2) + (omega[i]-omega[i-1])^2))
-    print(deltas)
+
     deltas = sqrt(diff(omega)^2 + rowSums(diff(theta))^2)
     lambdas[which.min(deltas)+1,]
     

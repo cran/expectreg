@@ -72,7 +72,7 @@ doi: 10.1016/j.csda.2010.11.015.
 \author{
 Fabian Otto-Sobotka \cr
 Carl von Ossietzky University Oldenburg \cr
-\url{http://www.uni-oldenburg.de} \cr
+\url{https://uol.de} \cr
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~

@@ -56,8 +56,8 @@ object of class \code{expectreg}
 %}
 \author{
 Elmar Spiegel \cr
-Georg August University Goettingen \cr
-\url{http://www.uni-goettingen.de} \cr
+Helmholtz Zentrum Muenchen \cr
+\url{https://www.helmholtz-muenchen.de} \cr
 }
 %\note{
 %%  ~~further notes~~

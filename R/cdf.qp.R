@@ -90,7 +90,7 @@ function(expectreg, x = NA, qout = NA, extrap = FALSE, e0 = NA, eR = NA, lambda 
         ### Zwischenschritt: Überprüfung auf Nichtsingularität
         if(qr(Dmat)$rank != K) 
         {
-            #print('hier')	
+
             penalty.term <- 0.001 * var.dat
             Dmat <-  Dmat + penalty.term*diag(K)
         }

@@ -17,9 +17,9 @@ function(y, B, p, lambda, DD,nb, constmat)
     
     lambda = c(rep(0,times=n - sum(nb)),rep(lambda,times=nb))
     
-    #print(str(lambda))
+
     P <- sqrt(lambda) * DD
-    #print(str(P))
+
     augm <- rep(0, nrow(P))
     conpen <- rep(0,nrow(constmat))
     

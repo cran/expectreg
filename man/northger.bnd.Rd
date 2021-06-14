@@ -24,7 +24,7 @@ For details about the format see \code{\link[BayesX]{read.bnd}}.
 \source{
 Thomas Kneib \cr
 Georg August University Goettingen \cr
-\url{http://www.uni-goettingen.de} \cr
+\url{https://www.uni-goettingen.de} \cr
 }
 
 \examples{

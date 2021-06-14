@@ -13,10 +13,10 @@ for continuous, spatial or random effects.
 }
 \usage{
 expectreg.boost(formula, data, mstop = NA, expectiles = NA, cv = TRUE, 
-BoostmaxCores = 1, quietly = F)
+BoostmaxCores = 1, quietly = FALSE)
 
 quant.boost(formula, data, mstop = NA, quantiles = NA, cv = TRUE, 
-BoostmaxCores = 1, quietly = F)
+BoostmaxCores = 1, quietly = FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -81,11 +81,11 @@ doi: 10.1016/j.csda.2010.11.015.
 \author{
 Fabian Otto- Sobotka \cr
 Carl von Ossietzky University Oldenburg \cr
-\url{http://www.uni-Oldenburg.de} \cr
+\url{https://uol.de} \cr
 
 Thomas Kneib, Elmar Spiegel \cr
 Georg August University Goettingen \cr
-\url{http://www.uni-goettingen.de} \cr
+\url{https://www.uni-goettingen.de} \cr
 }
 
 
@@ -100,8 +100,6 @@ ex <- expectreg.boost(logratio ~ bbs(range),lidar, mstop=200,
                       expectiles=c(0.1,0.5,0.95),quietly=TRUE)
 plot(ex)
 
-qx <- quant.boost(logratio~bbs(range),lidar,mstop=200,quantiles=c(0.1,0.5,0.95),quietly=TRUE)
-plot(qx)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

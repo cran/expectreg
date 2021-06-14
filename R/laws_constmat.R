@@ -17,7 +17,7 @@ function(B,DD,yy,pp,lambda,smooth,nb,center,constmat,types,LAWSmaxCores=1)
     
     dummy.reg <- function(pp,lala,smooth,yy,B,DD,nb,nterms,center)
     {
-        cat("Expectile: ",pp,"\n")
+        #cat("Expectile: ",pp,"\n")
         
         if(smooth == "schall")
         {

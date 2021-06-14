@@ -13,7 +13,7 @@ function(x,type=c("pspline","2dspline","markov","krig","random","ridge",
     
     xname = deparse(as.list(match.call())$x)
     xname_orig <- xname
-    #print(xname_orig)
+ 
     B_mean <- NULL
     param_center <- NULL
     
@@ -332,7 +332,7 @@ function(x,type=c("pspline","2dspline","markov","krig","random","ridge",
         # }
         # else if(is.data.frame(x) || is.matrix(x))
         # {
-        if(class(x) == "matrix")
+        if(class(x)[1] == "matrix")
             xname = colnames(x)
         
         xdata = data.frame(1,x)

@@ -1,5 +1,5 @@
 cdf.bundle <-
-function (bundle, qout = NA, extrap = FALSE) 
+function (bundle, qout = NA, extrap = FALSE,quietly=FALSE) 
 {
     if (!inherits(bundle, "bundle") && !inherits(bundle, "restricted")) 
         stop("Function needs 'expectreg' estimated by bundle or restricted.")
@@ -36,7 +36,8 @@ function (bundle, qout = NA, extrap = FALSE)
         znew <- solve(Q + P2, t(B) %*% r + Q %*% z)
         dz <- max(abs(z - znew))
         z <- znew
-        cat("iteration: ", it, ", convergence: ", dz, "\n")
+        if(!quietly)
+          cat("iteration: ", it, ", convergence: ", dz, "\n")
         if (dz < 1e-06) 
             break
     }

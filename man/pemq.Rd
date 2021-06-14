@@ -69,11 +69,11 @@ Cambridge University Press, New York
 \author{
 Fabian Otto- Sobotka \cr
 Carl von Ossietzky University Oldenburg \cr
-\url{http://www.uni-Oldenburg.de} \cr
+\url{https://uol.de} \cr
 
 Thomas Kneib \cr
 Georg August University Goettingen \cr
-\url{http://www.uni-goettingen.de} \cr
+\url{https://www.uni-goettingen.de} \cr
 }
 
 

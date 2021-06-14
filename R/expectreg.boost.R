@@ -1,6 +1,6 @@
 expectreg.boost <-
 function(formula,data,mstop = NA,expectiles = NA,cv = TRUE,
-                            BoostmaxCores = 1,quietly = F)
+                            BoostmaxCores = 1,quietly = FALSE)
     {
         if (any(is.na(expectiles)) ||
             !is.vector(expectiles) ||
@@ -171,7 +171,7 @@ function(formula,data,mstop = NA,expectiles = NA,cv = TRUE,
                 
                 if (cv)
                 {
-                    cvr = cvrisk(inb,folds = cv10f)
+                    cvr = cvrisk(inb,folds = cv10f,papply=lapply)
                     if (!quietly) {
                         cat("Expectile ",pp[p],", Boosting iterations: ",mstop(cvr),"\n")
                     }

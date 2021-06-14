@@ -43,8 +43,7 @@ function(yy,B,pp,DD,nb,lala,constmat,center,types)
                 v <- partDD %*% partaa
                 z <- aa$fitted
                 #z <- partB %*% partaa
-                #print(dim(B[,-partbasis,drop=F]))
-                #print(length(aa$a[-partbasis]))
+
                 #if(nterms > 1)
                 #z = B[,-partbasis,drop=F] %*% aa$a[-partbasis]
                 

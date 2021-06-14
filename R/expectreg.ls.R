@@ -113,15 +113,14 @@ function(formula, data = NULL,estimate = c("laws", "restricted", "bundle", "shee
         vec_s_xname_orig [i] <- zzzzz$xname_orig
         vec_s_type       [i] <- zzzzz$type
         vec_s_B_size     [i] <- zzzzz$B_size
-        #print(vec_s_xname_orig)
+
         #if(vec_s_Alternative[i] == 2 && vec_s_split[i]) {
         #    stop("Model selection with Alternative == 2 and split == T is not well defined, \n 
         #         due to the fact that with Alternative 2 the decomposition is not linear + penalized term") 
         #    }
     }
     
-    #print(vec_s_xname)
-    #print(vec_s_xname_orig)
+
     unique_xname <- unique(vec_s_xname_orig)
     
     for(u in unique_xname) {

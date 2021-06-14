@@ -77,14 +77,20 @@ These functions can be used to extract details from fitted models.
 
 \code{[} can be used to define a new object with a subset of covariates from the original fit.
 
+The function \code{coef} extracts the regression coefficients for each covariate listed separately.
+For the function \code{\link{expectreg.boost}} this is not possible.
+}
+\value{
+\code{[} returns a new object of class expectreg with a subset of covariates from the original fit.
+
 \code{resid} returns the residuals in order of the response.
 
 \code{fitted} returns the overall fitted values \eqn{\hat{y}} while \code{effects} returns the values
 for each covariate in a list.
 
-The function \code{coef} extracts the regression coefficients for each covariate listed separately.
-For the function \code{\link{expectreg.boost}} this is not possible.
+\code{coef} returns a list of all regression coefficients separately for each covariate.
 }
+
 \references{
 Schnabel S and Eilers P (2009)
 \emph{ Optimal expectile smoothing }
@@ -99,11 +105,11 @@ doi: 10.1016/j.csda.2010.11.015.
 \author{
 Fabian Otto- Sobotka \cr
 Carl von Ossietzky University Oldenburg \cr
-\url{http://www.uni-Oldenburg.de} \cr
+\url{https://uol.de} \cr
 
-Elmar spiegel \cr
+Elmar Spiegel \cr
 Georg August University Goettingen
-\url{http://www.uni-goettingen.de} \cr
+\url{https://www.uni-goettingen.de} \cr
 
 }
 

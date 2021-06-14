@@ -65,33 +65,14 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// schallCPPfun
-List schallCPPfun(const Eigen::Map<Eigen::VectorXi>& glatterms, const Eigen::Map<Eigen::VectorXd>& y, const Eigen::MatrixXd& B, const double& tau, const Eigen::Map<Eigen::VectorXd>& lambdashort_in, Eigen::MatrixXd DD, const Eigen::Map<Eigen::VectorXi>& NB, const Eigen::Map<Eigen::VectorXi>& NBP, Eigen::Map<Eigen::VectorXi> NBPC, bool center);
-RcppExport SEXP _expectreg_schallCPPfun(SEXP glattermsSEXP, SEXP ySEXP, SEXP BSEXP, SEXP tauSEXP, SEXP lambdashort_inSEXP, SEXP DDSEXP, SEXP NBSEXP, SEXP NBPSEXP, SEXP NBPCSEXP, SEXP centerSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXi>& >::type glatterms(glattermsSEXP);
-    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXd>& >::type y(ySEXP);
-    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type B(BSEXP);
-    Rcpp::traits::input_parameter< const double& >::type tau(tauSEXP);
-    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXd>& >::type lambdashort_in(lambdashort_inSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type DD(DDSEXP);
-    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXi>& >::type NB(NBSEXP);
-    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXi>& >::type NBP(NBPSEXP);
-    Rcpp::traits::input_parameter< Eigen::Map<Eigen::VectorXi> >::type NBPC(NBPCSEXP);
-    Rcpp::traits::input_parameter< bool >::type center(centerSEXP);
-    rcpp_result_gen = Rcpp::wrap(schallCPPfun(glatterms, y, B, tau, lambdashort_in, DD, NB, NBP, NBPC, center));
-    return rcpp_result_gen;
-END_RCPP
-}
+
 
 static const R_CallMethodDef CallEntries[] = {
     {"_expectreg_AAt", (DL_FUNC) &_expectreg_AAt, 1},
     {"_expectreg_AtA", (DL_FUNC) &_expectreg_AtA, 1},
     {"_expectreg_lltLS", (DL_FUNC) &_expectreg_lltLS, 8},
     {"_expectreg_smoothCPPP", (DL_FUNC) &_expectreg_smoothCPPP, 9},
-    {"_expectreg_schallCPPfun", (DL_FUNC) &_expectreg_schallCPPfun, 10},
+   // {"_expectreg_schallCPPfun", (DL_FUNC) &_expectreg_schallCPPfun, 10},
     {NULL, NULL, 0}
 };
 
