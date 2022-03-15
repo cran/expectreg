@@ -125,27 +125,27 @@ for(i in 1:2) {
 ###VALUES
 
 ###RESPONSE
-stopifnot(dutchb$hgt==mLaws$response)
-stopifnot(dutchb$hgt==mSheets$response)
-stopifnot(dutchb$hgt==mNoncross$response)
-stopifnot(dutchb$hgt==mBundle$response)
-stopifnot(dutchb$hgt==mRestricted$response)
-stopifnot(dutchb$hgt==mBoost$response)
+stopifnot(isTRUE(all.equal(dutchb$hgt, mLaws$response,check.attributes=F)))
+stopifnot(isTRUE(all.equal(dutchb$hgt, mSheets$response,check.attributes=F)))
+stopifnot(isTRUE(all.equal(dutchb$hgt, mNoncross$response,check.attributes=F)))
+stopifnot(isTRUE(all.equal(dutchb$hgt, mBundle$response,check.attributes=F)))
+stopifnot(isTRUE(all.equal(dutchb$hgt, mRestricted$response,check.attributes=F)))
+stopifnot(isTRUE(all.equal(dutchb$hgt, mBoost$response,check.attributes=F)))
 
 ###COVARIATES
-stopifnot(dutchb$age==mLaws$covariates$age && dutchb$wgt==mLaws$covariates$wgt )
-stopifnot(dutchb$age==mSheets$covariates$age && dutchb$wgt==mSheets$covariates$wgt )
-stopifnot(dutchb$age==mNoncross$covariates$age )
-stopifnot(dutchb$age==mBundle$covariates$age && dutchb$wgt==mBundle$covariates$wgt)
-stopifnot(dutchb$age==mRestricted$covariates$age && dutchb$wgt==mRestricted$covariates$wgt)
+stopifnot(isTRUE(all.equal(dutchb$age, mLaws$covariates$age )))
+stopifnot(isTRUE(all.equal(dutchb$age, mSheets$covariates$age )))
+stopifnot(isTRUE(all.equal(dutchb$age, mNoncross$covariates$age )))
+stopifnot(isTRUE(all.equal(dutchb$age, mBundle$covariates$age)))
+stopifnot(isTRUE(all.equal(dutchb$age, mRestricted$covariates$age)))
 
 ###EXPECTILES
-stopifnot(mLaws$asymmetries==expect)
-stopifnot(mSheets$asymmetries==expect)
-stopifnot(mNoncross$asymmetries==expect)
-stopifnot(mBundle$asymmetries==expect)
-stopifnot(mRestricted$asymmetries==expect)
-stopifnot(mBoost$asymmetries==expect)
+stopifnot(isTRUE(all.equal(mLaws$asymmetries, expect)))
+stopifnot(isTRUE(all.equal(mSheets$asymmetries, expect)))
+stopifnot(isTRUE(all.equal(mNoncross$asymmetries, expect)))
+stopifnot(isTRUE(all.equal(mBundle$asymmetries, expect)))
+stopifnot(isTRUE(all.equal(mRestricted$asymmetries, expect)))
+stopifnot(isTRUE(all.equal(mBoost$asymmetries, expect)))
 
 ###EFFECTS
 stopifnot(length(mLaws$covariates)==length(mLaws$effects))

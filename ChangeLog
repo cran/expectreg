@@ -1,9 +1,20 @@
+2022-03-15 version 0.52
+
+new features:
+- added new function for adaptive M-quantile regression
+
+bugfix:
+- fixing conditions with length>1 warning
+- adapting to change in all.equal function
+
 2021-05-31 version 0.51
+
 bugfix:
 - fixing memory issues in C++ code
 - reverting Schall algorithm to R code
 
 2019-06-09 version 0.50
+
 new features:
 - speed is increased due to translation of key parts into Rcpp
 - arguments of rb(): "penalizedpart_pspline" fitting only the penalized part of a pspline; modification of number of basis function for B-splines possible

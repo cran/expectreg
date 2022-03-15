@@ -15,8 +15,8 @@ Expectile and quantile regression of models with nonlinear effects
 \tabular{ll}{
 Package: \tab expectreg\cr
 Type: \tab Package\cr
-Version: \tab 0.51\cr
-Date: \tab 2021-05-31\cr
+Version: \tab 0.55\cr
+Date: \tab 2022-03-15\cr
 License: \tab GPL-2\cr
 LazyLoad: \tab yes\cr
 LazyData: \tab yes\cr
@@ -34,7 +34,7 @@ Carl von Ossietzky University Oldenburg \cr
 
 Elmar Spiegel \cr
 Helmholtz Centre Munich \cr
-\url{https://www.helmholtz-muenchen.de} \cr
+\url{https://www.helmholtz-munich.de} \cr
 
 Sabine Schnabel \cr
 Wageningen University and Research Centre \cr

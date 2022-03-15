@@ -257,8 +257,8 @@ function(formula, data = NULL,estimate = c("laws", "restricted", "bundle", "shee
     # manipulate vector.a.ma.schall with given delta_garrote
     
     if(!is.null(delta_garrote)) {
-        if(!(class(delta_garrote) %in% c("list","numeric"))) {stop("class of delta_garrote does not fit")}
-        if((class(delta_garrote) == "list")) {
+        if(!(inherits(delta_garrote,c("list","numeric")))) {stop("class of delta_garrote does not fit")}
+        if((inherits(delta_garrote,"list"))) {
             if(!(length(delta_garrote) %in% c(1,np))) {stop("length of list delta_garrote does not fit")}
             if(length(delta_garrote) == np) {
                 for(i in 1:np) {
@@ -269,7 +269,7 @@ function(formula, data = NULL,estimate = c("laws", "restricted", "bundle", "shee
                 if(length(delta_garrote[[1]]) != length(nb)){ stop("length of list delta_garrote does not fit to number of covariates")}
             }
         }
-        if(class(delta_garrote) == "numeric") {
+        if(inherits(delta_garrote,"numeric")) {
             if(length(delta_garrote) != length(nb)) {stop("length of vector delta_garrote does not fit to number of covariates")}
         }
         
@@ -282,7 +282,7 @@ function(formula, data = NULL,estimate = c("laws", "restricted", "bundle", "shee
             partbasis = (sum(nb[0:(k-1)])+1):(sum(nb[0:k]))+Inter_ind
             names_partbasis <- design[[k]]$xname[1]
             for(i in 1:np) {
-                if(class(delta_garrote) == "list") {
+                if(inherits(delta_garrote,"list")) {
                     if(length(delta_garrote) == np) {
                         vector.a.ma.schall[partbasis,i] <- vector.a.ma.schall[partbasis,i] * delta_garrote[[i]][which(gsub(pattern=" (fixed)",replacement="",x=names(delta_garrote[[i]]),fixed=T) == names_partbasis)]
                     }
@@ -290,7 +290,7 @@ function(formula, data = NULL,estimate = c("laws", "restricted", "bundle", "shee
                         vector.a.ma.schall[partbasis,i] <- vector.a.ma.schall[partbasis,i] * delta_garrote[[1]][which(gsub(pattern=" (fixed)",replacement="",x=names(delta_garrote[[1]]),fixed=T) == names_partbasis)]
                     }
                 }
-                if(class(delta_garrote) == "numeric") {
+                if(inherits(delta_garrote,"numeric")) {
                     vector.a.ma.schall[partbasis,i] <- vector.a.ma.schall[partbasis,i] * delta_garrote[which(gsub(pattern=" (fixed)",replacement="",x=names(delta_garrote),fixed=T) == names_partbasis)]
                 }
             }
