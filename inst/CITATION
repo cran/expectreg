@@ -16,9 +16,9 @@ vers <- sprintf("R package version %s", meta$Version)
               url = "https://CRAN.R-project.org/package=expectreg")
 
 
-    citEntry(entry="Article",
+    bibentry(bibtype="Article",
          title = "Geoadditive Expectile Regression",
-         author = personList(as.person("Fabian Sobotka"), as.person("Thomas Kneib")),
+         author = c(person("Fabian","Sobotka"), person("Thomas","Kneib")),
          journal      = "Computational Statistics and Data Analysis",
          year         = "2010",
          note         = "doi: 10.1016/j.csda.2010.11.015",
@@ -31,9 +31,9 @@ vers <- sprintf("R package version %s", meta$Version)
    )
 
 
-    citEntry(entry="Article",
+    bibentry(bibtype="Article",
          title = "Optimal Expectile Smoothing",
-         author = personList(as.person("Sabine Schnabel"), as.person("Paul Eilers")),
+         author = c(person("Sabine","Schnabel"), person("Paul","Eilers")),
          journal      = "Computational Statistics and Data Analysis",
          year         = "2009",
          volume       = "53",

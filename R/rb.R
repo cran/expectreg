@@ -62,7 +62,7 @@ function(x,type=c("pspline","2dspline","markov","krig","random","ridge",
     else if(type == "2dspline")
     {
         
-        if(class(x) == "matrix" || class(x)=="data.frame") {
+        if(inherits(x,"matrix") || inherits(x,"data.frame")) {
             xname = paste("2dspline",paste(sort(colnames(x)),collapse="_"),sep="_")
         }
         
@@ -118,7 +118,7 @@ function(x,type=c("pspline","2dspline","markov","krig","random","ridge",
     }
     else if(type == "radial")
     {
-        if(class(x) == "matrix" || class(x)=="data.frame") {
+        if(inherits(x,"matrix") || inherits(x,"data.frame")) {
             xname = paste("radial",paste(sort(colnames(x)),collapse="_"),sep="_")
         }
         
@@ -167,7 +167,7 @@ function(x,type=c("pspline","2dspline","markov","krig","random","ridge",
     }
     else if(type == "krig")
     {
-        if(class(x) == "matrix" || class(x)=="data.frame") {
+        if(inherits(x,"matrix") || inherits(x,"data.frame")) {
             xname = paste("krig",paste(sort(colnames(x)),collapse="_"),sep="_")
         }
         

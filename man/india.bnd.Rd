@@ -24,7 +24,7 @@ For details about the format see \code{\link[BayesX]{read.bnd}}.
 \source{
 Jan Priebe
 University of Goettingen
-\url{https://www.giga-hamburg.de/de/team/11564856-priebe-jan/}
+\url{https://www.bnitm.de/forschung/forschungsgruppen/implementation/ag-gesundheitsoekonomie/team}
 }
 
 \examples{

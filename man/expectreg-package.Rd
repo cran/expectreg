@@ -12,15 +12,6 @@ Expectile and quantile regression of models with nonlinear effects
   as well as boosting; also supplies expectiles for common distributions.
 }
 \details{
-\tabular{ll}{
-Package: \tab expectreg\cr
-Type: \tab Package\cr
-Version: \tab 0.55\cr
-Date: \tab 2022-03-15\cr
-License: \tab GPL-2\cr
-LazyLoad: \tab yes\cr
-LazyData: \tab yes\cr
-}
 
 \itemize{
 \item This package requires the packages \code{\link[=BayesX-package]{BayesX}}, \code{\link[=mboost-package]{mboost}}, \code{\link[=splines-package]{splines}} and \code{quadprog}.

@@ -81,10 +81,10 @@ function(object,newdata=NULL,...) {
             
             B <- XZ%*%D_new 
             
-            B <- B[,ncol(B):1] # put the unpenalized part in the front
+            B <- B[,ncol(B):1,drop=FALSE] # put the unpenalized part in the front
             
             if(type == "penalizedpart_pspline") {
-                B <- B[,(1 + length(ind1) - sum(ind1)):ncol(B)] # remove the unpenalized part
+                B <- B[,(1 + length(ind1) - sum(ind1)):ncol(B),drop=FALSE] # remove the unpenalized part
             }
             
         }
@@ -236,11 +236,11 @@ function(object,newdata=NULL,...) {
         newdata = data.frame(1,newdata)
         B = model.matrix(formula(newdata),newdata)[,-1,drop=FALSE]
         if(center){
-            if(nrow(B) > 1) {
+            #if(nrow(B) > 1) {
                 for(i in 1:ncol(B)){
-                    B[,i] <- B[,i] - B_mean[i]
+                    B[,i] <- B[,i,drop=FALSE] - B_mean[i]
                 }
-            }
+           # }
         }
         
         #B = apply(B,2,function(b){b-sum(b)/length(b)})

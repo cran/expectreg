@@ -61,7 +61,7 @@ Should a warning be printed in the graphic if the range of the markov random fie
 Should the intercept be added to the plots of splines?
 }
   \item{\dots}{
-%%     ~~Describe \code{\dots} here~~
+  Graphical parameters passesd on to the standard plot function.
 }
 }
 \details{

@@ -185,7 +185,7 @@ plot.expectreg <-
                         z = cbind(z,coefficients[[k]][,i] + intercept2[i])
                     }
                     
-                    if(class(bnd) != "bnd")
+                    if(!inherits(bnd,"bnd"))
                     {
                         if(is.numeric(cov[[k]])) {
                             plot(seq(0,1.1*max(cov[[k]],na.rm=T),length=10), seq(0,max(z[,pp.plot],na.rm=T),length=10), type = "n", xlab = "District", ylab = "coefficients", main=main2[k], ...)
@@ -245,7 +245,7 @@ plot.expectreg <-
                         
                     }
                     
-                    if(class(bnd) != "bnd")
+                    if(!inherits(bnd,"bnd"))
                     {
                         if(!is.na(bnd)){
                             if(is.numeric(cov[[k]])) {

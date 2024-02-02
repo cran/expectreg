@@ -24,7 +24,7 @@ Data set only contains 1/10 of the observations and some basic variables to enab
 }
 
 \source{
-\url{http://www.measuredhs.com}
+\url{https://dhsprogram.com}
 }
 \references{
 Fenske N and Kneib T and Hothorn T (2009)

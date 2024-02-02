@@ -42,7 +42,7 @@ Change delta_garrote
 Change ci
 }
   \item{\dots}{
-%%     ~~Describe \code{\dots} here~~
+additional parameters passed on to \code{expectreg.ls}
 }
 }
 \details{
