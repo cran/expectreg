@@ -169,20 +169,18 @@ ex = expectreg.ls(dist ~ rb(speed),data=cars,smooth="f",lambda=5,estimate="restr
 plot(ex)
 
 
-data("lidar", package = "SemiPar")
-
-explaws <- expectreg.ls(logratio~rb(range,"pspline"),data=lidar,smooth="gcv",
+explaws <- expectreg.ls(dist~rb(speed,"pspline"),data=cars,smooth="gcv",
                         expectiles=c(0.05,0.5,0.95))
 print(explaws)
 plot(explaws)
 
 ###expectile regression using a fixed penalty
-plot(expectreg.ls(logratio~rb(range,"pspline"),data=lidar,smooth="fixed",
+plot(expectreg.ls(dist~rb(speed,"pspline"),data=cars,smooth="fixed",
      lambda=1,expectiles=c(0.05,0.25,0.75,0.95)))
-plot(expectreg.ls(logratio~rb(range,"pspline"),data=lidar,smooth="fixed",
+plot(expectreg.ls(dist~rb(speed,"pspline"),data=cars,smooth="fixed",
      lambda=0.0000001,expectiles=c(0.05,0.25,0.75,0.95)))
     #As can be seen in the plot, a too small penalty causes overfitting of the data.
-plot(expectreg.ls(logratio~rb(range,"pspline"),data=lidar,smooth="fixed",
+plot(expectreg.ls(dist~rb(speed,"pspline"),data=cars,smooth="fixed",
      lambda=50,expectiles=c(0.05,0.25,0.75,0.95)))
     #If the penalty parameter is chosen too large, 
     #the expectile curves are smooth but don't represent the data anymore.

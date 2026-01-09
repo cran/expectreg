@@ -95,10 +95,10 @@ Georg August University Goettingen \cr
 \code{\link{expectreg.ls}}, \code{\link[mboost]{gamboost}}, \code{\link[mboost]{bbs}}, \code{\link[mboost]{cvrisk}}
 }
 \examples{
-data("lidar", package = "SemiPar")
-ex <- expectreg.boost(logratio ~ bbs(range),lidar, mstop=200, 
+
+ex <- expectreg.boost(dist ~ bbs(speed),cars, mstop=200, 
                       expectiles=c(0.1,0.5,0.95),quietly=TRUE)
-plot(ex)
+fitted(ex)
 
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

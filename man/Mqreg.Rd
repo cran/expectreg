@@ -129,9 +129,7 @@ University Oldenburg \cr
 }
 \examples{
 
-data("lidar", package = "SemiPar")
-
-m <- Mqreg(logratio~rb(range,"pspline"),data=lidar,smooth="f",
+m <- Mqreg(dist~rb(speed,"pspline"),data=cars,smooth="f",
                         tau=c(0.05,0.5,0.95),lambda=10)
 plot(m,rug=FALSE)
 

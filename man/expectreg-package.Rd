@@ -14,7 +14,7 @@ Expectile and quantile regression of models with nonlinear effects
 \details{
 
 \itemize{
-\item This package requires the packages \code{\link[=BayesX-package]{BayesX}}, \code{\link[=mboost-package]{mboost}}, \code{\link[=splines-package]{splines}} and \code{quadprog}.
+\item This package requires the packages \code{\link[BayesX]{BayesX-package}}, \code{\link[mboost]{mboost-package}}, \code{\link[splines]{splines-package}} and \code{quadprog}.
 }
 
 }
@@ -88,7 +88,7 @@ doi: 10.1016/j.csda.2010.11.015.
 \keyword{ nonlinear }
 \keyword{ models }
 \seealso{
-\code{\link[=mboost-package]{mboost}}, \code{\link[=BayesX-package]{BayesX}}
+\code{\link[mboost]{mboost-package}}, \code{\link[BayesX]{BayesX-package}}
 }
 \examples{
 data(dutchboys)
